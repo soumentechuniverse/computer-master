@@ -1,0 +1,746 @@
+package com.example.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.data.model.Course
+import com.example.data.model.CourseLevel
+import com.example.ui.components.CourseCard
+import com.example.ui.components.CourseIcon
+import com.example.ui.components.LevelBadge
+import com.example.ui.components.StatCard
+import com.example.ui.theme.NavyCard
+import com.example.ui.theme.NavyCardBorder
+import com.example.ui.theme.NavyCardElevated
+import com.example.ui.theme.NavyDark
+import com.example.ui.theme.NavyDarkest
+import com.example.ui.theme.TechAmber
+import com.example.ui.theme.TechBluePrimary
+import com.example.ui.theme.TechCyanAccent
+import com.example.ui.theme.TechGreen
+import com.example.ui.theme.TechIndigo
+import com.example.ui.theme.TechPurple
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
+import com.example.ui.theme.TextTertiary
+import com.example.ui.viewmodel.ComputerMasterViewModel
+
+@Composable
+fun HomeScreen(
+  viewModel: ComputerMasterViewModel,
+  onNavigateToCourse: (String) -> Unit,
+  onNavigateToCoursesTab: (CourseLevel) -> Unit,
+  onNavigateToQuiz: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val userProfile by viewModel.userProfile.collectAsState()
+  val allCourses by viewModel.allCourses.collectAsState()
+
+  val continueCourse = allCourses.firstOrNull { it.progressPercent in 1..99 }
+    ?: allCourses.firstOrNull()
+
+  val recommendedCourses = remember(allCourses) {
+    allCourses.filter { it.level == CourseLevel.BEGINNER || it.level == CourseLevel.INTERMEDIATE }.take(4)
+  }
+
+  val recentlyLearned = remember(allCourses) {
+    allCourses.filter { it.progressPercent > 0 }.sortedByDescending { it.progressPercent }
+  }
+
+  LazyColumn(
+    modifier = modifier
+      .fillMaxSize()
+      .background(NavyDarkest)
+      .testTag("home_screen"),
+    contentPadding = PaddingValues(bottom = 90.dp)
+  ) {
+    // Top Section: Computer Master Branding & Welcome
+    item {
+      TopBrandingSection(
+        userName = userProfile.name,
+        streakDays = userProfile.streakDays
+      )
+    }
+
+    // Main Card: "Continue Learning"
+    item {
+      if (continueCourse != null) {
+        ContinueLearningCard(
+          course = continueCourse,
+          onContinueClick = { onNavigateToCourse(continueCourse.id) }
+        )
+      }
+    }
+
+    // Statistics 4-Grid
+    item {
+      StatisticsSection(
+        lessonsCompleted = userProfile.lessonsCompleted,
+        coursesStarted = userProfile.coursesStarted,
+        quizAverage = userProfile.quizAverage,
+        streakDays = userProfile.streakDays
+      )
+    }
+
+    // Learning Levels Quick Selector
+    item {
+      LearningLevelsSection(
+        onLevelSelected = { level ->
+          viewModel.setSelectedLevel(level)
+          onNavigateToCoursesTab(level)
+        }
+      )
+    }
+
+    // Daily Knowledge Check Card
+    item {
+      DailyKnowledgeCheckCard(
+        onStartClick = onNavigateToQuiz
+      )
+    }
+
+    // Recommended Courses
+    item {
+      SectionTitle(title = "Recommended Courses", subtitle = "Handpicked for your skill progression")
+    }
+
+    item {
+      LazyRow(
+        contentPadding = PaddingValues(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxWidth()
+      ) {
+        items(recommendedCourses, key = { it.id }) { course ->
+          Box(modifier = Modifier.width(300.dp)) {
+            CourseCard(
+              course = course,
+              onClick = { onNavigateToCourse(course.id) },
+              onBookmarkClick = { viewModel.toggleBookmark(course.id) }
+            )
+          }
+        }
+      }
+    }
+
+    // Recently Learned
+    if (recentlyLearned.isNotEmpty()) {
+      item {
+        Spacer(modifier = Modifier.height(16.dp))
+        SectionTitle(title = "Recently Learned", subtitle = "Pick up where you left off")
+      }
+
+      items(recentlyLearned, key = { "recent_${it.id}" }) { course ->
+        Box(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+        ) {
+          CourseCard(
+            course = course,
+            onClick = { onNavigateToCourse(course.id) },
+            onBookmarkClick = { viewModel.toggleBookmark(course.id) }
+          )
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun TopBrandingSection(
+  userName: String,
+  streakDays: Int,
+) {
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 12.dp)
+  ) {
+    // Brand Top Bar
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+      ) {
+        Box(
+          modifier = Modifier
+            .size(40.dp)
+            .background(
+              brush = Brush.linearGradient(listOf(TechBluePrimary, TechCyanAccent)),
+              shape = RoundedCornerShape(12.dp)
+            ),
+          contentAlignment = Alignment.Center
+        ) {
+          Icon(
+            imageVector = Icons.Default.Computer,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(22.dp)
+          )
+        }
+
+        Column {
+          Text(
+            text = "COMPUTER MASTER",
+            style = MaterialTheme.typography.titleMedium.copy(
+              fontWeight = FontWeight.ExtraBold,
+              letterSpacing = 1.2.sp,
+              fontSize = 15.sp
+            ),
+            color = TechCyanAccent
+          )
+          Text(
+            text = "ACADEMY OF COMPUTING",
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontWeight = FontWeight.SemiBold,
+              letterSpacing = 1.sp,
+              fontSize = 9.sp
+            ),
+            color = TextTertiary
+          )
+        }
+      }
+
+      // Streak Pill
+      Row(
+        modifier = Modifier
+          .background(
+            color = TechAmber.copy(alpha = 0.15f),
+            shape = RoundedCornerShape(20.dp)
+          )
+          .border(
+            width = 1.dp,
+            color = TechAmber.copy(alpha = 0.3f),
+            shape = RoundedCornerShape(20.dp)
+          )
+          .padding(horizontal = 10.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+      ) {
+        Icon(
+          imageVector = Icons.Default.LocalFireDepartment,
+          contentDescription = "Streak",
+          tint = TechAmber,
+          modifier = Modifier.size(16.dp)
+        )
+        Text(
+          text = "$streakDays Days",
+          style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp
+          ),
+          color = TechAmber
+        )
+      }
+    }
+
+    Spacer(modifier = Modifier.height(18.dp))
+
+    // Welcome Headline & Subtitle
+    Text(
+      text = "Welcome back, $userName",
+      style = MaterialTheme.typography.headlineSmall.copy(
+        fontWeight = FontWeight.Bold,
+        fontSize = 22.sp
+      ),
+      color = TextPrimary
+    )
+
+    Spacer(modifier = Modifier.height(4.dp))
+
+    Text(
+      text = "Master technology step-by-step from zero to pro.",
+      style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+      color = TextSecondary
+    )
+  }
+}
+
+@Composable
+private fun ContinueLearningCard(
+  course: Course,
+  onContinueClick: () -> Unit,
+) {
+  val currentLessonTitle = course.modules.firstOrNull()?.lessons?.firstOrNull { !it.isCompleted }?.title
+    ?: "Lesson 3: CPU, RAM & Storage Demystified"
+
+  Box(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 20.dp, vertical = 10.dp)
+      .clip(RoundedCornerShape(22.dp))
+      .background(
+        brush = Brush.linearGradient(
+          colors = listOf(
+            NavyCardElevated,
+            NavyCard
+          )
+        )
+      )
+      .border(
+        width = 1.5.dp,
+        brush = Brush.linearGradient(
+          colors = listOf(
+            TechBluePrimary.copy(alpha = 0.8f),
+            NavyCardBorder
+          )
+        ),
+        shape = RoundedCornerShape(22.dp)
+      )
+      .padding(18.dp)
+      .testTag("continue_learning_card")
+  ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+          Icon(
+            imageVector = Icons.Default.AutoAwesome,
+            contentDescription = null,
+            tint = TechCyanAccent,
+            modifier = Modifier.size(16.dp)
+          )
+          Text(
+            text = "CONTINUE LEARNING",
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontWeight = FontWeight.ExtraBold,
+              letterSpacing = 1.sp,
+              fontSize = 11.sp
+            ),
+            color = TechCyanAccent
+          )
+        }
+
+        LevelBadge(level = course.level)
+      }
+
+      Spacer(modifier = Modifier.height(12.dp))
+
+      Text(
+        text = course.title,
+        style = MaterialTheme.typography.titleLarge.copy(
+          fontWeight = FontWeight.Bold,
+          fontSize = 19.sp
+        ),
+        color = TextPrimary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+      )
+
+      Spacer(modifier = Modifier.height(4.dp))
+
+      Text(
+        text = currentLessonTitle,
+        style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+        color = TextSecondary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+      )
+
+      Spacer(modifier = Modifier.height(16.dp))
+
+      // Progress bar and percentage
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+      ) {
+        LinearProgressIndicator(
+          progress = { course.progressPercent / 100f },
+          modifier = Modifier
+            .weight(1f)
+            .height(8.dp)
+            .clip(RoundedCornerShape(4.dp)),
+          color = TechCyanAccent,
+          trackColor = NavyDark,
+        )
+
+        Text(
+          text = "${course.progressPercent}%",
+          style = MaterialTheme.typography.labelMedium.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 13.sp
+          ),
+          color = TechCyanAccent
+        )
+      }
+
+      Spacer(modifier = Modifier.height(16.dp))
+
+      // Continue Button
+      Button(
+        onClick = onContinueClick,
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(46.dp)
+          .testTag("continue_learning_button"),
+        colors = ButtonDefaults.buttonColors(
+          containerColor = TechBluePrimary,
+          contentColor = Color.White
+        ),
+        shape = RoundedCornerShape(14.dp)
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          Icon(
+            imageVector = Icons.Default.PlayArrow,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp)
+          )
+          Text(
+            text = "Resume Lesson",
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+          )
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun StatisticsSection(
+  lessonsCompleted: Int,
+  coursesStarted: Int,
+  quizAverage: Int,
+  streakDays: Int,
+) {
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 20.dp, vertical = 8.dp)
+  ) {
+    Text(
+      text = "Your Learning Stats",
+      style = MaterialTheme.typography.titleMedium.copy(
+        fontWeight = FontWeight.Bold,
+        fontSize = 17.sp
+      ),
+      color = TextPrimary
+    )
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+      StatCard(
+        title = "Completed",
+        value = "$lessonsCompleted",
+        icon = Icons.Default.CheckCircle,
+        accentColor = TechGreen,
+        subtitle = "Lessons",
+        modifier = Modifier.weight(1f)
+      )
+      StatCard(
+        title = "Active",
+        value = "$coursesStarted",
+        icon = Icons.Default.School,
+        accentColor = TechCyanAccent,
+        subtitle = "Courses",
+        modifier = Modifier.weight(1f)
+      )
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+      StatCard(
+        title = "Quiz Average",
+        value = "$quizAverage%",
+        icon = Icons.Default.Quiz,
+        accentColor = TechIndigo,
+        subtitle = "Accuracy",
+        modifier = Modifier.weight(1f)
+      )
+      StatCard(
+        title = "Streak",
+        value = "$streakDays Days",
+        icon = Icons.Default.LocalFireDepartment,
+        accentColor = TechAmber,
+        subtitle = "Unbroken",
+        modifier = Modifier.weight(1f)
+      )
+    }
+  }
+}
+
+@Composable
+private fun LearningLevelsSection(
+  onLevelSelected: (CourseLevel) -> Unit,
+) {
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 20.dp, vertical = 10.dp)
+  ) {
+    Text(
+      text = "Explore by Level",
+      style = MaterialTheme.typography.titleMedium.copy(
+        fontWeight = FontWeight.Bold,
+        fontSize = 17.sp
+      ),
+      color = TextPrimary
+    )
+
+    Spacer(modifier = Modifier.height(10.dp))
+
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+      LevelQuickCard(
+        level = CourseLevel.BEGINNER,
+        title = "Beginner",
+        count = "7 Courses",
+        accentColor = TechGreen,
+        onClick = { onLevelSelected(CourseLevel.BEGINNER) },
+        modifier = Modifier.weight(1f)
+      )
+      LevelQuickCard(
+        level = CourseLevel.INTERMEDIATE,
+        title = "Intermediate",
+        count = "7 Courses",
+        accentColor = TechCyanAccent,
+        onClick = { onLevelSelected(CourseLevel.INTERMEDIATE) },
+        modifier = Modifier.weight(1f)
+      )
+      LevelQuickCard(
+        level = CourseLevel.ADVANCED,
+        title = "Advanced",
+        count = "6 Courses",
+        accentColor = TechPurple,
+        onClick = { onLevelSelected(CourseLevel.ADVANCED) },
+        modifier = Modifier.weight(1f)
+      )
+    }
+  }
+}
+
+@Composable
+private fun LevelQuickCard(
+  level: CourseLevel,
+  title: String,
+  count: String,
+  accentColor: Color,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  Box(
+    modifier = modifier
+      .clip(RoundedCornerShape(16.dp))
+      .background(NavyCard)
+      .border(
+        width = 1.dp,
+        color = accentColor.copy(alpha = 0.35f),
+        shape = RoundedCornerShape(16.dp)
+      )
+      .clickable(onClick = onClick)
+      .padding(vertical = 12.dp, horizontal = 10.dp)
+      .testTag("level_quick_card_${title.lowercase()}"),
+    contentAlignment = Alignment.Center
+  ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+      Box(
+        modifier = Modifier
+          .size(8.dp)
+          .clip(CircleShape)
+          .background(accentColor)
+      )
+
+      Spacer(modifier = Modifier.height(6.dp))
+
+      Text(
+        text = title,
+        style = MaterialTheme.typography.labelMedium.copy(
+          fontWeight = FontWeight.Bold,
+          fontSize = 13.sp
+        ),
+        color = TextPrimary
+      )
+
+      Text(
+        text = count,
+        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+        color = TextSecondary
+      )
+    }
+  }
+}
+
+@Composable
+private fun DailyKnowledgeCheckCard(
+  onStartClick: () -> Unit,
+) {
+  Box(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 20.dp, vertical = 10.dp)
+      .clip(RoundedCornerShape(20.dp))
+      .background(
+        brush = Brush.horizontalGradient(
+          listOf(
+            Color(0xFF1E1B4B),
+            NavyCard
+          )
+        )
+      )
+      .border(
+        width = 1.dp,
+        color = TechIndigo.copy(alpha = 0.4f),
+        shape = RoundedCornerShape(20.dp)
+      )
+      .clickable(onClick = onStartClick)
+      .padding(18.dp)
+      .testTag("daily_knowledge_check_card")
+  ) {
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      Row(
+        modifier = Modifier.weight(1f),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
+      ) {
+        Box(
+          modifier = Modifier
+            .size(46.dp)
+            .background(
+              color = TechIndigo.copy(alpha = 0.2f),
+              shape = RoundedCornerShape(14.dp)
+            )
+            .border(
+              width = 1.dp,
+              color = TechIndigo.copy(alpha = 0.5f),
+              shape = RoundedCornerShape(14.dp)
+            ),
+          contentAlignment = Alignment.Center
+        ) {
+          Icon(
+            imageVector = Icons.Default.Quiz,
+            contentDescription = null,
+            tint = TechIndigo,
+            modifier = Modifier.size(24.dp)
+          )
+        }
+
+        Column {
+          Text(
+            text = "Daily Knowledge Check",
+            style = MaterialTheme.typography.titleMedium.copy(
+              fontWeight = FontWeight.Bold,
+              fontSize = 16.sp
+            ),
+            color = TextPrimary
+          )
+          Spacer(modifier = Modifier.height(2.dp))
+          Text(
+            text = "Test your daily recall in 3 quick questions",
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+            color = TextSecondary
+          )
+        }
+      }
+
+      Icon(
+        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+        contentDescription = "Start",
+        tint = TechCyanAccent,
+        modifier = Modifier.size(20.dp)
+      )
+    }
+  }
+}
+
+@Composable
+private fun SectionTitle(
+  title: String,
+  subtitle: String,
+) {
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 20.dp, vertical = 8.dp)
+  ) {
+    Text(
+      text = title,
+      style = MaterialTheme.typography.titleMedium.copy(
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+      ),
+      color = TextPrimary
+    )
+    Text(
+      text = subtitle,
+      style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+      color = TextSecondary
+    )
+  }
+}

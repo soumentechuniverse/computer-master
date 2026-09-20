@@ -1,0 +1,7 @@
+{
+  "name": "Computer Master",
+  "description": "Master computer skills from beginner fundamentals to advanced IT, programming, networking, cybersecurity, and artificial intelligence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
