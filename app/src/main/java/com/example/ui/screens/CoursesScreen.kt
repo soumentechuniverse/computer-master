@@ -61,6 +61,8 @@ import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TextTertiary
 import com.example.ui.viewmodel.ComputerMasterViewModel
+import com.example.util.AppStrings
+import com.example.util.LocalAppLanguage
 
 @Composable
 fun CoursesScreen(
@@ -72,6 +74,7 @@ fun CoursesScreen(
   val selectedLevel by viewModel.selectedLevel.collectAsState()
   val searchQuery by viewModel.searchQuery.collectAsState()
   val focusManager = LocalFocusManager.current
+  val currentLanguage = LocalAppLanguage.current
 
   LazyColumn(
     modifier = modifier
@@ -94,7 +97,7 @@ fun CoursesScreen(
         ) {
           Column {
             Text(
-              text = "Course Library",
+              text = AppStrings.courseLibrary(currentLanguage),
               style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
@@ -134,7 +137,7 @@ fun CoursesScreen(
           onValueChange = { viewModel.setSearchQuery(it) },
           placeholder = {
             Text(
-              text = "Search by name, description, or level...",
+              text = AppStrings.searchPlaceholder(currentLanguage),
               style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp)
             )
           },
@@ -296,12 +299,21 @@ private fun LevelFilterRow(
   selectedLevel: CourseLevel,
   onLevelSelected: (CourseLevel) -> Unit,
 ) {
+  val currentLanguage = LocalAppLanguage.current
+
   LazyRow(
     horizontalArrangement = Arrangement.spacedBy(8.dp),
     modifier = Modifier.fillMaxWidth()
   ) {
     items(CourseLevel.entries.toTypedArray()) { level ->
       val isSelected = selectedLevel == level
+      val localizedLabel = when (level) {
+        CourseLevel.ALL -> AppStrings.filterAll(currentLanguage)
+        CourseLevel.BEGINNER -> AppStrings.filterBeginner(currentLanguage)
+        CourseLevel.INTERMEDIATE -> AppStrings.filterIntermediate(currentLanguage)
+        CourseLevel.ADVANCED -> AppStrings.filterAdvanced(currentLanguage)
+      }
+
       Box(
         modifier = Modifier
           .clip(RoundedCornerShape(12.dp))
@@ -319,7 +331,7 @@ private fun LevelFilterRow(
         contentAlignment = Alignment.Center
       ) {
         Text(
-          text = level.label,
+          text = localizedLabel,
           style = MaterialTheme.typography.labelMedium.copy(
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
             fontSize = 13.sp

@@ -14,6 +14,7 @@ import com.example.data.model.QuizQuestion
 import com.example.data.model.QuizType
 import com.example.data.model.StudyNote
 import com.example.data.model.UserProfile
+import com.example.util.AppLanguage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -619,8 +620,19 @@ class ComputerMasterRepository(context: Context) {
     prefs.edit().putString("study_notes", array.toString()).apply()
   }
 
+  fun getSavedLanguage(): AppLanguage {
+    val code = prefs.getString("selected_language", AppLanguage.ENGLISH.code) ?: AppLanguage.ENGLISH.code
+    return AppLanguage.fromCode(code)
+  }
+
+  fun saveLanguage(language: AppLanguage) {
+    prefs.edit().putString("selected_language", language.code).apply()
+  }
+
   fun resetAllProgress() {
+    val currentLang = getSavedLanguage()
     prefs.edit().clear().apply()
+    saveLanguage(currentLang)
     loadSeedData()
     loadPersistedState()
   }

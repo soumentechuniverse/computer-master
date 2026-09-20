@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Person
@@ -77,6 +78,9 @@ import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TextTertiary
 import com.example.ui.viewmodel.ComputerMasterViewModel
+import com.example.util.AppLanguage
+import com.example.util.AppStrings
+import com.example.util.LocalAppLanguage
 
 @Composable
 fun ProfileScreen(
@@ -84,6 +88,7 @@ fun ProfileScreen(
   onNavigateToCourse: (String) -> Unit,
   modifier: Modifier = Modifier,
 ) {
+  val currentLanguage by viewModel.currentLanguage.collectAsState()
   val userProfile by viewModel.userProfile.collectAsState()
   val allCourses by viewModel.allCourses.collectAsState()
   val notes by viewModel.notes.collectAsState()
@@ -230,7 +235,7 @@ fun ProfileScreen(
     item {
       Spacer(modifier = Modifier.height(20.dp))
       Text(
-        text = "App Settings & Info",
+        text = AppStrings.settings(currentLanguage),
         style = MaterialTheme.typography.titleMedium.copy(
           fontWeight = FontWeight.Bold,
           fontSize = 17.sp
@@ -242,6 +247,8 @@ fun ProfileScreen(
 
     item {
       SettingsCard(
+        currentLanguage = currentLanguage,
+        onSelectLanguage = { viewModel.setLanguage(it) },
         dailyReminder = dailyReminderEnabled,
         onToggleDailyReminder = { dailyReminderEnabled = it },
         haptics = hapticFeedbackEnabled,
@@ -522,6 +529,8 @@ private fun StudyNoteCard(
 
 @Composable
 private fun SettingsCard(
+  currentLanguage: AppLanguage,
+  onSelectLanguage: (AppLanguage) -> Unit,
   dailyReminder: Boolean,
   onToggleDailyReminder: (Boolean) -> Unit,
   haptics: Boolean,
@@ -538,15 +547,103 @@ private fun SettingsCard(
       .padding(16.dp)
   ) {
     Column(modifier = Modifier.fillMaxWidth()) {
+      // 1. LANGUAGE SELECTOR OPTION
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          Icon(
+            imageVector = Icons.Default.Language,
+            contentDescription = null,
+            tint = TechCyanAccent,
+            modifier = Modifier.size(20.dp)
+          )
+          Column {
+            Text(
+              text = AppStrings.appLanguage(currentLanguage),
+              style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+              color = TextPrimary
+            )
+            Text(
+              text = "${currentLanguage.nativeName} (${currentLanguage.displayName})",
+              style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+              color = TechCyanAccent
+            )
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(10.dp))
+
+      // 3 CLEAR LANGUAGE CHOICES (বাংলা, English, हिन्दी)
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .testTag("settings_language_options"),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+      ) {
+        AppLanguage.entries.forEach { lang ->
+          val isSelected = currentLanguage == lang
+          Box(
+            modifier = Modifier
+              .weight(1f)
+              .clip(RoundedCornerShape(12.dp))
+              .background(if (isSelected) TechBluePrimary else NavyCardElevated)
+              .border(
+                width = 1.dp,
+                color = if (isSelected) TechCyanAccent else NavyCardBorder,
+                shape = RoundedCornerShape(12.dp)
+              )
+              .clickable { onSelectLanguage(lang) }
+              .padding(vertical = 10.dp, horizontal = 4.dp)
+              .testTag("settings_lang_${lang.code}"),
+            contentAlignment = Alignment.Center
+          ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+              Text(
+                text = lang.nativeName, // বাংলা / English / हिन्दी
+                style = MaterialTheme.typography.labelMedium.copy(
+                  fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                  fontSize = 13.sp
+                ),
+                color = if (isSelected) Color.White else TextPrimary
+              )
+              if (lang != AppLanguage.ENGLISH) {
+                Text(
+                  text = lang.displayName,
+                  style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                  color = if (isSelected) Color.White.copy(alpha = 0.85f) else TextTertiary
+                )
+              }
+            }
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(16.dp))
+
       // Daily Reminder Switch
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Column {
-          Text("Daily Learning Reminder", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-          Text("Notify at 8:00 PM to maintain streak", style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp), color = TextSecondary)
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = AppStrings.dailyReminder(currentLanguage),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = TextPrimary
+          )
+          Text(
+            text = AppStrings.dailyReminderDesc(currentLanguage),
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+            color = TextSecondary
+          )
         }
         Switch(
           checked = dailyReminder,
@@ -566,9 +663,17 @@ private fun SettingsCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Column {
-          Text("Haptic Feedback", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-          Text("Vibrate gently on correct quiz answer", style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp), color = TextSecondary)
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = AppStrings.hapticFeedback(currentLanguage),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = TextPrimary
+          )
+          Text(
+            text = AppStrings.hapticFeedbackDesc(currentLanguage),
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+            color = TextSecondary
+          )
         }
         Switch(
           checked = haptics,
@@ -596,7 +701,10 @@ private fun SettingsCard(
           horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
           Icon(Icons.Default.RestartAlt, contentDescription = null, modifier = Modifier.size(16.dp))
-          Text("Reset Learning State", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
+          Text(
+            text = AppStrings.resetProgress(currentLanguage),
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+          )
         }
       }
 

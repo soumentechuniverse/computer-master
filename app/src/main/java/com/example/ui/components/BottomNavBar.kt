@@ -56,6 +56,8 @@ import com.example.ui.theme.TechBluePrimary
 import com.example.ui.theme.TechCyanAccent
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TextTertiary
+import com.example.util.AppStrings
+import com.example.util.LocalAppLanguage
 
 sealed class BottomNavItem(
   val route: String,
@@ -128,6 +130,15 @@ fun BottomNavBar(
           label = "nav_text_color_${item.route}"
         )
 
+        val currentLang = LocalAppLanguage.current
+        val localizedLabel = when (item) {
+          BottomNavItem.Home -> AppStrings.navHome(currentLang)
+          BottomNavItem.Courses -> AppStrings.navCourses(currentLang)
+          BottomNavItem.Quiz -> AppStrings.navQuiz(currentLang)
+          BottomNavItem.Progress -> AppStrings.navProgress(currentLang)
+          BottomNavItem.Profile -> AppStrings.navProfile(currentLang)
+        }
+
         Column(
           modifier = Modifier
             .weight(1f)
@@ -153,7 +164,7 @@ fun BottomNavBar(
           ) {
             Icon(
               imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
-              contentDescription = item.label,
+              contentDescription = localizedLabel,
               tint = iconTint,
               modifier = Modifier.size(22.dp)
             )
@@ -162,7 +173,7 @@ fun BottomNavBar(
           Spacer(modifier = Modifier.height(2.dp))
 
           Text(
-            text = item.label,
+            text = localizedLabel,
             style = MaterialTheme.typography.labelSmall.copy(
               fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
               fontSize = 11.sp

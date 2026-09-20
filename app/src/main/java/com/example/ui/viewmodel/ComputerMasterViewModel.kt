@@ -14,6 +14,7 @@ import com.example.data.model.StudyNote
 import com.example.data.model.UserProfile
 import com.example.data.repository.ComputerBasicsQuizRepository
 import com.example.data.repository.ComputerMasterRepository
+import com.example.util.AppLanguage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,6 +46,15 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
   val dailyActivities: StateFlow<List<DailyActivity>> = repository.dailyActivities
   val recentAttempts: StateFlow<List<QuizAttempt>> = repository.recentAttempts
   val bookmarkedLessons: StateFlow<Set<String>> = repository.bookmarkedLessons
+
+  // App Language System
+  private val _currentLanguage = MutableStateFlow(repository.getSavedLanguage())
+  val currentLanguage: StateFlow<AppLanguage> = _currentLanguage.asStateFlow()
+
+  fun setLanguage(language: AppLanguage) {
+    _currentLanguage.value = language
+    repository.saveLanguage(language)
+  }
 
   // UI state for search & level filtering
   private val _searchQuery = MutableStateFlow("")

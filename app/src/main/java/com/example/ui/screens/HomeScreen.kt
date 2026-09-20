@@ -74,6 +74,9 @@ import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TextTertiary
 import com.example.ui.viewmodel.ComputerMasterViewModel
+import com.example.util.AppLanguage
+import com.example.util.AppStrings
+import com.example.util.LocalAppLanguage
 
 @Composable
 fun HomeScreen(
@@ -81,8 +84,11 @@ fun HomeScreen(
   onNavigateToCourse: (String) -> Unit,
   onNavigateToCoursesTab: (CourseLevel) -> Unit,
   onNavigateToQuiz: () -> Unit,
+  onNavigateToHardwareVisualLesson: () -> Unit = {},
+  onNavigateToCpuRamRomLesson: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
+  val currentLanguage = LocalAppLanguage.current
   val userProfile by viewModel.userProfile.collectAsState()
   val allCourses by viewModel.allCourses.collectAsState()
 
@@ -120,6 +126,22 @@ fun HomeScreen(
           onContinueClick = { onNavigateToCourse(continueCourse.id) }
         )
       }
+    }
+
+    // Interactive 3D Visual Lesson Feature Banner
+    item {
+      FeaturedVisualHardwareCard(
+        onClick = onNavigateToHardwareVisualLesson,
+        currentLanguage = currentLanguage
+      )
+    }
+
+    // Inside the Computer: CPU, RAM & ROM 3D Lesson Banner
+    item {
+      FeaturedCpuRamRomLessonCard(
+        onClick = onNavigateToCpuRamRomLesson,
+        currentLanguage = currentLanguage
+      )
     }
 
     // Statistics 4-Grid
@@ -291,8 +313,20 @@ private fun TopBrandingSection(
     Spacer(modifier = Modifier.height(18.dp))
 
     // Welcome Headline & Subtitle
+    val currentLanguage = LocalAppLanguage.current
+    val welcomeBackText = when (currentLanguage) {
+      AppLanguage.BENGALI -> "স্বাগতম, $userName"
+      AppLanguage.HINDI -> "वापसी पर स्वागत है, $userName"
+      AppLanguage.ENGLISH -> "Welcome back, $userName"
+    }
+    val subtitleText = when (currentLanguage) {
+      AppLanguage.BENGALI -> "ধাপে ধাপে প্রযুক্তি শিখুন শুরু থেকে পেশাদার পর্যায় পর্যন্ত।"
+      AppLanguage.HINDI -> "शून्य से पेशेवर तक चरण-दर-चरण तकनीक में महारत हासिल करें।"
+      AppLanguage.ENGLISH -> "Master technology step-by-step from zero to pro."
+    }
+
     Text(
-      text = "Welcome back, $userName",
+      text = welcomeBackText,
       style = MaterialTheme.typography.headlineSmall.copy(
         fontWeight = FontWeight.Bold,
         fontSize = 22.sp
@@ -303,7 +337,7 @@ private fun TopBrandingSection(
     Spacer(modifier = Modifier.height(4.dp))
 
     Text(
-      text = "Master technology step-by-step from zero to pro.",
+      text = subtitleText,
       style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
       color = TextSecondary
     )
@@ -315,8 +349,20 @@ private fun ContinueLearningCard(
   course: Course,
   onContinueClick: () -> Unit,
 ) {
+  val currentLanguage = LocalAppLanguage.current
   val currentLessonTitle = course.modules.firstOrNull()?.lessons?.firstOrNull { !it.isCompleted }?.title
     ?: "Lesson 3: CPU, RAM & Storage Demystified"
+
+  val continueBadge = when (currentLanguage) {
+    AppLanguage.BENGALI -> "শেখা চালিয়ে যান"
+    AppLanguage.HINDI -> "सीखना जारी रखें"
+    AppLanguage.ENGLISH -> "CONTINUE LEARNING"
+  }
+  val resumeButtonText = when (currentLanguage) {
+    AppLanguage.BENGALI -> "পাঠ পুনরায় শুরু করুন"
+    AppLanguage.HINDI -> "पाठ फिर से शुरू करें"
+    AppLanguage.ENGLISH -> "Resume Lesson"
+  }
 
   Box(
     modifier = Modifier
@@ -361,7 +407,7 @@ private fun ContinueLearningCard(
             modifier = Modifier.size(16.dp)
           )
           Text(
-            text = "CONTINUE LEARNING",
+            text = continueBadge,
             style = MaterialTheme.typography.labelSmall.copy(
               fontWeight = FontWeight.ExtraBold,
               letterSpacing = 1.sp,
@@ -450,7 +496,7 @@ private fun ContinueLearningCard(
             modifier = Modifier.size(18.dp)
           )
           Text(
-            text = "Resume Lesson",
+            text = resumeButtonText,
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
           )
         }
@@ -466,13 +512,39 @@ private fun StatisticsSection(
   quizAverage: Int,
   streakDays: Int,
 ) {
+  val currentLanguage = LocalAppLanguage.current
+  val completedTitle = when (currentLanguage) {
+    AppLanguage.BENGALI -> "সম্পন্ন"
+    AppLanguage.HINDI -> "पूर्ण"
+    AppLanguage.ENGLISH -> "Completed"
+  }
+  val activeTitle = when (currentLanguage) {
+    AppLanguage.BENGALI -> "সক্রিয়"
+    AppLanguage.HINDI -> "सक्रिय"
+    AppLanguage.ENGLISH -> "Active"
+  }
+  val quizAvgTitle = when (currentLanguage) {
+    AppLanguage.BENGALI -> "কুইজ গড়"
+    AppLanguage.HINDI -> "प्रश्नोत्तरी औसत"
+    AppLanguage.ENGLISH -> "Quiz Average"
+  }
+  val streakTitle = when (currentLanguage) {
+    AppLanguage.BENGALI -> "ধারাবাহিকতা"
+    AppLanguage.HINDI -> "सिलसिला"
+    AppLanguage.ENGLISH -> "Streak"
+  }
+
   Column(
     modifier = Modifier
       .fillMaxWidth()
       .padding(horizontal = 20.dp, vertical = 8.dp)
   ) {
     Text(
-      text = "Your Learning Stats",
+      text = when (currentLanguage) {
+        AppLanguage.BENGALI -> "আপনার শিক্ষার পরিসংখ্যান"
+        AppLanguage.HINDI -> "आपकी सीखने की सांख्यिकी"
+        AppLanguage.ENGLISH -> "Your Learning Stats"
+      },
       style = MaterialTheme.typography.titleMedium.copy(
         fontWeight = FontWeight.Bold,
         fontSize = 17.sp
@@ -487,19 +559,19 @@ private fun StatisticsSection(
       horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
       StatCard(
-        title = "Completed",
+        title = completedTitle,
         value = "$lessonsCompleted",
         icon = Icons.Default.CheckCircle,
         accentColor = TechGreen,
-        subtitle = "Lessons",
+        subtitle = when (currentLanguage) { AppLanguage.BENGALI -> "পাঠ"; AppLanguage.HINDI -> "पाठ"; else -> "Lessons" },
         modifier = Modifier.weight(1f)
       )
       StatCard(
-        title = "Active",
+        title = activeTitle,
         value = "$coursesStarted",
         icon = Icons.Default.School,
         accentColor = TechCyanAccent,
-        subtitle = "Courses",
+        subtitle = when (currentLanguage) { AppLanguage.BENGALI -> "কোর্স"; AppLanguage.HINDI -> "पाठ्यक्रम"; else -> "Courses" },
         modifier = Modifier.weight(1f)
       )
     }
@@ -511,19 +583,19 @@ private fun StatisticsSection(
       horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
       StatCard(
-        title = "Quiz Average",
+        title = quizAvgTitle,
         value = "$quizAverage%",
         icon = Icons.Default.Quiz,
         accentColor = TechIndigo,
-        subtitle = "Accuracy",
+        subtitle = when (currentLanguage) { AppLanguage.BENGALI -> "সঠিকতা"; AppLanguage.HINDI -> "सटीकता"; else -> "Accuracy" },
         modifier = Modifier.weight(1f)
       )
       StatCard(
-        title = "Streak",
+        title = streakTitle,
         value = "$streakDays Days",
         icon = Icons.Default.LocalFireDepartment,
         accentColor = TechAmber,
-        subtitle = "Unbroken",
+        subtitle = when (currentLanguage) { AppLanguage.BENGALI -> "অব্যাহত"; AppLanguage.HINDI -> "अटूट"; else -> "Unbroken" },
         modifier = Modifier.weight(1f)
       )
     }
@@ -534,13 +606,19 @@ private fun StatisticsSection(
 private fun LearningLevelsSection(
   onLevelSelected: (CourseLevel) -> Unit,
 ) {
+  val currentLanguage = LocalAppLanguage.current
+
   Column(
     modifier = Modifier
       .fillMaxWidth()
       .padding(horizontal = 20.dp, vertical = 10.dp)
   ) {
     Text(
-      text = "Explore by Level",
+      text = when (currentLanguage) {
+        AppLanguage.BENGALI -> "লেভেল অনুযায়ী দেখুন"
+        AppLanguage.HINDI -> "स्तर के अनुसार अन्वेषण करें"
+        AppLanguage.ENGLISH -> "Explore by Level"
+      },
       style = MaterialTheme.typography.titleMedium.copy(
         fontWeight = FontWeight.Bold,
         fontSize = 17.sp
@@ -556,7 +634,7 @@ private fun LearningLevelsSection(
     ) {
       LevelQuickCard(
         level = CourseLevel.BEGINNER,
-        title = "Beginner",
+        title = AppStrings.filterBeginner(currentLanguage),
         count = "7 Courses",
         accentColor = TechGreen,
         onClick = { onLevelSelected(CourseLevel.BEGINNER) },
@@ -564,7 +642,7 @@ private fun LearningLevelsSection(
       )
       LevelQuickCard(
         level = CourseLevel.INTERMEDIATE,
-        title = "Intermediate",
+        title = AppStrings.filterIntermediate(currentLanguage),
         count = "7 Courses",
         accentColor = TechCyanAccent,
         onClick = { onLevelSelected(CourseLevel.INTERMEDIATE) },
@@ -572,7 +650,7 @@ private fun LearningLevelsSection(
       )
       LevelQuickCard(
         level = CourseLevel.ADVANCED,
-        title = "Advanced",
+        title = AppStrings.filterAdvanced(currentLanguage),
         count = "6 Courses",
         accentColor = TechPurple,
         onClick = { onLevelSelected(CourseLevel.ADVANCED) },
@@ -602,7 +680,7 @@ private fun LevelQuickCard(
       )
       .clickable(onClick = onClick)
       .padding(vertical = 12.dp, horizontal = 10.dp)
-      .testTag("level_quick_card_${title.lowercase()}"),
+      .testTag("level_quick_card_${level.name.lowercase()}"),
     contentAlignment = Alignment.Center
   ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -637,6 +715,18 @@ private fun LevelQuickCard(
 private fun DailyKnowledgeCheckCard(
   onStartClick: () -> Unit,
 ) {
+  val currentLanguage = LocalAppLanguage.current
+  val checkTitle = when (currentLanguage) {
+    AppLanguage.BENGALI -> "দৈনিক জ্ঞান যাচাই"
+    AppLanguage.HINDI -> "दैनिक ज्ञान जांच"
+    AppLanguage.ENGLISH -> "Daily Knowledge Check"
+  }
+  val checkSubtitle = when (currentLanguage) {
+    AppLanguage.BENGALI -> "৩টি দ্রুত প্রশ্নে আপনার জ্ঞান পরীক্ষা করুন"
+    AppLanguage.HINDI -> "3 त्वरित प्रश्नों में अपने ज्ञान का परीक्षण करें"
+    AppLanguage.ENGLISH -> "Test your daily recall in 3 quick questions"
+  }
+
   Box(
     modifier = Modifier
       .fillMaxWidth()
@@ -693,7 +783,7 @@ private fun DailyKnowledgeCheckCard(
 
         Column {
           Text(
-            text = "Daily Knowledge Check",
+            text = checkTitle,
             style = MaterialTheme.typography.titleMedium.copy(
               fontWeight = FontWeight.Bold,
               fontSize = 16.sp
@@ -702,7 +792,7 @@ private fun DailyKnowledgeCheckCard(
           )
           Spacer(modifier = Modifier.height(2.dp))
           Text(
-            text = "Test your daily recall in 3 quick questions",
+            text = checkSubtitle,
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
             color = TextSecondary
           )
@@ -744,3 +834,355 @@ private fun SectionTitle(
     )
   }
 }
+
+@Composable
+private fun FeaturedVisualHardwareCard(
+  onClick: () -> Unit,
+  currentLanguage: AppLanguage,
+  modifier: Modifier = Modifier
+) {
+  Box(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(horizontal = 20.dp, vertical = 6.dp)
+      .clip(RoundedCornerShape(20.dp))
+      .background(
+        brush = Brush.horizontalGradient(
+          listOf(
+            Color(0xFF0F2B48),
+            Color(0xFF1B1842)
+          )
+        )
+      )
+      .border(
+        width = 1.5.dp,
+        brush = Brush.horizontalGradient(
+          listOf(
+            TechCyanAccent.copy(alpha = 0.8f),
+            TechPurple.copy(alpha = 0.8f)
+          )
+        ),
+        shape = RoundedCornerShape(20.dp)
+      )
+      .clickable(onClick = onClick)
+      .padding(18.dp)
+      .testTag("featured_hardware_card")
+  ) {
+    Column {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Box(
+          modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(TechCyanAccent.copy(alpha = 0.2f))
+            .border(1.dp, TechCyanAccent.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+          ) {
+            Box(
+              modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(TechCyanAccent)
+            )
+            Text(
+              text = when (currentLanguage) {
+                AppLanguage.BENGALI -> "৩ডি ভিজ্যুয়াল অভিজ্ঞতা"
+                AppLanguage.HINDI -> "3D विज़ुअल अनुभव"
+                AppLanguage.ENGLISH -> "3D INTERACTIVE LESSON"
+              },
+              style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 10.sp,
+                letterSpacing = 0.5.sp
+              ),
+              color = TechCyanAccent
+            )
+          }
+        }
+
+        Icon(
+          imageVector = Icons.Default.AutoAwesome,
+          contentDescription = null,
+          tint = TechAmber,
+          modifier = Modifier.size(20.dp)
+        )
+      }
+
+      Spacer(modifier = Modifier.height(10.dp))
+
+      Text(
+        text = when (currentLanguage) {
+          AppLanguage.BENGALI -> "কম্পিউটার হার্ডওয়্যার এক্সপ্লোর করুন"
+          AppLanguage.HINDI -> "कंप्यूटर हार्डवेयर एक्सप्लोर करें"
+          AppLanguage.ENGLISH -> "Explore Computer Hardware in 3D"
+        },
+        style = MaterialTheme.typography.titleMedium.copy(
+          fontWeight = FontWeight.ExtraBold,
+          fontSize = 17.sp
+        ),
+        color = TextPrimary
+      )
+
+      Spacer(modifier = Modifier.height(4.dp))
+
+      Text(
+        text = when (currentLanguage) {
+          AppLanguage.BENGALI -> "মনিটর, সিপিইউ, কীবোর্ড এবং মাউস স্পর্শ করে ৩ডি ভিজ্যুয়াল উপায়ে শিখুন। সাথে রয়েছে কুইক কুইজ!"
+          AppLanguage.HINDI -> "मॉनिटर, सीपीयू, कीबोर्ड और माउस को 3D विज़ुअल तरीके से स्पर्श करके जानें। साथ ही क्विक क्विज़ उपलब्ध है!"
+          AppLanguage.ENGLISH -> "Tap & interact with a 3D desktop setup (Monitor, CPU, Keyboard, Mouse) with guided walkthrough & quick quiz."
+        },
+        style = MaterialTheme.typography.bodySmall.copy(
+          fontSize = 12.sp,
+          lineHeight = 17.sp
+        ),
+        color = TextSecondary
+      )
+
+      Spacer(modifier = Modifier.height(14.dp))
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Row(
+          horizontalArrangement = Arrangement.spacedBy(6.dp),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Box(
+            modifier = Modifier
+              .clip(RoundedCornerShape(6.dp))
+              .background(NavyDark)
+              .padding(horizontal = 6.dp, vertical = 2.dp)
+          ) {
+            Text(
+              text = "4 Parts",
+              style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+              color = TechCyanAccent
+            )
+          }
+          Box(
+            modifier = Modifier
+              .clip(RoundedCornerShape(6.dp))
+              .background(NavyDark)
+              .padding(horizontal = 6.dp, vertical = 2.dp)
+          ) {
+            Text(
+              text = "Interactive",
+              style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+              color = TechGreen
+            )
+          }
+        }
+
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+          Text(
+            text = when (currentLanguage) {
+              AppLanguage.BENGALI -> "শুরু করুন"
+              AppLanguage.HINDI -> "शुरू करें"
+              AppLanguage.ENGLISH -> "Start 3D Lesson"
+            },
+            style = MaterialTheme.typography.labelMedium.copy(
+              fontWeight = FontWeight.Bold,
+              fontSize = 12.sp
+            ),
+            color = TechCyanAccent
+          )
+          Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            tint = TechCyanAccent,
+            modifier = Modifier.size(16.dp)
+          )
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun FeaturedCpuRamRomLessonCard(
+  onClick: () -> Unit,
+  currentLanguage: AppLanguage,
+  modifier: Modifier = Modifier
+) {
+  Box(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(horizontal = 20.dp, vertical = 6.dp)
+      .clip(RoundedCornerShape(22.dp))
+      .background(
+        brush = Brush.linearGradient(
+          colors = listOf(
+            Color(0xFF0C243B),
+            Color(0xFF091422)
+          )
+        )
+      )
+      .border(
+        width = 1.5.dp,
+        brush = Brush.linearGradient(
+          colors = listOf(
+            TechAmber.copy(alpha = 0.8f),
+            TechCyanAccent.copy(alpha = 0.4f)
+          )
+        ),
+        shape = RoundedCornerShape(22.dp)
+      )
+      .clickable { onClick() }
+      .padding(18.dp)
+      .testTag("featured_cpu_ram_rom_card")
+  ) {
+    Column {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Box(
+          modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(TechAmber.copy(alpha = 0.2f))
+            .border(1.dp, TechAmber.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+          ) {
+            Box(
+              modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(TechAmber)
+            )
+            Text(
+              text = when (currentLanguage) {
+                AppLanguage.BENGALI -> "নতুন ৩ডি পাঠ • আর্কিটেকচার"
+                AppLanguage.HINDI -> "नया 3D पाठ • आर्किटेक्चर"
+                AppLanguage.ENGLISH -> "NEW 3D LESSON • ARCHITECTURE"
+              },
+              style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 10.sp,
+                letterSpacing = 0.5.sp
+              ),
+              color = TechAmber
+            )
+          }
+        }
+
+        Icon(
+          imageVector = Icons.Default.Computer,
+          contentDescription = null,
+          tint = TechCyanAccent,
+          modifier = Modifier.size(22.dp)
+        )
+      }
+
+      Spacer(modifier = Modifier.height(10.dp))
+
+      Text(
+        text = when (currentLanguage) {
+          AppLanguage.BENGALI -> "কম্পিউটারের ভেতরে: CPU, RAM ও ROM"
+          AppLanguage.HINDI -> "कंप्यूटर के अंदर: CPU, RAM और ROM"
+          AppLanguage.ENGLISH -> "Inside the Computer: CPU, RAM & ROM"
+        },
+        style = MaterialTheme.typography.titleMedium.copy(
+          fontWeight = FontWeight.ExtraBold,
+          fontSize = 17.sp
+        ),
+        color = TextPrimary
+      )
+
+      Spacer(modifier = Modifier.height(4.dp))
+
+      Text(
+        text = when (currentLanguage) {
+          AppLanguage.BENGALI -> "সিপিইউ সিলিকন চিপ, ক্লক স্পিড (GHz), র‍্যামের কাজের মেমরি এবং রমের বায়োস ফার্মওয়্যার ৩ডি অ্যানিমেশনে এক্সপ্লোর করুন। সাথে ৮টি কুইজ প্রশ্ন!"
+          AppLanguage.HINDI -> "सीपीयू सिलिकॉन चिप, क्लॉक स्पीड (GHz), रैम की कार्यशील मेमोरी और रोम के बायोस फर्मवेयर को 3D एनिमेशन में समझें। साथ में 8 प्रश्नोत्तरी!"
+          AppLanguage.ENGLISH -> "Interactive 3D CPU die, GHz speed, RAM workspace vs volatile DRAM, and permanent ROM BIOS firmware with animated data-flow & 8-question quiz."
+        },
+        style = MaterialTheme.typography.bodySmall.copy(
+          fontSize = 12.sp,
+          lineHeight = 17.sp
+        ),
+        color = TextSecondary
+      )
+
+      Spacer(modifier = Modifier.height(14.dp))
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Row(
+          horizontalArrangement = Arrangement.spacedBy(6.dp),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Box(
+            modifier = Modifier
+              .clip(RoundedCornerShape(6.dp))
+              .background(NavyDark)
+              .padding(horizontal = 6.dp, vertical = 2.dp)
+          ) {
+            Text(
+              text = "CPU • RAM • ROM",
+              style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+              color = TechAmber
+            )
+          }
+          Box(
+            modifier = Modifier
+              .clip(RoundedCornerShape(6.dp))
+              .background(NavyDark)
+              .padding(horizontal = 6.dp, vertical = 2.dp)
+          ) {
+            Text(
+              text = "8 Quizzes",
+              style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+              color = TechGreen
+            )
+          }
+        }
+
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+          Text(
+            text = when (currentLanguage) {
+              AppLanguage.BENGALI -> "পাঠ দেখুন"
+              AppLanguage.HINDI -> "पाठ देखें"
+              AppLanguage.ENGLISH -> "Open 3D Lesson"
+            },
+            style = MaterialTheme.typography.labelMedium.copy(
+              fontWeight = FontWeight.Bold,
+              fontSize = 12.sp
+            ),
+            color = TechAmber
+          )
+          Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            tint = TechAmber,
+            modifier = Modifier.size(16.dp)
+          )
+        }
+      }
+    }
+  }
+}
+
+

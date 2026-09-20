@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,15 +22,17 @@ import com.example.ui.navigation.AppNavigation
 import com.example.ui.navigation.NavRoutes
 import com.example.ui.theme.NavyDarkest
 import com.example.ui.viewmodel.ComputerMasterViewModel
+import com.example.util.ProvideAppLanguage
 
 @Composable
 fun MainScreen(
   viewModel: ComputerMasterViewModel = viewModel(),
   modifier: Modifier = Modifier,
 ) {
+  val currentLanguage by viewModel.currentLanguage.collectAsState()
   val navController = rememberNavController()
   val navBackStackEntry by navController.currentBackStackEntryAsState()
-  val currentRoute = navBackStackEntry?.destination?.route ?: NavRoutes.HOME
+  val currentRoute = navBackStackEntry?.destination?.route ?: NavRoutes.SPLASH
 
   val topLevelRoutes = listOf(
     NavRoutes.HOME,
@@ -41,40 +44,42 @@ fun MainScreen(
 
   val showBottomBar = currentRoute in topLevelRoutes
 
-  Scaffold(
-    modifier = modifier.fillMaxSize(),
-    containerColor = NavyDarkest,
-    contentWindowInsets = WindowInsets.statusBars,
-    bottomBar = {
-      AnimatedVisibility(
-        visible = showBottomBar,
-        enter = slideInVertically(initialOffsetY = { it }),
-        exit = slideOutVertically(targetOffsetY = { it })
-      ) {
-        BottomNavBar(
-          currentRoute = currentRoute,
-          onNavigate = { targetRoute ->
-            navController.navigate(targetRoute) {
-              popUpTo(NavRoutes.HOME) {
-                saveState = true
+  ProvideAppLanguage(language = currentLanguage) {
+    Scaffold(
+      modifier = modifier.fillMaxSize(),
+      containerColor = NavyDarkest,
+      contentWindowInsets = WindowInsets.statusBars,
+      bottomBar = {
+        AnimatedVisibility(
+          visible = showBottomBar,
+          enter = slideInVertically(initialOffsetY = { it }),
+          exit = slideOutVertically(targetOffsetY = { it })
+        ) {
+          BottomNavBar(
+            currentRoute = currentRoute,
+            onNavigate = { targetRoute ->
+              navController.navigate(targetRoute) {
+                popUpTo(NavRoutes.HOME) {
+                  saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
               }
-              launchSingleTop = true
-              restoreState = true
             }
-          }
+          )
+        }
+      }
+    ) { innerPadding ->
+      Box(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(innerPadding)
+      ) {
+        AppNavigation(
+          navController = navController,
+          viewModel = viewModel
         )
       }
-    }
-  ) { innerPadding ->
-    Box(
-      modifier = Modifier
-        .fillMaxSize()
-        .padding(innerPadding)
-    ) {
-      AppNavigation(
-        navController = navController,
-        viewModel = viewModel
-      )
     }
   }
 }

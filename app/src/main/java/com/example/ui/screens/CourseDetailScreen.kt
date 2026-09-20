@@ -846,6 +846,17 @@ private fun LessonItemRow(
             color = TechCyanAccent
           )
 
+          if (lesson.id == "cb_lesson_3") {
+            Text(
+              text = "• 3D Visual",
+              style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 10.sp
+              ),
+              color = TechCyanAccent
+            )
+          }
+
           if (lesson.hasQuiz) {
             Text(
               text = "• Quiz Ready",

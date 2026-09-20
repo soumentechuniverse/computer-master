@@ -1,0 +1,95 @@
+<resources>
+    <string name="app_name">कंप्यूटर मास्टर</string>
+
+    <!-- Startup & Welcome -->
+    <string name="welcome_title">कंप्यूटर मास्टर में आपका स्वागत है</string>
+    <string name="welcome_created_by">निर्माता: Soumen Mondal</string>
+    <string name="welcome_subtitle">कंप्यूटिंग की बुनियादी बातें, सिस्टम आर्किटेक्चर, आईटी इंजीनियरिंग और व्यावहारिक तकनीकी कौशल में महारत हासिल करने का आपका संपूर्ण मंच।</string>
+    <string name="welcome_feature1_title">20 संपूर्ण पाठ्यक्रम</string>
+    <string name="welcome_feature1_desc">शुरुआती बुनियादी बातों से लेकर नेटवर्किंग, साइबर सुरक्षा और एआई तक</string>
+    <string name="welcome_feature2_title">इंटरैक्टिव ज्ञान प्रश्नोत्तरी</string>
+    <string name="welcome_feature2_desc">50 पाठ प्रश्नोत्तरी, अंतिम प्रमाणन और दैनिक अभ्यास</string>
+    <string name="welcome_feature3_title">ऑफ़लाइन प्रगति और अध्ययन नोट्स</string>
+    <string name="welcome_feature3_desc">एक्सपी, स्ट्रीक और बुकमार्क कभी भी और कहीं भी ट्रैक करें</string>
+    <string name="welcome_badge_free">100% निःशुल्क और ऑफ़लाइन शिक्षण मंच</string>
+    <string name="btn_get_started">शुरू करें</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">होम</string>
+    <string name="nav_courses">कोर्स</string>
+    <string name="nav_quiz">क्विज़</string>
+    <string name="nav_progress">प्रगति</string>
+    <string name="nav_profile">प्रोफ़ाइल</string>
+
+    <!-- Home Screen -->
+    <string name="search_placeholder">20 पाठ्यक्रम, विषय और पाठ खोजें...</string>
+    <string name="filter_all">सभी</string>
+    <string name="filter_beginner">शुरुआती</string>
+    <string name="filter_intermediate">मध्यवर्ती</string>
+    <string name="filter_advanced">उन्नत</string>
+    <string name="continue_learning">सीखना जारी रखें</string>
+    <string name="daily_streak">दिनों की स्ट्रीक</string>
+    <string name="streak_subtitle">अपनी स्ट्रीक बनाए रखने के लिए हर दिन सीखें</string>
+    <string name="daily_quiz_title">दैनिक ज्ञान जांच</string>
+    <string name="daily_quiz_desc">अपने कंप्यूटर कौशल का परीक्षण करने के लिए 5 त्वरित प्रश्न</string>
+    <string name="take_daily_quiz">दैनिक क्विज़ शुरू करें</string>
+    <string name="featured_courses">विशेष पाठ्यक्रम</string>
+    <string name="course_library">पाठ्यक्रम पुस्तकालय</string>
+    <string name="view_all">सभी देखें</string>
+
+    <!-- Course & Lessons -->
+    <string name="start_course">कोर्स शुरू करें</string>
+    <string name="completed">पूर्ण</string>
+    <string name="in_progress">प्रगति पर</string>
+    <string name="course_content">पाठ्यक्रम सामग्री</string>
+    <string name="reading_time">मिनट पठन</string>
+    <string name="quiz_ready">क्विज़ तैयार</string>
+
+    <!-- Quiz System -->
+    <string name="quizzes_certifications">प्रश्नोत्तरी और प्रमाणन</string>
+    <string name="lesson_quizzes">पाठ प्रश्नोत्तरी</string>
+    <string name="final_exam">अंतिम परीक्षा</string>
+    <string name="final_exam_desc">20 प्रश्नों की व्यापक प्रमाणन परीक्षा (उत्तीर्ण होने के लिए 70%)</string>
+    <string name="take_quiz">क्विज़ शुरू करें</string>
+    <string name="next_question">अगला प्रश्न</string>
+    <string name="view_results">परिणाम देखें</string>
+    <string name="review_answers">उत्तरों की समीक्षा करें</string>
+    <string name="retry_quiz">पुनः प्रयास करें</string>
+    <string name="passed">उत्तीर्ण</string>
+    <string name="not_passed">अनुत्तीर्ण</string>
+    <string name="question_counter">प्रश्न %1$d / %2$d</string>
+
+    <!-- Settings & Profile -->
+    <string name="settings">सेटिंग्स</string>
+    <string name="app_language">ऐप की भाषा</string>
+    <string name="choose_language">भाषा चुनें</string>
+    <string name="daily_reminder">दैनिक सीखने का अनुस्मारक</string>
+    <string name="daily_reminder_desc">स्ट्रीक बनाए रखने के लिए रात 8:00 बजे सूचना प्राप्त करें</string>
+    <string name="haptic_feedback">हैप्टिक फीडबैक</string>
+    <string name="haptic_feedback_desc">सही उत्तर पर हल्का कंपन</string>
+    <string name="reset_progress">सीखने की स्थिति रीसेट करें</string>
+    <string name="reset_confirm_title">सभी प्रगति रीसेट करें?</string>
+    <string name="reset_confirm_desc">यह सभी पाठ्यक्रम प्रगति, एक्सपी, पूर्ण क्विज़ और स्ट्रीक को रीसेट कर देगा। सहेजे गए नोट्स और बुकमार्क सुरक्षित रहेंगे।</string>
+    <string name="saved_bookmarks">सहेजे गए बुकमार्क</string>
+    <string name="study_notes">अध्ययन नोट्स</string>
+    <string name="add_note">नोट जोड़ें</string>
+    <string name="achievements">उपलब्धियां</string>
+    <string name="stats">सीखने के आँकड़े</string>
+    <string name="xp_earned">अर्जित एक्सपी</string>
+    <string name="quiz_average">क्विज़ औसत</string>
+    <string name="courses_completed">पूर्ण पाठ्यक्रम</string>
+    <string name="lessons_completed">पूर्ण पाठ</string>
+
+    <!-- Common Actions -->
+    <string name="cancel">रद्द करें</string>
+    <string name="save">सहेजें</string>
+    <string name="done">पूर्ण</string>
+    <string name="delete">हटाएं</string>
+    <string name="close">बंद करें</string>
+    <string name="confirm">पुष्टि करें</string>
+
+    <!-- Languages -->
+    <string name="language_english">English</string>
+    <string name="language_bengali">বাংলা</string>
+    <string name="language_hindi">हिन्दी</string>
+</resources>

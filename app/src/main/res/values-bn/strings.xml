@@ -1,0 +1,95 @@
+<resources>
+    <string name="app_name">কম্পিউটার মাস্টার</string>
+
+    <!-- Startup & Welcome -->
+    <string name="welcome_title">কম্পিউটার মাস্টারে স্বাগতম</string>
+    <string name="welcome_created_by">নির্মাতা: Soumen Mondal</string>
+    <string name="welcome_subtitle">কম্পিউটিংয়ের মূল ভিত্তি, সিস্টেম আর্কিটেকচার, আইটি ইঞ্জিনিয়ারিং এবং ব্যবহারিক প্রযুক্তি দক্ষতায় দক্ষতা অর্জনের সম্পূর্ণ প্ল্যাটফর্ম।</string>
+    <string name="welcome_feature1_title">২০টি পূর্ণাঙ্গ কোর্স</string>
+    <string name="welcome_feature1_desc">শিক্ষানবিস পর্যায় থেকে নেটওয়ার্কিং, সাইবার নিরাপত্তা ও কৃত্রিম বুদ্ধিমত্তা</string>
+    <string name="welcome_feature2_title">ইন্টারেক্টিভ নলেজ কুইজ</string>
+    <string name="welcome_feature2_desc">৫০টি পাঠ্য কুইজ, চূড়ান্ত সনদ পরীক্ষা ও দৈনিক অনুশীলন</string>
+    <string name="welcome_feature3_title">অফলাইন অগ্রগতি ও নোট</string>
+    <string name="welcome_feature3_desc">এক্সপি, স্ট্রিক এবং বুকমার্ক ট্র্যাক করুন যে কোনো স্থানে</string>
+    <string name="welcome_badge_free">১০০% সম্পূর্ণ বিনামূল্যের ও অফলাইন লার্নিং প্ল্যাটফর্ম</string>
+    <string name="btn_get_started">শুরু করুন</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">হোম</string>
+    <string name="nav_courses">কোর্স</string>
+    <string name="nav_quiz">কুইজ</string>
+    <string name="nav_progress">অগ্রগতি</string>
+    <string name="nav_profile">প্রোফাইল</string>
+
+    <!-- Home Screen -->
+    <string name="search_placeholder">২০টি কোর্স, বিষয় ও পাঠ খুঁজুন...</string>
+    <string name="filter_all">সকল</string>
+    <string name="filter_beginner">শিক্ষানবিস</string>
+    <string name="filter_intermediate">মধ্যবর্তী</string>
+    <string name="filter_advanced">উন্নত</string>
+    <string name="continue_learning">শেখা চালিয়ে যান</string>
+    <string name="daily_streak">দিনের স্ট্রিক</string>
+    <string name="streak_subtitle">আপনার স্ট্রিক ধরে রাখতে প্রতিদিন অধ্যয়ন করুন</string>
+    <string name="daily_quiz_title">দৈনিক জ্ঞান যাচাই</string>
+    <string name="daily_quiz_desc">মৌলিক কম্পিউটার দক্ষতা যাচাইয়ে ৫টি দ্রুত প্রশ্ন</string>
+    <string name="take_daily_quiz">দৈনিক কুইজে অংশ নিন</string>
+    <string name="featured_courses">বিশেষ কোর্সসমূহ</string>
+    <string name="course_library">কোর্স লাইব্রেরি</string>
+    <string name="view_all">সব দেখুন</string>
+
+    <!-- Course & Lessons -->
+    <string name="start_course">কোর্স শুরু করুন</string>
+    <string name="completed">সম্পন্ন</string>
+    <string name="in_progress">চলমান</string>
+    <string name="course_content">কোর্সের বিষয়বস্তু</string>
+    <string name="reading_time">মিনিট পাঠ</string>
+    <string name="quiz_ready">কুইজ প্রস্তুত</string>
+
+    <!-- Quiz System -->
+    <string name="quizzes_certifications">কুইজ ও সনদপত্র</string>
+    <string name="lesson_quizzes">পাঠ্য কুইজসমূহ</string>
+    <string name="final_exam">চূড়ান্ত পরীক্ষা</string>
+    <string name="final_exam_desc">২০ প্রশ্নের সমন্বিত সনদপত্র পরীক্ষা (পাসের জন্য ৭০%)</string>
+    <string name="take_quiz">কুইজ শুরু করুন</string>
+    <string name="next_question">পরবর্তী প্রশ্ন</string>
+    <string name="view_results">ফলাফল দেখুন</string>
+    <string name="review_answers">উত্তর পর্যালোচনা করুন</string>
+    <string name="retry_quiz">আবার চেষ্টা করুন</string>
+    <string name="passed">উত্তীর্ণ</string>
+    <string name="not_passed">অনুত্তীর্ণ</string>
+    <string name="question_counter">প্রশ্ন %1$d এর %2$d</string>
+
+    <!-- Settings & Profile -->
+    <string name="settings">সেটিংস</string>
+    <string name="app_language">অ্যাপের ভাষা</string>
+    <string name="choose_language">ভাষা নির্বাচন করুন</string>
+    <string name="daily_reminder">দৈনিক অনুশীলনের অনুস্মারক</string>
+    <string name="daily_reminder_desc">স্ট্রিক বজায় রাখতে রাত ৮:০০টায় নোটিফিকেশন পান</string>
+    <string name="haptic_feedback">হ্যাপটিক প্রতিক্রিয়া</string>
+    <string name="haptic_feedback_desc">সঠিক উত্তরের সময় হালকা কম্পন</string>
+    <string name="reset_progress">শেখার অগ্রগতি রিসেট করুন</string>
+    <string name="reset_confirm_title">সকল অগ্রগতি রিসেট করবেন?</string>
+    <string name="reset_confirm_desc">এটি আপনার কোর্সের অগ্রগতি, এক্সপি, কুইজ এবং স্ট্রিক রিসেট করবে। সংরক্ষিত নোট এবং বুকমার্ক অক্ষুণ্ণ থাকবে।</string>
+    <string name="saved_bookmarks">সংরক্ষিত বুকমার্ক</string>
+    <string name="study_notes">স্টাডি নোট</string>
+    <string name="add_note">নোট যোগ করুন</string>
+    <string name="achievements">অর্জনসমূহ</string>
+    <string name="stats">শেখার পরিসংখ্যান</string>
+    <string name="xp_earned">অর্জিত এক্সপি</string>
+    <string name="quiz_average">কুইজ গড়</string>
+    <string name="courses_completed">সম্পন্ন কোর্স</string>
+    <string name="lessons_completed">সম্পন্ন পাঠ</string>
+
+    <!-- Common Actions -->
+    <string name="cancel">বাতিল</string>
+    <string name="save">সংরক্ষণ</string>
+    <string name="done">সম্পন্ন</string>
+    <string name="delete">মুছে ফেলুন</string>
+    <string name="close">বন্ধ করুন</string>
+    <string name="confirm">নিশ্চিত করুন</string>
+
+    <!-- Languages -->
+    <string name="language_english">English</string>
+    <string name="language_bengali">বাংলা</string>
+    <string name="language_hindi">हिन्दी</string>
+</resources>
