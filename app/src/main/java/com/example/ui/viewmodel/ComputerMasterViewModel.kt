@@ -17,6 +17,7 @@ import com.example.data.repository.ComputerBasicsQuizRepository
 import com.example.data.repository.ComputerMasterRepository
 import com.example.data.update.InAppUpdateManager
 import com.example.data.update.UpdateUiState
+import com.example.ui.theme.AppThemeMode
 import com.example.util.AppLanguage
 import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+
+data class AccountState(
+  val isLoggedIn: Boolean = false,
+  val userEmail: String? = null,
+  val userName: String? = null,
+  val isGuest: Boolean = true,
+)
 
 data class ActiveQuizState(
   val activeQuiz: Quiz? = null,
@@ -60,6 +68,18 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
   private val _currentLanguage = MutableStateFlow(repository.getSavedLanguage())
   val currentLanguage: StateFlow<AppLanguage> = _currentLanguage.asStateFlow()
 
+  // App Theme Mode
+  private val _themeMode = MutableStateFlow(repository.getSavedThemeMode())
+  val themeMode: StateFlow<AppThemeMode> = _themeMode.asStateFlow()
+
+  // Update Notifications Setting
+  private val _updateNotificationsEnabled = MutableStateFlow(repository.getUpdateNotificationsEnabled())
+  val updateNotificationsEnabled: StateFlow<Boolean> = _updateNotificationsEnabled.asStateFlow()
+
+  // Account State Architecture
+  private val _accountState = MutableStateFlow(AccountState())
+  val accountState: StateFlow<AccountState> = _accountState.asStateFlow()
+
   init {
     // Automatically check for newer version when app launches
     checkForUpdates(isManual = false)
@@ -68,6 +88,25 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
   fun setLanguage(language: AppLanguage) {
     _currentLanguage.value = language
     repository.saveLanguage(language)
+  }
+
+  fun setThemeMode(mode: AppThemeMode) {
+    _themeMode.value = mode
+    repository.saveThemeMode(mode)
+  }
+
+  fun setUpdateNotificationsEnabled(enabled: Boolean) {
+    _updateNotificationsEnabled.value = enabled
+    repository.saveUpdateNotificationsEnabled(enabled)
+  }
+
+  fun logout() {
+    _accountState.value = AccountState(
+      isLoggedIn = false,
+      userEmail = null,
+      userName = null,
+      isGuest = true
+    )
   }
 
   // UI state for search & level filtering

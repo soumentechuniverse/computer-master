@@ -14,6 +14,7 @@ import com.example.data.model.QuizQuestion
 import com.example.data.model.QuizType
 import com.example.data.model.StudyNote
 import com.example.data.model.UserProfile
+import com.example.ui.theme.AppThemeMode
 import com.example.util.AppLanguage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -627,6 +628,23 @@ class ComputerMasterRepository(context: Context) {
 
   fun saveLanguage(language: AppLanguage) {
     prefs.edit().putString("selected_language", language.code).apply()
+  }
+
+  fun getSavedThemeMode(): AppThemeMode {
+    val key = prefs.getString("theme_mode", AppThemeMode.SYSTEM.key) ?: AppThemeMode.SYSTEM.key
+    return AppThemeMode.fromKey(key)
+  }
+
+  fun saveThemeMode(mode: AppThemeMode) {
+    prefs.edit().putString("theme_mode", mode.key).apply()
+  }
+
+  fun getUpdateNotificationsEnabled(): Boolean {
+    return prefs.getBoolean("update_notifications_enabled", true)
+  }
+
+  fun saveUpdateNotificationsEnabled(enabled: Boolean) {
+    prefs.edit().putBoolean("update_notifications_enabled", enabled).apply()
   }
 
   fun resetAllProgress() {

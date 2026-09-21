@@ -392,8 +392,152 @@ object AppStrings {
   }
 
   fun settingsTitle(lang: AppLanguage): String = when (lang) {
-    AppLanguage.BENGALI -> "সেটিংস ও আপডেট"
-    AppLanguage.ENGLISH -> "Settings & Updates"
-    AppLanguage.HINDI -> "सेटिंग्स और अपडेट"
+    AppLanguage.BENGALI -> "সেটিংস ও পছন্দসমূহ"
+    AppLanguage.ENGLISH -> "Settings & Preferences"
+    AppLanguage.HINDI -> "सेटिंग्स और प्राथमिकताएं"
+  }
+
+  // Section 1: Account
+  fun settingsAccount(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "অ্যাকাউন্ট"
+    AppLanguage.ENGLISH -> "Account"
+    AppLanguage.HINDI -> "खाता"
+  }
+
+  fun login(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "লগইন"
+    AppLanguage.ENGLISH -> "Log In"
+    AppLanguage.HINDI -> "लॉग इन"
+  }
+
+  fun register(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "নিবন্ধন করুন"
+    AppLanguage.ENGLISH -> "Register"
+    AppLanguage.HINDI -> "रजिस्टर करें"
+  }
+
+  fun logout(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "লগআউট"
+    AppLanguage.ENGLISH -> "Log Out"
+    AppLanguage.HINDI -> "लॉग आउट"
+  }
+
+  fun guestModeTitle(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "গেস্ট মোড (অতিথি শিক্ষার্থী)"
+    AppLanguage.ENGLISH -> "Guest Learner Mode"
+    AppLanguage.HINDI -> "अतिथि शिक्षार्थी मोड"
+  }
+
+  fun guestModeDesc(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "স্থানীয় ডিভাইসে সমস্ত অগ্রগতি সংরক্ষিত হচ্ছে। ক্লাউড সিঙ্ক পরবর্তী ধাপে যুক্ত হবে।"
+    AppLanguage.ENGLISH -> "All course progress is saved locally on this device. Cloud sync arriving in Step 2."
+    AppLanguage.HINDI -> "सभी पाठ्यक्रम प्रगति इस डिवाइस पर स्थानीय रूप से सहेजी गई है। क्लाउड सिंक अगले चरण में आएगा।"
+  }
+
+  // Section 2: Language
+  fun settingsLanguage(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "ভাষা নির্বাচন"
+    AppLanguage.ENGLISH -> "Language"
+    AppLanguage.HINDI -> "भाषा चयन"
+  }
+
+  fun settingsLanguageDesc(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপনার পছন্দের ভাষায় পাঠ্যক্রম ও ইন্টারফেস উপভোগ করুন"
+    AppLanguage.ENGLISH -> "Choose your preferred language for courses and interface"
+    AppLanguage.HINDI -> "पाठ्यक्रम और इंटरफ़ेस के लिए अपनी पसंदीदा भाषा चुनें"
+  }
+
+  // Section 3: Appearance
+  fun settingsAppearance(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "থিম ও দৃশ্যমানতা"
+    AppLanguage.ENGLISH -> "Appearance"
+    AppLanguage.HINDI -> "दिखावट और थीम"
+  }
+
+  fun settingsAppearanceDesc(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "অ্যাপের ইন্টারফেস থিম নির্বাচন করুন"
+    AppLanguage.ENGLISH -> "Select your preferred visual display mode"
+    AppLanguage.HINDI -> "अपना पसंदीदा डिस्प्ले मोड चुनें"
+  }
+
+  fun themeSystem(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "সিস্টেম ডিফল্ট"
+    AppLanguage.ENGLISH -> "System Default"
+    AppLanguage.HINDI -> "सिस्टम डिफ़ॉल्ट"
+  }
+
+  fun themeLight(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "লাইট"
+    AppLanguage.ENGLISH -> "Light"
+    AppLanguage.HINDI -> "लाइट"
+  }
+
+  fun themeDark(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "ডার্ক"
+    AppLanguage.ENGLISH -> "Dark"
+    AppLanguage.HINDI -> "डार्क"
+  }
+
+  // Section 4: Updates
+  fun settingsUpdates(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপডেট ও সংস্করণ"
+    AppLanguage.ENGLISH -> "Updates"
+    AppLanguage.HINDI -> "अपडेट और संस्करण"
+  }
+
+  fun updateNotifications(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপডেট বিজ্ঞপ্তি"
+    AppLanguage.ENGLISH -> "Update Notifications"
+    AppLanguage.HINDI -> "अपडेट सूचनाएं"
+  }
+
+  fun updateNotificationsDesc(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "নতুন সংস্করণ বা এপিকে প্রকাশিত হলে সতর্কতা পান"
+    AppLanguage.ENGLISH -> "Receive alert notifications when newer releases are available"
+    AppLanguage.HINDI -> "नया संस्करण उपलब्ध होने पर सूचना अलर्ट प्राप्त करें"
+  }
+
+  // Section 5: About
+  fun settingsAbout(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "অ্যাপ পরিচিতি"
+    AppLanguage.ENGLISH -> "About Computer Master"
+    AppLanguage.HINDI -> "कंप्यूटर मास्टर के बारे में"
+  }
+
+  fun aboutCreator(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "নির্মাতা: Soumen Mondal"
+    AppLanguage.ENGLISH -> "Created by Soumen Mondal"
+    AppLanguage.HINDI -> "निर्माता: Soumen Mondal"
+  }
+
+  fun aboutDesc(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "কম্পিউটার সায়েন্স, সিস্টেম আর্কিটেকচার, হার্ডওয়্যার ও প্রোগ্রামিং শেখার সর্বজনীন প্ল্যাটফর্ম।"
+    AppLanguage.ENGLISH -> "A comprehensive educational suite for mastering computer science, systems architecture, hardware, and modern software skills."
+    AppLanguage.HINDI -> "कंप्यूटर विज्ञान, सिस्टम आर्किटेक्चर, हार्डवेयर और सॉफ्टवेयर कौशल में महारत हासिल करने का संपूर्ण शैक्षिक मंच।"
+  }
+
+  // Section 6: Privacy
+  fun settingsPrivacy(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "গোপনীয়তা ও শর্তাবলী"
+    AppLanguage.ENGLISH -> "Privacy & Legal"
+    AppLanguage.HINDI -> "गोपनीयता और शर्तें"
+  }
+
+  fun privacyPolicy(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "গোপনীয়তা নীতি"
+    AppLanguage.ENGLISH -> "Privacy Policy"
+    AppLanguage.HINDI -> "गोपनीयता नीति"
+  }
+
+  fun termsAndConditions(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "ব্যবহারের শর্তাবলী"
+    AppLanguage.ENGLISH -> "Terms & Conditions"
+    AppLanguage.HINDI -> "नियम और शर्तें"
+  }
+
+  fun close(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "বন্ধ করুন"
+    AppLanguage.ENGLISH -> "Close"
+    AppLanguage.HINDI -> "बंद करें"
   }
 }

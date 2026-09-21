@@ -31,11 +31,13 @@ import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -86,6 +88,7 @@ fun HomeScreen(
   onNavigateToQuiz: () -> Unit,
   onNavigateToHardwareVisualLesson: () -> Unit = {},
   onNavigateToCpuRamRomLesson: () -> Unit = {},
+  onNavigateToSettings: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
   val currentLanguage = LocalAppLanguage.current
@@ -114,7 +117,8 @@ fun HomeScreen(
     item {
       TopBrandingSection(
         userName = userProfile.name,
-        streakDays = userProfile.streakDays
+        streakDays = userProfile.streakDays,
+        onNavigateToSettings = onNavigateToSettings
       )
     }
 
@@ -222,6 +226,7 @@ fun HomeScreen(
 private fun TopBrandingSection(
   userName: String,
   streakDays: Int,
+  onNavigateToSettings: () -> Unit = {},
 ) {
   Column(
     modifier = Modifier
@@ -277,36 +282,58 @@ private fun TopBrandingSection(
         }
       }
 
-      // Streak Pill
       Row(
-        modifier = Modifier
-          .background(
-            color = TechAmber.copy(alpha = 0.15f),
-            shape = RoundedCornerShape(20.dp)
-          )
-          .border(
-            width = 1.dp,
-            color = TechAmber.copy(alpha = 0.3f),
-            shape = RoundedCornerShape(20.dp)
-          )
-          .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
-        Icon(
-          imageVector = Icons.Default.LocalFireDepartment,
-          contentDescription = "Streak",
-          tint = TechAmber,
-          modifier = Modifier.size(16.dp)
-        )
-        Text(
-          text = "$streakDays Days",
-          style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Bold,
-            fontSize = 12.sp
-          ),
-          color = TechAmber
-        )
+        // Streak Pill
+        Row(
+          modifier = Modifier
+            .background(
+              color = TechAmber.copy(alpha = 0.15f),
+              shape = RoundedCornerShape(20.dp)
+            )
+            .border(
+              width = 1.dp,
+              color = TechAmber.copy(alpha = 0.3f),
+              shape = RoundedCornerShape(20.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+          Icon(
+            imageVector = Icons.Default.LocalFireDepartment,
+            contentDescription = "Streak",
+            tint = TechAmber,
+            modifier = Modifier.size(16.dp)
+          )
+          Text(
+            text = "$streakDays Days",
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontWeight = FontWeight.Bold,
+              fontSize = 12.sp
+            ),
+            color = TechAmber
+          )
+        }
+
+        // Settings Shortcut Button
+        IconButton(
+          onClick = onNavigateToSettings,
+          modifier = Modifier
+            .size(36.dp)
+            .clip(CircleShape)
+            .background(NavyCard)
+            .border(1.dp, NavyCardBorder, CircleShape)
+        ) {
+          Icon(
+            imageVector = Icons.Default.Settings,
+            contentDescription = "Settings",
+            tint = TechCyanAccent,
+            modifier = Modifier.size(18.dp)
+          )
+        }
       }
     }
 

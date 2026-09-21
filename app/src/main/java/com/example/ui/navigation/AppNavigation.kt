@@ -100,6 +100,9 @@ fun AppNavigation(
         },
         onNavigateToCpuRamRomLesson = {
           navController.navigate(NavRoutes.CPU_RAM_ROM_LESSON)
+        },
+        onNavigateToSettings = {
+          navController.navigate(NavRoutes.SETTINGS)
         }
       )
     }
@@ -283,6 +286,9 @@ fun AppNavigation(
         viewModel = viewModel,
         onNavigateToCourse = { courseId ->
           navController.navigate(NavRoutes.courseDetail(courseId))
+        },
+        onNavigateToSettings = {
+          navController.navigate(NavRoutes.SETTINGS)
         }
       )
     }

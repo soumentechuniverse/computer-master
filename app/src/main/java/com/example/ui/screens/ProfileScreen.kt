@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CheckCircle
@@ -92,6 +93,7 @@ import com.example.util.LocalAppLanguage
 fun ProfileScreen(
   viewModel: ComputerMasterViewModel,
   onNavigateToCourse: (String) -> Unit,
+  onNavigateToSettings: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
   val currentLanguage by viewModel.currentLanguage.collectAsState()
@@ -242,15 +244,89 @@ fun ProfileScreen(
     // App Preferences & Settings
     item {
       Spacer(modifier = Modifier.height(20.dp))
-      Text(
-        text = AppStrings.settings(currentLanguage),
-        style = MaterialTheme.typography.titleMedium.copy(
-          fontWeight = FontWeight.Bold,
-          fontSize = 17.sp
-        ),
-        color = TextPrimary,
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
-      )
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(horizontal = 20.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Text(
+          text = AppStrings.settings(currentLanguage),
+          style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 17.sp
+          ),
+          color = TextPrimary
+        )
+        Text(
+          text = "Full Settings →",
+          style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp
+          ),
+          color = TechCyanAccent,
+          modifier = Modifier
+            .clickable { onNavigateToSettings() }
+            .padding(4.dp)
+        )
+      }
+    }
+
+    // Prominent Full Settings Access Card
+    item {
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(horizontal = 20.dp)
+          .clip(RoundedCornerShape(16.dp))
+          .background(NavyCard)
+          .border(1.dp, TechCyanAccent.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
+          .clickable { onNavigateToSettings() }
+          .padding(16.dp)
+          .testTag("profile_open_settings_banner")
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+          Box(
+            modifier = Modifier
+              .size(44.dp)
+              .clip(CircleShape)
+              .background(TechBluePrimary),
+            contentAlignment = Alignment.Center
+          ) {
+            Icon(
+              imageVector = Icons.Default.Settings,
+              contentDescription = null,
+              tint = Color.White,
+              modifier = Modifier.size(24.dp)
+            )
+          }
+
+          Column(modifier = Modifier.weight(1f)) {
+            Text(
+              text = AppStrings.settingsTitle(currentLanguage),
+              style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+              color = TextPrimary
+            )
+            Text(
+              text = "Account, Language, Appearance (Light/Dark), Updates, About & Privacy",
+              style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+              color = TextSecondary
+            )
+          }
+
+          Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            tint = TechCyanAccent,
+            modifier = Modifier.size(18.dp)
+          )
+        }
+      }
+      Spacer(modifier = Modifier.height(14.dp))
     }
 
     item {
