@@ -1,11 +1,11 @@
 {
-  "versionCode": 2,
-  "versionName": "1.1.0",
+  "versionCode": 3,
+  "versionName": "1.2.0",
   "minSupportedVersion": 1,
-  "apkUrl": "https://github.com/SoumenTechUniverse/Computer-Master/releases/download/v1.1.0/app-debug.apk",
-  "updateMessage": "What's new in Computer Master v1.1.0:\n• Added comprehensive 3D visual lessons for CPU internal architecture, ALU, CU, and registers.\n• Interactive RAM DIMM memory exploration and ROM POST boot sequence simulation.\n• New Hardware comparison matrix (CPU vs. RAM vs. ROM).\n• Trilingual 8-question hardware interactive quiz with real-time scoring.\n• In-app automatic update checker with background notifications.",
-  "updateMessageBn": "কম্পিউটার মাস্টার v1.1.0-এর নতুন বৈশিষ্ট্যসমূহ:\n• সিপিইউ-এর অভ্যন্তরীণ স্থাপত্য, এএলইউ, কন্ট্রোল ইউনিট ও রেজিস্টারসমূহের জন্য ৩ডি ভিজ্যুয়াল পাঠ।\n• ইন্টারঅ্যাক্টিভ র‍্যাম ডিআইএমএম মেমরি এক্সপ্লোরার এবং রম পোস্ট বুট সিকোয়েন্স সিমুলেশন।\n• নতুন হার্ডওয়্যার তুলনামূলক টেবিল (CPU vs. RAM vs. ROM)।\n• রিয়েল-টাইম স্কোরিং সহ ত্রিভাষিক ৮-প্রশ্নের হার্ডওয়্যার ইন্টারেক্টিভ কুইজ।\n• ব্যাকগ্রাউন্ড নোটিফিকেশন সহ ইন-অ্যাপ অটোমেটিক আপডেট চেকার সিস্টেম।",
-  "updateMessageHi": "कंप्यूटर मास्टर v1.1.0 में नई विशेषताएं:\n• सीपीयू की आंतरिक संरचना, एएलयू, कंट्रोल यूनिट और रजिस्टरों के लिए 3D विजुअल पाठ।\n• इंटरएक्टिव रैम डीआईएमएम मेमोरी एक्सप्लोरेशन और रोम पोस्ट बूट सीक्वेंस सिमुलेशन।\n• नई हार्डवेयर तुलना तालिका (CPU vs. RAM vs. ROM)।\n• रियल-टाइम स्कोरिंग के साथ 8-प्रश्नों की त्रिभाषी हार्डवेयर इंटरएक्टिव क्विज।\n• बैकग्राउंड नोटिफिकेशन के साथ इन-ऐप स्वचालित अपडेट चेकर प्रणाली।",
-  "releaseDate": "2026-09-20",
-  "fileSize": "14.8 MB"
+  "apkUrl": "https://github.com/SoumenTechUniverse/Computer-Master/releases/download/v1.2.0/app-debug.apk",
+  "updateMessage": "What's new in Computer Master v1.2.0:\n• New continuous 3D intro screen with interactive exploration.\n• Register/Login and OTP authentication architecture.\n• Secure session persistence.\n• Internet connection requirement for real-time validation.\n• All existing educational lessons, 3D simulations, and quizzes preserved.",
+  "updateMessageBn": "কম্পিউটার মাস্টার v1.2.0-এর নতুন বৈশিষ্ট্যসমূহ:\n• নতুন নিরবচ্ছিন্ন ৩ডি ইন্ট্রো স্ক্রিন এবং ইন্টারঅ্যাক্টিভ অ্যানিমেশন।\n• রেজিস্টার/লগইন এবং ওটিপি প্রমাণীকরণ আর্কিটেকচার।\n• সুরক্ষিত সেশন সংরক্ষণ ব্যবস্থা।\n• রিয়েল-টাইম সুরক্ষার জন্য ইন্টারনেট সংযোগের আবশ্যকতা।\n• পূর্বের সকল শিক্ষামূলক পাঠ, ৩ডি সিমুলেশন ও কুইজ অক্ষুণ্ণ রাখা হয়েছে।",
+  "updateMessageHi": "कंप्यूटर मास्टर v1.2.0 में नई विशेषताएं:\n• नया निरंतर 3D इंट्रो स्क्रीन और इंटरएक्टिव एनिमेशन।\n• रजिस्टर/लॉगिन और ओटीपी प्रमाणीकरण आर्किटेक्चर।\n• सुरक्षित सत्र (सेशन) निरंतरता।\n• रियल-टाइम सत्यापन के लिए इंटरनेट कनेक्टिविटी की आवश्यकता।\n• सभी मौजूदा शैक्षणिक पाठ, 3D सिमुलेशन और क्विज़ सुरक्षित रूप से उपलब्ध हैं।",
+  "releaseDate": "2026-09-21",
+  "fileSize": "15.2 MB"
 }
