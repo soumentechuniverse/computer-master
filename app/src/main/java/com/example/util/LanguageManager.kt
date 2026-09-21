@@ -540,4 +540,102 @@ object AppStrings {
     AppLanguage.ENGLISH -> "Close"
     AppLanguage.HINDI -> "बंद करें"
   }
+
+  // Authentication & Security Strings
+  fun authTitle(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "লগইন / রেজিস্টার"
+    AppLanguage.ENGLISH -> "Sign In / Register"
+    AppLanguage.HINDI -> "साइन इन / रजिस्टर"
+  }
+
+  fun authSubtitle(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "কম্পিউটার মাস্টারে নিরাপদ ও সুরক্ষিত অ্যাক্সেসের জন্য যাচাই করুন"
+    AppLanguage.ENGLISH -> "Verify your identity to access all courses, lessons, and tests safely"
+    AppLanguage.HINDI -> "सभी पाठ्यक्रमों, पाठों और परीक्षणों तक सुरक्षित पहुंच के लिए पहचान सत्यापित करें"
+  }
+
+  fun authRegisterTab(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "রেজিস্টার"
+    AppLanguage.ENGLISH -> "REGISTER"
+    AppLanguage.HINDI -> "रजिस्टर"
+  }
+
+  fun authLoginTab(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "লগইন"
+    AppLanguage.ENGLISH -> "LOGIN"
+    AppLanguage.HINDI -> "लॉगिन"
+  }
+
+  fun authFullName(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপনার পুরো নাম"
+    AppLanguage.ENGLISH -> "Full Name"
+    AppLanguage.HINDI -> "पूरा नाम"
+  }
+
+  fun authPhoneOrEmail(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "মোবাইল নম্বর বা ইমেল"
+    AppLanguage.ENGLISH -> "Phone Number or Email"
+    AppLanguage.HINDI -> "मोबाइल नंबर या ईमेल"
+  }
+
+  fun authSendOtp(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "ওটিপি পাঠান"
+    AppLanguage.ENGLISH -> "SEND OTP"
+    AppLanguage.HINDI -> "ओटीपी भेजें"
+  }
+
+  fun authOtpVerification(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "ওটিপি যাচাইকরণ"
+    AppLanguage.ENGLISH -> "OTP Verification"
+    AppLanguage.HINDI -> "ओटीपी सत्यापन"
+  }
+
+  fun authEnterOtp(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "৬ ডিজিটের ওটিপি লিখুন"
+    AppLanguage.ENGLISH -> "Enter 6-digit OTP code"
+    AppLanguage.HINDI -> "6 अंकों का ओटीपी कोड दर्ज करें"
+  }
+
+  fun authVerifyAndContinue(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "যাচাই করুন ও প্রবেশ করুন"
+    AppLanguage.ENGLISH -> "VERIFY & CONTINUE"
+    AppLanguage.HINDI -> "सत्यापित करें और आगे बढ़ें"
+  }
+
+  fun authResendOtp(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "পুনরায় ওটিপি পাঠান"
+    AppLanguage.ENGLISH -> "Resend OTP"
+    AppLanguage.HINDI -> "ओटीपी पुनः भेजें"
+  }
+
+  fun authSecurityNote(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "সুরক্ষিত যাচাইকরণ: কোনো ডামি ওটিপি বা পাসওয়ার্ড প্লেইন টেক্সটে সংরক্ষিত হয় না।"
+    AppLanguage.ENGLISH -> "Real Verification: Tokens are securely managed. Passwords or OTPs are never stored in plain text."
+    AppLanguage.HINDI -> "सुरक्षित सत्यापन: टोकन सुरक्षित रूप से प्रबंधित होते हैं। पासवर्ड या ओटीपी कभी भी सादे पाठ में संग्रहीत नहीं होते हैं।"
+  }
+
+  // Internet Requirement Strings
+  fun internetRequiredTitle(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "ইন্টারনেট সংযোগ আবশ্যক"
+    AppLanguage.ENGLISH -> "Internet Connection Required"
+    AppLanguage.HINDI -> "इंटरनेट कनेक्शन आवश्यक है"
+  }
+
+  fun internetRequiredMessage(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "কম্পিউটার মাস্টার ব্যবহার করার জন্য ইন্টারনেট সংযোগ প্রয়োজন।"
+    AppLanguage.ENGLISH -> "Internet connection is required to use Computer Master."
+    AppLanguage.HINDI -> "कंप्यूटर मास्टर का उपयोग करने के लिए इंटरनेट कनेक्शन आवश्यक है।"
+  }
+
+  fun internetRetryBtn(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "পুনরায় চেষ্টা করুন"
+    AppLanguage.ENGLISH -> "Retry Connection"
+    AppLanguage.HINDI -> "पुनः प्रयास करें"
+  }
+
+  fun internetOfflineSubtext(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "কোনো সক্রিয় নেটওয়ার্ক পাওয়া যায়নি। অনুগ্রহ করে ওয়াই-ফাই বা মোবাইল ডেটা চেক করুন।"
+    AppLanguage.ENGLISH -> "No active network detected. Please ensure Wi-Fi or mobile data is turned on."
+    AppLanguage.HINDI -> "कोई सक्रिय नेटवर्क नहीं मिला। कृपया सुनिश्चित करें कि वाई-फाई या मोबाइल डेटा चालू है।"
+  }
 }

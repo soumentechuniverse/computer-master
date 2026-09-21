@@ -22,12 +22,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -64,18 +69,18 @@ import com.example.ui.theme.TechIndigo
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TextTertiary
-import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Modern 3D-style animated splash screen for Computer Master.
- * Features a dynamic 3D perspective holographic CPU core with neon circuit traces,
- * rotational orbital data rings, and smooth entrance transitions (~2.4s total).
+ * Permanent 3D animated intro screen for Computer Master.
+ * Features a dynamic, continuous 3D holographic CPU core with neon circuit traces,
+ * rotational orbital data rings, and persistent animation.
+ * Requires explicit user tap on "GET STARTED" to proceed to authentication.
  */
 @Composable
 fun SplashScreen(
-  onSplashFinished: () -> Unit,
+  onGetStarted: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   // Main entrance animation progress (0f -> 1f)
@@ -126,14 +131,10 @@ fun SplashScreen(
   )
 
   LaunchedEffect(Unit) {
-    // Stage 1: Reveal logo and scale up smoothly
-    logoAlpha.animateTo(1f, animationSpec = tween(600, easing = FastOutSlowInEasing))
-    logoScale.animateTo(1f, animationSpec = tween(700, easing = FastOutSlowInEasing))
-    entranceProgress.animateTo(1f, animationSpec = tween(1600, easing = FastOutSlowInEasing))
-
-    // Hold briefly to complete ~2.4s total duration
-    delay(200)
-    onSplashFinished()
+    // Reveal logo and animate entrance, then remain active continuously
+    logoAlpha.animateTo(1f, animationSpec = tween(500, easing = FastOutSlowInEasing))
+    logoScale.animateTo(1f, animationSpec = tween(650, easing = FastOutSlowInEasing))
+    entranceProgress.animateTo(1f, animationSpec = tween(1000, easing = FastOutSlowInEasing))
   }
 
   Box(
@@ -337,18 +338,18 @@ fun SplashScreen(
 
       Spacer(modifier = Modifier.height(28.dp))
 
-      // APP TITLE & BRANDING (With smooth staggered reveal)
+      // APP TITLE & BRANDING (With smooth continuous presence)
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.alpha(logoAlpha.value)
       ) {
-        // Futuristic Tech Badge
+        // Creator Badge
         Box(
           modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
             .background(TechCyanAccent.copy(alpha = 0.12f))
             .border(1.dp, TechCyanAccent.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
-            .padding(horizontal = 14.dp, vertical = 5.dp)
+            .padding(horizontal = 14.dp, vertical = 6.dp)
         ) {
           Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -360,11 +361,11 @@ fun SplashScreen(
                 .background(TechGreen, CircleShape)
             )
             Text(
-              text = "NEXT-GEN COMPUTING ACADEMY",
-              style = MaterialTheme.typography.labelSmall.copy(
+              text = "Created by Soumen Mondal",
+              style = MaterialTheme.typography.labelMedium.copy(
                 fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 1.5.sp,
-                fontSize = 10.sp,
+                letterSpacing = 1.sp,
+                fontSize = 12.sp,
                 color = TechCyanAccent
               )
             )
@@ -378,7 +379,7 @@ fun SplashScreen(
           text = "Computer Master",
           style = MaterialTheme.typography.headlineLarge.copy(
             fontWeight = FontWeight.Black,
-            fontSize = 32.sp,
+            fontSize = 34.sp,
             letterSpacing = 0.5.sp
           ),
           color = TextPrimary,
@@ -398,64 +399,35 @@ fun SplashScreen(
         )
       }
 
-      Spacer(modifier = Modifier.height(42.dp))
+      Spacer(modifier = Modifier.height(36.dp))
 
-      // SYSTEM INITIALIZATION STATUS & PROGRESS BAR
-      Column(
+      // EXPLICIT GET STARTED BUTTON (Required to transition to Authentication)
+      Button(
+        onClick = onGetStarted,
         modifier = Modifier
-          .fillMaxWidth(0.75f)
-          .alpha(logoAlpha.value),
-        horizontalAlignment = Alignment.CenterHorizontally
+          .fillMaxWidth(0.82f)
+          .height(52.dp)
+          .testTag("btn_get_started"),
+        colors = ButtonDefaults.buttonColors(
+          containerColor = TechBluePrimary,
+          contentColor = TextPrimary
+        ),
+        shape = RoundedCornerShape(14.dp)
       ) {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Text(
-            text = "INITIALIZING CORE ENGINE",
-            style = MaterialTheme.typography.labelSmall.copy(
-              fontWeight = FontWeight.Bold,
-              letterSpacing = 1.sp,
-              fontSize = 9.sp
-            ),
-            color = TechCyanAccent.copy(alpha = 0.85f)
+        Text(
+          text = "GET STARTED",
+          style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.ExtraBold,
+            letterSpacing = 1.2.sp
           )
-          Text(
-            text = "${(entranceProgress.value * 100).toInt()}%",
-            style = MaterialTheme.typography.labelSmall.copy(
-              fontWeight = FontWeight.Bold,
-              fontSize = 9.sp
-            ),
-            color = TechCyanAccent
-          )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Cyber Progress Bar
-        Box(
-          modifier = Modifier
-            .fillMaxWidth()
-            .height(4.dp)
-            .clip(RoundedCornerShape(2.dp))
-            .background(NavyCard)
-        ) {
-          Box(
-            modifier = Modifier
-              .fillMaxWidth(fraction = entranceProgress.value)
-              .height(4.dp)
-              .clip(RoundedCornerShape(2.dp))
-              .background(
-                brush = Brush.horizontalGradient(
-                  colors = listOf(
-                    TechBluePrimary,
-                    TechCyanAccent
-                  )
-                )
-              )
-          )
-        }
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Icon(
+          imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+          contentDescription = null,
+          tint = TechCyanAccent,
+          modifier = Modifier.size(20.dp)
+        )
       }
     }
   }

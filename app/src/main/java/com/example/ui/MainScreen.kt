@@ -30,6 +30,7 @@ import com.example.ui.components.BottomNavBar
 import com.example.ui.components.UpdateAvailableDialog
 import com.example.ui.navigation.AppNavigation
 import com.example.ui.navigation.NavRoutes
+import com.example.ui.screens.InternetRequiredScreen
 import com.example.ui.theme.NavyDarkest
 import com.example.ui.viewmodel.ComputerMasterViewModel
 import com.example.util.ProvideAppLanguage
@@ -42,6 +43,7 @@ fun MainScreen(
   val currentLanguage by viewModel.currentLanguage.collectAsState()
   val updateState by viewModel.updateState.collectAsState()
   val showUpdateDialog by viewModel.showUpdateDialog.collectAsState()
+  val isOnline by viewModel.isOnline.collectAsState()
 
   val context = LocalContext.current
   val navController = rememberNavController()
@@ -71,7 +73,9 @@ fun MainScreen(
     NavRoutes.PROFILE
   )
 
-  val showBottomBar = currentRoute in topLevelRoutes
+  // Internet required gate for authenticated app content
+  val isAuthOrSplash = currentRoute == NavRoutes.SPLASH || currentRoute == NavRoutes.AUTH
+  val showBottomBar = currentRoute in topLevelRoutes && isOnline
 
   ProvideAppLanguage(language = currentLanguage) {
     Scaffold(
@@ -108,6 +112,15 @@ fun MainScreen(
           navController = navController,
           viewModel = viewModel
         )
+
+        // Strict Internet Requirement Barrier:
+        // Do not allow the user to view or interact with main app content without active internet.
+        if (!isOnline && !isAuthOrSplash) {
+          InternetRequiredScreen(
+            currentLanguage = currentLanguage,
+            onRetry = { viewModel.checkNetworkConnection() }
+          )
+        }
 
         // Global New Update Available Dialog
         if (showUpdateDialog) {

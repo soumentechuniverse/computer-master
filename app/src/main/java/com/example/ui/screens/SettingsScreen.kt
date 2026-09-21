@@ -114,6 +114,7 @@ import com.example.util.AppStrings
 fun SettingsScreen(
   viewModel: ComputerMasterViewModel,
   onBackClick: () -> Unit,
+  onLogout: () -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   val currentLanguage by viewModel.currentLanguage.collectAsState()
@@ -270,7 +271,10 @@ fun SettingsScreen(
               horizontalArrangement = Arrangement.End
             ) {
               OutlinedButton(
-                onClick = { viewModel.logout() },
+                onClick = {
+                  viewModel.logout()
+                  onLogout()
+                },
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = TechRed),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.testTag("settings_account_logout_btn")

@@ -3,6 +3,9 @@ package com.example.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.data.auth.AuthManager
+import com.example.data.auth.AuthState
+import com.example.data.auth.AuthUser
 import com.example.data.model.Achievement
 import com.example.data.model.Course
 import com.example.data.model.CourseLevel
@@ -19,7 +22,9 @@ import com.example.data.update.InAppUpdateManager
 import com.example.data.update.UpdateUiState
 import com.example.ui.theme.AppThemeMode
 import com.example.util.AppLanguage
+import com.example.util.NetworkMonitor
 import java.io.File
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -50,6 +55,15 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
 
   private val repository = ComputerMasterRepository(application.applicationContext)
   val updateManager = InAppUpdateManager(application.applicationContext)
+  val networkMonitor = NetworkMonitor(application.applicationContext)
+  val authManager = AuthManager(application.applicationContext)
+
+  // Real Network connectivity state
+  val isOnline: StateFlow<Boolean> = networkMonitor.isOnline
+
+  // Authentication architecture state
+  val authState: StateFlow<AuthState> = authManager.authState
+  val isAuthenticated: Boolean get() = authManager.isAuthenticated
 
   val allCourses: StateFlow<List<Course>> = repository.courses
   val quizzes: StateFlow<List<Quiz>> = repository.quizzes
@@ -77,12 +91,68 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
   val updateNotificationsEnabled: StateFlow<Boolean> = _updateNotificationsEnabled.asStateFlow()
 
   // Account State Architecture
-  private val _accountState = MutableStateFlow(AccountState())
+  private val _accountState = MutableStateFlow(
+    authManager.currentUser?.let { user ->
+      AccountState(
+        isLoggedIn = true,
+        userEmail = user.identifier,
+        userName = user.displayName ?: "Computer Master Student",
+        isGuest = false
+      )
+    } ?: AccountState()
+  )
   val accountState: StateFlow<AccountState> = _accountState.asStateFlow()
 
   init {
     // Automatically check for newer version when app launches
     checkForUpdates(isManual = false)
+
+    // Reactively observe auth changes
+    viewModelScope.launch {
+      authManager.authState.collect { state ->
+        when (state) {
+          is AuthState.Authenticated -> {
+            _accountState.value = AccountState(
+              isLoggedIn = true,
+              userEmail = state.user.identifier,
+              userName = state.user.displayName ?: "Computer Master Student",
+              isGuest = false
+            )
+          }
+          is AuthState.Unauthenticated -> {
+            _accountState.value = AccountState(
+              isLoggedIn = false,
+              userEmail = null,
+              userName = null,
+              isGuest = true
+            )
+          }
+          else -> Unit
+        }
+      }
+    }
+  }
+
+  fun requestAuthOtp(identifier: String, isRegister: Boolean, displayName: String? = null) {
+    authManager.requestOtp(identifier, isRegister, displayName)
+  }
+
+  fun verifyAuthOtp(
+    verificationId: String,
+    otpCode: String,
+    targetIdentifier: String,
+    isRegister: Boolean,
+    displayName: String? = null
+  ) {
+    authManager.verifyOtp(verificationId, otpCode, targetIdentifier, isRegister, displayName)
+  }
+
+  fun resetAuthState() {
+    authManager.resetState()
+  }
+
+  fun checkNetworkConnection(): Boolean {
+    return networkMonitor.refresh()
   }
 
   fun setLanguage(language: AppLanguage) {
@@ -101,6 +171,7 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
   }
 
   fun logout() {
+    authManager.logout()
     _accountState.value = AccountState(
       isLoggedIn = false,
       userEmail = null,

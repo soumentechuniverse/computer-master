@@ -3,6 +3,8 @@ package com.example.ui.navigation
 object NavRoutes {
   const val SPLASH = "splash"
   const val WELCOME = "welcome"
+  const val AUTH = "auth"
+  const val INTERNET_REQUIRED = "internet_required"
   const val HOME = "home"
   const val COURSES = "courses"
   const val COURSE_DETAIL = "course_detail/{courseId}"

@@ -13,11 +13,13 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.ui.screens.AuthScreen
 import com.example.ui.screens.ComputerHardwareVisualLessonScreen
 import com.example.ui.screens.CourseDetailScreen
 import com.example.ui.screens.CoursesScreen
 import com.example.ui.screens.CpuRamRomVisualLessonScreen
 import com.example.ui.screens.HomeScreen
+import com.example.ui.screens.InternetRequiredScreen
 import com.example.ui.screens.LessonScreen
 import com.example.ui.screens.ProfileScreen
 import com.example.ui.screens.ProgressScreen
@@ -33,9 +35,11 @@ fun AppNavigation(
   viewModel: ComputerMasterViewModel,
   modifier: Modifier = Modifier,
 ) {
+  val startDest = if (viewModel.isAuthenticated) NavRoutes.HOME else NavRoutes.SPLASH
+
   NavHost(
     navController = navController,
-    startDestination = NavRoutes.SPLASH,
+    startDestination = startDest,
     modifier = modifier,
     enterTransition = { fadeIn(animationSpec = tween(220)) },
     exitTransition = { fadeOut(animationSpec = tween(180)) },
@@ -47,10 +51,26 @@ fun AppNavigation(
       exitTransition = { fadeOut(animationSpec = tween(350)) }
     ) {
       SplashScreen(
-        onSplashFinished = {
-          navController.navigate(NavRoutes.WELCOME) {
+        onGetStarted = {
+          navController.navigate(NavRoutes.AUTH)
+        }
+      )
+    }
+
+    composable(
+      route = NavRoutes.AUTH,
+      enterTransition = { fadeIn(animationSpec = tween(300)) },
+      exitTransition = { fadeOut(animationSpec = tween(250)) }
+    ) {
+      AuthScreen(
+        viewModel = viewModel,
+        onAuthSuccess = {
+          navController.navigate(NavRoutes.HOME) {
             popUpTo(NavRoutes.SPLASH) { inclusive = true }
           }
+        },
+        onBackToIntro = {
+          navController.popBackStack()
         }
       )
     }
@@ -296,7 +316,12 @@ fun AppNavigation(
     composable(NavRoutes.SETTINGS) {
       SettingsScreen(
         viewModel = viewModel,
-        onBackClick = { navController.popBackStack() }
+        onBackClick = { navController.popBackStack() },
+        onLogout = {
+          navController.navigate(NavRoutes.SPLASH) {
+            popUpTo(0) { inclusive = true }
+          }
+        }
       )
     }
   }
