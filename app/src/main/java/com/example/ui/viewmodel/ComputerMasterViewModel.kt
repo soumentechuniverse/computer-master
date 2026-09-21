@@ -12,9 +12,13 @@ import com.example.data.model.QuizAttempt
 import com.example.data.model.QuizUserAnswer
 import com.example.data.model.StudyNote
 import com.example.data.model.UserProfile
+import com.example.data.model.AppUpdateInfo
 import com.example.data.repository.ComputerBasicsQuizRepository
 import com.example.data.repository.ComputerMasterRepository
+import com.example.data.update.InAppUpdateManager
+import com.example.data.update.UpdateUiState
 import com.example.util.AppLanguage
+import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,6 +41,7 @@ data class ActiveQuizState(
 class ComputerMasterViewModel(application: Application) : AndroidViewModel(application) {
 
   private val repository = ComputerMasterRepository(application.applicationContext)
+  val updateManager = InAppUpdateManager(application.applicationContext)
 
   val allCourses: StateFlow<List<Course>> = repository.courses
   val quizzes: StateFlow<List<Quiz>> = repository.quizzes
@@ -47,9 +52,18 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
   val recentAttempts: StateFlow<List<QuizAttempt>> = repository.recentAttempts
   val bookmarkedLessons: StateFlow<Set<String>> = repository.bookmarkedLessons
 
+  // In-App Update states
+  val updateState: StateFlow<UpdateUiState> = updateManager.updateState
+  val showUpdateDialog: StateFlow<Boolean> = updateManager.showDialog
+
   // App Language System
   private val _currentLanguage = MutableStateFlow(repository.getSavedLanguage())
   val currentLanguage: StateFlow<AppLanguage> = _currentLanguage.asStateFlow()
+
+  init {
+    // Automatically check for newer version when app launches
+    checkForUpdates(isManual = false)
+  }
 
   fun setLanguage(language: AppLanguage) {
     _currentLanguage.value = language
@@ -247,5 +261,51 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
 
   fun exitQuiz() {
     _activeQuizState.value = ActiveQuizState()
+  }
+
+  // --- In-App Update Helper Functions ---
+
+  fun checkForUpdates(isManual: Boolean = false) {
+    updateManager.checkForUpdates(
+      scope = viewModelScope,
+      isManual = isManual,
+      language = _currentLanguage.value
+    )
+  }
+
+  fun downloadUpdateApk(info: AppUpdateInfo) {
+    updateManager.downloadApk(viewModelScope, info)
+  }
+
+  fun launchPackageInstaller(apkFile: File) {
+    updateManager.launchPackageInstaller(apkFile)
+  }
+
+  fun dismissUpdateDialog(versionCode: Int? = null) {
+    updateManager.dismissDialog(versionCode)
+  }
+
+  fun openUpdateDialog() {
+    updateManager.openDialog()
+  }
+
+  fun getUpdateMetadataUrl(): String = updateManager.getUpdateMetadataUrl()
+
+  fun setUpdateMetadataUrl(url: String) {
+    updateManager.setUpdateMetadataUrl(url)
+  }
+
+  fun resetDefaultUpdateUrl() {
+    updateManager.resetToDefaultUrl()
+  }
+
+  fun getCustomApkUrl(): String? = updateManager.getCustomApkUrl()
+
+  fun setCustomApkUrl(url: String?) {
+    updateManager.setCustomApkUrl(url)
+  }
+
+  fun resetCustomApkUrl() {
+    updateManager.resetCustomApkUrl()
   }
 }

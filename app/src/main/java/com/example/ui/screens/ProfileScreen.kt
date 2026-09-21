@@ -23,19 +23,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.StudyNote
+import com.example.data.update.UpdateUiState
 import com.example.ui.components.CourseCard
 import com.example.ui.theme.NavyCard
 import com.example.ui.theme.NavyCardBorder
@@ -96,8 +102,10 @@ fun ProfileScreen(
   val bookmarkedCourses = allCourses.filter { it.isBookmarked }
   val completedCourses = allCourses.filter { it.progressPercent >= 100 }
 
+  val updateState by viewModel.updateState.collectAsState()
   var showAddNoteDialog by remember { mutableStateOf(false) }
   var showResetConfirmDialog by remember { mutableStateOf(false) }
+  var showConfigUrlDialog by remember { mutableStateOf(false) }
 
   // Settings mock toggles
   var hapticFeedbackEnabled by remember { mutableStateOf(true) }
@@ -253,9 +261,111 @@ fun ProfileScreen(
         onToggleDailyReminder = { dailyReminderEnabled = it },
         haptics = hapticFeedbackEnabled,
         onToggleHaptics = { hapticFeedbackEnabled = it },
-        onResetProgress = { showResetConfirmDialog = true }
+        onResetProgress = { showResetConfirmDialog = true },
+        updateState = updateState,
+        currentVersionName = viewModel.updateManager.currentVersionName,
+        onCheckForUpdates = { viewModel.checkForUpdates(isManual = true) },
+        onOpenUpdateDialog = { viewModel.openUpdateDialog() },
+        onOpenConfigUrl = { showConfigUrlDialog = true }
       )
     }
+  }
+
+  // Configure GitHub Update & APK URL Dialog
+  if (showConfigUrlDialog) {
+    var inputUrl by remember { mutableStateOf(viewModel.getUpdateMetadataUrl()) }
+    var inputApkUrl by remember { mutableStateOf(viewModel.getCustomApkUrl() ?: "") }
+    AlertDialog(
+      onDismissRequest = { showConfigUrlDialog = false },
+      title = {
+        Text(
+          text = AppStrings.updateSourceUrl(currentLanguage),
+          color = TextPrimary,
+          style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+        )
+      },
+      text = {
+        Column(modifier = Modifier.fillMaxWidth()) {
+          Text(
+            text = "1. GitHub Update Metadata JSON URL:",
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            color = TechCyanAccent
+          )
+          Spacer(modifier = Modifier.height(6.dp))
+          OutlinedTextField(
+            value = inputUrl,
+            onValueChange = { inputUrl = it },
+            singleLine = false,
+            maxLines = 2,
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+              focusedTextColor = TextPrimary,
+              unfocusedTextColor = TextPrimary,
+              focusedBorderColor = TechCyanAccent
+            )
+          )
+          Spacer(modifier = Modifier.height(10.dp))
+          Text(
+            text = "2. APK Direct Download URL (Custom Override):",
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            color = TechCyanAccent
+          )
+          Text(
+            text = "Leave empty to use the release APK defined in the metadata JSON.",
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+            color = TextSecondary
+          )
+          Spacer(modifier = Modifier.height(6.dp))
+          OutlinedTextField(
+            value = inputApkUrl,
+            onValueChange = { inputApkUrl = it },
+            placeholder = { Text("https://github.com/.../app-debug.apk", color = TextTertiary, fontSize = 11.sp) },
+            singleLine = false,
+            maxLines = 2,
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+              focusedTextColor = TextPrimary,
+              unfocusedTextColor = TextPrimary,
+              focusedBorderColor = TechCyanAccent
+            )
+          )
+        }
+      },
+      confirmButton = {
+        Button(
+          onClick = {
+            viewModel.setUpdateMetadataUrl(inputUrl)
+            viewModel.setCustomApkUrl(inputApkUrl.ifBlank { null })
+            showConfigUrlDialog = false
+            viewModel.checkForUpdates(isManual = true)
+          },
+          colors = ButtonDefaults.buttonColors(containerColor = TechBluePrimary)
+        ) {
+          Text(AppStrings.save(currentLanguage))
+        }
+      },
+      dismissButton = {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+          OutlinedButton(
+            onClick = {
+              viewModel.resetDefaultUpdateUrl()
+              viewModel.resetCustomApkUrl()
+              inputUrl = viewModel.getUpdateMetadataUrl()
+              inputApkUrl = ""
+              showConfigUrlDialog = false
+              viewModel.checkForUpdates(isManual = true)
+            }
+          ) {
+            Text(AppStrings.resetDefaultUrl(currentLanguage), color = TechAmber)
+          }
+          OutlinedButton(onClick = { showConfigUrlDialog = false }) {
+            Text(AppStrings.cancel(currentLanguage), color = TextPrimary)
+          }
+        }
+      },
+      containerColor = NavyCardElevated,
+      shape = RoundedCornerShape(18.dp)
+    )
   }
 
   // Add Note Dialog
@@ -536,6 +646,11 @@ private fun SettingsCard(
   haptics: Boolean,
   onToggleHaptics: (Boolean) -> Unit,
   onResetProgress: () -> Unit,
+  updateState: UpdateUiState,
+  currentVersionName: String,
+  onCheckForUpdates: () -> Unit,
+  onOpenUpdateDialog: () -> Unit,
+  onOpenConfigUrl: () -> Unit,
 ) {
   Box(
     modifier = Modifier
@@ -683,6 +798,205 @@ private fun SettingsCard(
             checkedTrackColor = TechBluePrimary
           )
         )
+      }
+
+      Spacer(modifier = Modifier.height(16.dp))
+
+      // 4. IN-APP UPDATE SYSTEM
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Row(
+          modifier = Modifier.weight(1f),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          Icon(
+            imageVector = Icons.Default.SystemUpdate,
+            contentDescription = null,
+            tint = TechCyanAccent,
+            modifier = Modifier.size(20.dp)
+          )
+          Column {
+            Text(
+              text = AppStrings.checkForUpdates(currentLanguage),
+              style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+              color = TextPrimary
+            )
+            Text(
+              text = AppStrings.checkForUpdatesDesc(currentLanguage),
+              style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+              color = TextTertiary
+            )
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(10.dp))
+
+      // Update Action / Status Container
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(12.dp))
+          .background(NavyDark)
+          .border(1.dp, NavyCardBorder, RoundedCornerShape(12.dp))
+          .padding(12.dp)
+      ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Column(modifier = Modifier.weight(1f)) {
+              Text(
+                text = "Installed: v$currentVersionName",
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = TextSecondary
+              )
+              when (updateState) {
+                is UpdateUiState.Checking -> {
+                  Text(
+                    text = AppStrings.checkingUpdates(currentLanguage),
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = TechCyanAccent
+                  )
+                }
+                is UpdateUiState.UpdateAvailable -> {
+                  Text(
+                    text = "v${updateState.info.versionName} Available!",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                      fontSize = 12.sp,
+                      fontWeight = FontWeight.Bold
+                    ),
+                    color = TechAmber
+                  )
+                }
+                is UpdateUiState.UpToDate -> {
+                  Text(
+                    text = AppStrings.appUpToDate(currentLanguage, updateState.versionName),
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = TechGreen
+                  )
+                }
+                is UpdateUiState.Downloading -> {
+                  Text(
+                    text = "${AppStrings.updateDownloading(currentLanguage)} (${(updateState.progress * 100).toInt()}%)",
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = TechCyanAccent
+                  )
+                }
+                is UpdateUiState.ReadyToInstall -> {
+                  Text(
+                    text = AppStrings.updateReadyToInstall(currentLanguage),
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = TechGreen
+                  )
+                }
+                is UpdateUiState.Error -> {
+                  Text(
+                    text = updateState.message,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = TechRed
+                  )
+                }
+                else -> {
+                  Text(
+                    text = "GitHub Release Channel",
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = TextTertiary
+                  )
+                }
+              }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            if (updateState is UpdateUiState.Checking) {
+              CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = TechCyanAccent,
+                strokeWidth = 2.dp
+              )
+            } else if (updateState is UpdateUiState.UpdateAvailable || updateState is UpdateUiState.Downloading || updateState is UpdateUiState.ReadyToInstall) {
+              Button(
+                onClick = onOpenUpdateDialog,
+                colors = ButtonDefaults.buttonColors(containerColor = TechAmber),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier.testTag("settings_view_update_btn")
+              ) {
+                Icon(
+                  imageVector = Icons.Default.CloudDownload,
+                  contentDescription = null,
+                  modifier = Modifier.size(16.dp),
+                  tint = NavyDarkest
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                  text = AppStrings.updateNow(currentLanguage),
+                  style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                  color = NavyDarkest
+                )
+              }
+            } else {
+              Button(
+                onClick = onCheckForUpdates,
+                colors = ButtonDefaults.buttonColors(containerColor = TechBluePrimary),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier.testTag("settings_check_update_btn")
+              ) {
+                Icon(
+                  imageVector = Icons.Default.Sync,
+                  contentDescription = null,
+                  modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                  text = AppStrings.checkForUpdates(currentLanguage),
+                  style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                )
+              }
+            }
+          }
+
+          Spacer(modifier = Modifier.height(8.dp))
+
+          // Config source URL row
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .clickable { onOpenConfigUrl() },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+              Icon(
+                imageVector = Icons.Default.Link,
+                contentDescription = null,
+                tint = TechCyanAccent,
+                modifier = Modifier.size(14.dp)
+              )
+              Text(
+                text = AppStrings.updateSourceUrl(currentLanguage),
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                color = TechCyanAccent
+              )
+            }
+            Text(
+              text = AppStrings.configureSource(currentLanguage),
+              style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
+              color = TechCyanAccent
+            )
+          }
+        }
       }
 
       Spacer(modifier = Modifier.height(14.dp))

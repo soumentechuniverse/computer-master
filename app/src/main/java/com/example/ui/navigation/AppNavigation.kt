@@ -22,6 +22,7 @@ import com.example.ui.screens.LessonScreen
 import com.example.ui.screens.ProfileScreen
 import com.example.ui.screens.ProgressScreen
 import com.example.ui.screens.QuizScreen
+import com.example.ui.screens.SettingsScreen
 import com.example.ui.screens.SplashScreen
 import com.example.ui.screens.WelcomeScreen
 import com.example.ui.viewmodel.ComputerMasterViewModel
@@ -283,6 +284,13 @@ fun AppNavigation(
         onNavigateToCourse = { courseId ->
           navController.navigate(NavRoutes.courseDetail(courseId))
         }
+      )
+    }
+
+    composable(NavRoutes.SETTINGS) {
+      SettingsScreen(
+        viewModel = viewModel,
+        onBackClick = { navController.popBackStack() }
       )
     }
   }

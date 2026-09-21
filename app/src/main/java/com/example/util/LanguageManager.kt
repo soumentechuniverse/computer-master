@@ -288,4 +288,112 @@ object AppStrings {
     AppLanguage.ENGLISH -> "Done"
     AppLanguage.HINDI -> "पूर्ण"
   }
+
+  fun updateAvailableDialogTitle(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "নতুন আপডেট উপলব্ধ!"
+    AppLanguage.ENGLISH -> "New Update Available!"
+    AppLanguage.HINDI -> "नया अपडेट उपलब्ध है!"
+  }
+
+  fun updateNewVersionBadge(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "নতুন সংস্করণ"
+    AppLanguage.ENGLISH -> "New Version"
+    AppLanguage.HINDI -> "नया संस्करण"
+  }
+
+  fun updateCurrentVersionBadge(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "বর্তমান"
+    AppLanguage.ENGLISH -> "Current"
+    AppLanguage.HINDI -> "वर्तमान"
+  }
+
+  fun updateWhatsNew(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "এই আপডেটে যা নতুন রয়েছে:"
+    AppLanguage.ENGLISH -> "What's New in this Update:"
+    AppLanguage.HINDI -> "इस अपडेट में क्या नया है:"
+  }
+
+  fun updateNow(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "এখনই আপডেট করুন"
+    AppLanguage.ENGLISH -> "Update Now"
+    AppLanguage.HINDI -> "अभी अपडेट करें"
+  }
+
+  fun updateLater(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "পরে মনে করিয়ে দিন"
+    AppLanguage.ENGLISH -> "Later"
+    AppLanguage.HINDI -> "बाद में"
+  }
+
+  fun updateDownloading(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপডেট এপিকে ডাউনলোড হচ্ছে..."
+    AppLanguage.ENGLISH -> "Downloading update APK..."
+    AppLanguage.HINDI -> "अपडेट एपीके डाउनलोड हो रहा है..."
+  }
+
+  fun updateReadyToInstall(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "ডাউনলোড সম্পন্ন। প্যাকেজ ইনস্টলার খোলা হচ্ছে..."
+    AppLanguage.ENGLISH -> "Download complete. Launching package installer..."
+    AppLanguage.HINDI -> "डाउनलोड पूरा हुआ। पैकेज इंस्टालर शुरू हो रहा है..."
+  }
+
+  fun updateFailed(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপডেট ডাউনলোড ব্যর্থ হয়েছে। ইন্টারনেট সংযোগ পরীক্ষা করুন।"
+    AppLanguage.ENGLISH -> "Update download failed. Please check internet connection."
+    AppLanguage.HINDI -> "अपडेट डाउनलोड विफल रहा। कृपया इंटरनेट कनेक्शन जांचें।"
+  }
+
+  fun updateRetry(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "পুনরায় চেষ্টা করুন"
+    AppLanguage.ENGLISH -> "Retry"
+    AppLanguage.HINDI -> "पुनः प्रयास करें"
+  }
+
+  fun checkForUpdates(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপডেট পরীক্ষা করুন"
+    AppLanguage.ENGLISH -> "Check for Updates"
+    AppLanguage.HINDI -> "अपडेट जांचें"
+  }
+
+  fun checkForUpdatesDesc(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "গিটহাবে কম্পিউটার মাস্টারের নতুন সংস্করণ এসেছে কিনা যাচাই করুন"
+    AppLanguage.ENGLISH -> "Check if a newer version of Computer Master is available on GitHub"
+    AppLanguage.HINDI -> "गिटहब पर कंप्यूटर मास्टर का नया संस्करण उपलब्ध है या नहीं जांचें"
+  }
+
+  fun checkingUpdates(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপডেট খোঁজা হচ্ছে..."
+    AppLanguage.ENGLISH -> "Checking for updates..."
+    AppLanguage.HINDI -> "अपडेट की जांच हो रही है..."
+  }
+
+  fun appUpToDate(lang: AppLanguage, version: String): String = when (lang) {
+    AppLanguage.BENGALI -> "কম্পিউটার মাস্টার সম্পূর্ণ আপডেট রয়েছে ($version)"
+    AppLanguage.ENGLISH -> "Computer Master is up to date ($version)"
+    AppLanguage.HINDI -> "कंप्यूटर मास्टर पूरी तरह से अप-टू-डेट है ($version)"
+  }
+
+  fun updateSourceUrl(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "গিটহাব আপডেট ইউআরএল"
+    AppLanguage.ENGLISH -> "GitHub Update URL"
+    AppLanguage.HINDI -> "गिटहब अपडेट यूआरएल"
+  }
+
+  fun configureSource(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "কনফিগার"
+    AppLanguage.ENGLISH -> "Configure"
+    AppLanguage.HINDI -> "कॉन्फ़िगर"
+  }
+
+  fun resetDefaultUrl(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "ডিফল্ট পুনরুদ্ধার করুন"
+    AppLanguage.ENGLISH -> "Reset Default"
+    AppLanguage.HINDI -> "डिफ़ॉल्ट रीसेट करें"
+  }
+
+  fun settingsTitle(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "সেটিংস ও আপডেট"
+    AppLanguage.ENGLISH -> "Settings & Updates"
+    AppLanguage.HINDI -> "सेटिंग्स और अपडेट"
+  }
 }
