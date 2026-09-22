@@ -196,9 +196,11 @@ class AuthManager(private val context: Context) {
       Log.d("AuthManager", "Google sign-in cancelled by user")
       resetState()
     } catch (e: NoCredentialException) {
-      Log.e("AuthManager", "No credentials available: ${e.message}", e)
-      _authState.value = AuthState.AuthError(
-        "No Google credentials available. Please ensure your Google account has authorized access or check Google Play Services."
+      Log.i("AuthManager", "Credential Manager returned NoCredentialException: ${e.message}")
+      _authState.value = AuthState.ProviderConfigRequired(
+        title = "Google Play Services Notice",
+        description = "No Google account or Google Play Services identity credential is active in this environment.",
+        setupInstructions = "On physical devices, ensure you are signed into your Google account and Google Play Services is updated. In the web emulator preview, Google Play Services authentication is not emulated; install the APK on an Android device to sign in."
       )
     } catch (e: GetCredentialException) {
       Log.e("AuthManager", "Credential Manager error: ${e.message}", e)
