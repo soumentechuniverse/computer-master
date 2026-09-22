@@ -412,8 +412,7 @@ fun SplashScreen(
         modifier = Modifier
           .fillMaxWidth(0.85f)
           .height(56.dp)
-          .testTag("btn_get_started")
-          .clickable(onClick = onGetStarted),
+          .testTag("btn_get_started"),
         colors = ButtonDefaults.buttonColors(
           containerColor = TechBluePrimary,
           contentColor = TextPrimary

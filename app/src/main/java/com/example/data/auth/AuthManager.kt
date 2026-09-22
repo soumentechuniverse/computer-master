@@ -92,12 +92,17 @@ class AuthManager(private val context: Context) {
 
   /**
    * Evaluates if a real external authentication backend (Firebase Auth) is configured.
+   * Proactively initializes FirebaseApp with application context if no instance is active yet.
    */
   fun isExternalProviderConfigured(): Boolean {
     return try {
+      if (FirebaseApp.getApps(context).isEmpty()) {
+        FirebaseApp.initializeApp(context)
+      }
       val apps = FirebaseApp.getApps(context)
       apps.isNotEmpty()
     } catch (e: Throwable) {
+      Log.w("AuthManager", "FirebaseApp initialization check failed: ${e.message}")
       false
     }
   }
