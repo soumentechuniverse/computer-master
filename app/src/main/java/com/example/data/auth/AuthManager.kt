@@ -11,6 +11,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.CoroutineScope
@@ -97,7 +98,21 @@ class AuthManager(private val context: Context) {
   fun isExternalProviderConfigured(): Boolean {
     return try {
       if (FirebaseApp.getApps(context).isEmpty()) {
-        FirebaseApp.initializeApp(context)
+        val defaultApp = FirebaseApp.initializeApp(context)
+        if (defaultApp == null && FirebaseApp.getApps(context).isEmpty()) {
+          try {
+            val options = FirebaseOptions.Builder()
+              .setApplicationId("1:682580183716:android:772bae14e8ea4ccca67431")
+              .setApiKey("AIzaSyBNIGmaSzzBs1KoQpaUezSvAHrw5P0OCno")
+              .setProjectId("computer-master-8f53d")
+              .setStorageBucket("computer-master-8f53d.firebasestorage.app")
+              .setGcmSenderId("682580183716")
+              .build()
+            FirebaseApp.initializeApp(context, options)
+          } catch (initErr: Throwable) {
+            Log.w("AuthManager", "Explicit FirebaseOptions initialization failed: ${initErr.message}")
+          }
+        }
       }
       val apps = FirebaseApp.getApps(context)
       apps.isNotEmpty()
