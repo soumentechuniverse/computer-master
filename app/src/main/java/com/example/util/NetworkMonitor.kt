@@ -56,10 +56,10 @@ class NetworkMonitor(context: Context) {
       val capabilities = cm.getNetworkCapabilities(activeNetwork) ?: return false
 
       capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-        (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) ||
-          capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+        (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
           capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-          capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
+          capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||
+          capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN))
     } catch (e: Exception) {
       false
     }

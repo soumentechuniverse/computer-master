@@ -98,6 +98,7 @@ fun ProfileScreen(
 ) {
   val currentLanguage by viewModel.currentLanguage.collectAsState()
   val userProfile by viewModel.userProfile.collectAsState()
+  val accountState by viewModel.accountState.collectAsState()
   val allCourses by viewModel.allCourses.collectAsState()
   val notes by viewModel.notes.collectAsState()
 
@@ -123,11 +124,13 @@ fun ProfileScreen(
     // Top Hero Profile Info
     item {
       UserProfileHero(
-        name = userProfile.name,
+        name = if (accountState.isLoggedIn && !accountState.userName.isNullOrBlank()) accountState.userName!! else userProfile.name,
+        userEmail = if (accountState.isLoggedIn) accountState.userEmail else null,
         subtitle = "Level ${userProfile.levelNumber} • ${userProfile.title}",
         level = "Level ${userProfile.levelNumber}",
         xp = userProfile.currentXp,
-        streak = userProfile.streakDays
+        streak = userProfile.streakDays,
+        isVerified = accountState.isLoggedIn
       )
     }
 
@@ -491,10 +494,12 @@ fun ProfileScreen(
 @Composable
 private fun UserProfileHero(
   name: String,
+  userEmail: String? = null,
   subtitle: String,
   level: String,
   xp: Int,
   streak: Int,
+  isVerified: Boolean = false,
 ) {
   Box(
     modifier = Modifier
@@ -519,7 +524,10 @@ private fun UserProfileHero(
           .size(76.dp)
           .clip(CircleShape)
           .background(
-            brush = Brush.linearGradient(listOf(TechBluePrimary, TechCyanAccent))
+            brush = Brush.linearGradient(
+              if (isVerified) listOf(TechGreen, TechCyanAccent)
+              else listOf(TechBluePrimary, TechCyanAccent)
+            )
           )
           .padding(3.dp)
           .clip(CircleShape)
@@ -529,21 +537,41 @@ private fun UserProfileHero(
         Icon(
           imageVector = Icons.Default.Person,
           contentDescription = null,
-          tint = TechCyanAccent,
+          tint = if (isVerified) TechGreen else TechCyanAccent,
           modifier = Modifier.size(42.dp)
         )
       }
 
       Spacer(modifier = Modifier.height(10.dp))
 
-      Text(
-        text = name,
-        style = MaterialTheme.typography.titleLarge.copy(
-          fontWeight = FontWeight.Bold,
-          fontSize = 20.sp
-        ),
-        color = TextPrimary
-      )
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+      ) {
+        Text(
+          text = name,
+          style = MaterialTheme.typography.titleLarge.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+          ),
+          color = TextPrimary
+        )
+        if (isVerified) {
+          Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = "Verified Google User",
+            tint = TechGreen,
+            modifier = Modifier.size(18.dp)
+          )
+        }
+      }
+
+      if (!userEmail.isNullOrBlank()) {
+        Text(
+          text = userEmail,
+          style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp, color = TechCyanAccent)
+        )
+      }
 
       Text(
         text = subtitle,

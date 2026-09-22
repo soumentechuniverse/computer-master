@@ -19,6 +19,7 @@ class SessionManager(context: Context) {
     private const val KEY_UID = "user_uid"
     private const val KEY_IDENTIFIER = "user_identifier"
     private const val KEY_DISPLAY_NAME = "user_display_name"
+    private const val KEY_PHOTO_URL = "user_photo_url"
     private const val KEY_IS_PHONE = "user_is_phone"
     private const val KEY_TOKEN = "session_token"
     private const val KEY_CREATED_AT = "session_created_at"
@@ -44,6 +45,7 @@ class SessionManager(context: Context) {
     val identifier = prefs.getString(KEY_IDENTIFIER, "") ?: ""
     val isPhone = prefs.getBoolean(KEY_IS_PHONE, true)
     val displayName = prefs.getString(KEY_DISPLAY_NAME, null)
+    val photoUrl = prefs.getString(KEY_PHOTO_URL, null)
     val token = prefs.getString(KEY_TOKEN, null)
     val createdAt = prefs.getLong(KEY_CREATED_AT, System.currentTimeMillis())
     val expiresAt = prefs.getLong(KEY_EXPIRES_AT, 0L)
@@ -53,6 +55,7 @@ class SessionManager(context: Context) {
       identifier = identifier,
       isPhone = isPhone,
       displayName = displayName,
+      photoUrl = photoUrl,
       token = token,
       sessionCreatedAt = createdAt,
       sessionExpiresAt = expiresAt
@@ -66,6 +69,7 @@ class SessionManager(context: Context) {
       .putString(KEY_IDENTIFIER, user.identifier)
       .putBoolean(KEY_IS_PHONE, user.isPhone)
       .putString(KEY_DISPLAY_NAME, user.displayName)
+      .putString(KEY_PHOTO_URL, user.photoUrl)
       .putString(KEY_TOKEN, user.token)
       .putLong(KEY_CREATED_AT, user.sessionCreatedAt)
       .putLong(KEY_EXPIRES_AT, user.sessionExpiresAt)

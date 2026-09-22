@@ -24,8 +24,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Computer
@@ -171,10 +173,13 @@ fun SplashScreen(
       }
     }
 
+    val scrollState = rememberScrollState()
+
     Column(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 24.dp),
+        .verticalScroll(scrollState)
+        .padding(horizontal = 24.dp, vertical = 20.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center
     ) {
@@ -405,9 +410,10 @@ fun SplashScreen(
       Button(
         onClick = onGetStarted,
         modifier = Modifier
-          .fillMaxWidth(0.82f)
-          .height(52.dp)
-          .testTag("btn_get_started"),
+          .fillMaxWidth(0.85f)
+          .height(56.dp)
+          .testTag("btn_get_started")
+          .clickable(onClick = onGetStarted),
         colors = ButtonDefaults.buttonColors(
           containerColor = TechBluePrimary,
           contentColor = TextPrimary

@@ -81,7 +81,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import com.example.ui.components.GoogleLogoIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -292,48 +294,50 @@ fun SettingsScreen(
               }
             }
           } else {
-            // Login & Register Actions
-            Row(
-              modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-              Button(
-                onClick = { showLoginDialog = true },
-                modifier = Modifier
-                  .weight(1f)
-                  .testTag("settings_account_login_btn"),
-                colors = ButtonDefaults.buttonColors(containerColor = TechBluePrimary),
-                shape = RoundedCornerShape(10.dp)
-              ) {
-                Icon(
-                  imageVector = Icons.Default.Login,
-                  contentDescription = null,
-                  modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                  text = AppStrings.login(currentLanguage),
-                  style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                )
-              }
+            // Google Sign-In Action
+            val context = LocalContext.current
+            val authState by viewModel.authState.collectAsState()
 
-              OutlinedButton(
-                onClick = { showRegisterDialog = true },
-                modifier = Modifier
-                  .weight(1f)
-                  .testTag("settings_account_register_btn"),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TechCyanAccent),
-                shape = RoundedCornerShape(10.dp)
-              ) {
-                Icon(
-                  imageVector = Icons.Default.PersonAdd,
-                  contentDescription = null,
-                  modifier = Modifier.size(16.dp)
+            Button(
+              onClick = {
+                viewModel.signInWithGoogle(context)
+              },
+              enabled = authState !is com.example.data.auth.AuthState.Authenticating,
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .testTag("settings_account_google_signin_btn"),
+              colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color(0xFF1F2937),
+                disabledContainerColor = Color.White.copy(alpha = 0.7f),
+                disabledContentColor = Color(0xFF1F2937).copy(alpha = 0.7f)
+              ),
+              shape = RoundedCornerShape(10.dp)
+            ) {
+              if (authState is com.example.data.auth.AuthState.Authenticating) {
+                CircularProgressIndicator(
+                  modifier = Modifier.size(18.dp),
+                  color = TechBluePrimary,
+                  strokeWidth = 2.dp
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                  text = AppStrings.register(currentLanguage),
-                  style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                  text = AppStrings.signingInWithGoogle(currentLanguage),
+                  style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1F2937)
+                  )
+                )
+              } else {
+                GoogleLogoIcon(modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                  text = AppStrings.continueWithGoogle(currentLanguage),
+                  style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1F2937)
+                  )
                 )
               }
             }

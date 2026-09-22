@@ -36,6 +36,8 @@ data class AccountState(
   val isLoggedIn: Boolean = false,
   val userEmail: String? = null,
   val userName: String? = null,
+  val userUid: String? = null,
+  val photoUrl: String? = null,
   val isGuest: Boolean = true,
 )
 
@@ -97,6 +99,8 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
         isLoggedIn = true,
         userEmail = user.identifier,
         userName = user.displayName ?: "Computer Master Student",
+        userUid = user.uid,
+        photoUrl = user.photoUrl,
         isGuest = false
       )
     } ?: AccountState()
@@ -116,6 +120,8 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
               isLoggedIn = true,
               userEmail = state.user.identifier,
               userName = state.user.displayName ?: "Computer Master Student",
+              userUid = state.user.uid,
+              photoUrl = state.user.photoUrl,
               isGuest = false
             )
           }
@@ -124,12 +130,20 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
               isLoggedIn = false,
               userEmail = null,
               userName = null,
+              userUid = null,
+              photoUrl = null,
               isGuest = true
             )
           }
           else -> Unit
         }
       }
+    }
+  }
+
+  fun signInWithGoogle(activityContext: android.content.Context) {
+    viewModelScope.launch {
+      authManager.signInWithGoogle(activityContext)
     }
   }
 

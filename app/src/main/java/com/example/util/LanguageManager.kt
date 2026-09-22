@@ -614,6 +614,24 @@ object AppStrings {
     AppLanguage.HINDI -> "सुरक्षित सत्यापन: टोकन सुरक्षित रूप से प्रबंधित होते हैं। पासवर्ड या ओटीपी कभी भी सादे पाठ में संग्रहीत नहीं होते हैं।"
   }
 
+  fun continueWithGoogle(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "Google দিয়ে চালিয়ে যান"
+    AppLanguage.ENGLISH -> "Continue with Google"
+    AppLanguage.HINDI -> "Google के साथ जारी रखें"
+  }
+
+  fun signingInWithGoogle(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "Google দিয়ে সাইন ইন হচ্ছে..."
+    AppLanguage.ENGLISH -> "Signing in with Google..."
+    AppLanguage.HINDI -> "Google के साथ साइन इन हो रहा है..."
+  }
+
+  fun googleAuthBenefit(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "Google অ্যাকাউন্ট দিয়ে একটি ট্যাপেই নিরাপদ সাইন ইন করুন"
+    AppLanguage.ENGLISH -> "Sign in securely with one tap using your Google account"
+    AppLanguage.HINDI -> "अपने Google खाते से एक टैप में सुरक्षित साइन इन करें"
+  }
+
   // Internet Requirement Strings
   fun internetRequiredTitle(lang: AppLanguage): String = when (lang) {
     AppLanguage.BENGALI -> "ইন্টারনেট সংযোগ আবশ্যক"

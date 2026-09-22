@@ -9,6 +9,7 @@ data class AuthUser(
   val identifier: String, // Phone number (e.g. +91 9876543210) or Email
   val isPhone: Boolean,
   val displayName: String? = null,
+  val photoUrl: String? = null,
   val token: String? = null,
   val sessionCreatedAt: Long = System.currentTimeMillis(),
   val sessionExpiresAt: Long = 0L // 0L means persistent session until explicit logout
@@ -21,6 +22,7 @@ enum class AuthMode {
 
 sealed class AuthState {
   object Unauthenticated : AuthState()
+  object Authenticating : AuthState()
   object SendingOtp : AuthState()
   data class OtpSent(
     val verificationId: String,

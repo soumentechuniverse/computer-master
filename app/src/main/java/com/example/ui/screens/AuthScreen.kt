@@ -1,8 +1,6 @@
 package com.example.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,19 +18,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Computer
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Pin
 import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.VpnKey
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -41,19 +34,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,15 +47,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.auth.AuthMode
 import com.example.data.auth.AuthState
+import com.example.ui.components.GoogleLogoIcon
 import com.example.ui.theme.NavyCard
 import com.example.ui.theme.NavyCardBorder
 import com.example.ui.theme.NavyCardElevated
@@ -88,11 +72,10 @@ import com.example.ui.theme.TextTertiary
 import com.example.ui.viewmodel.ComputerMasterViewModel
 import com.example.util.AppLanguage
 import com.example.util.AppStrings
-import kotlinx.coroutines.delay
 
 /**
- * Authentication screen featuring Register and Login with real OTP verification architecture.
- * Strictly avoids fake OTPs, hardcoded verification bypasses, and plain-text secrets.
+ * Modern Authentication screen for Computer Master.
+ * Replaces legacy OTP flows with official Firebase Google Sign-In via Android Credential Manager.
  */
 @Composable
 fun AuthScreen(
@@ -101,18 +84,10 @@ fun AuthScreen(
   onBackToIntro: () -> Unit,
   modifier: Modifier = Modifier
 ) {
+  val context = LocalContext.current
   val currentLanguage by viewModel.currentLanguage.collectAsState()
   val authState by viewModel.authState.collectAsState()
 
-  var selectedMode by remember { mutableStateOf(AuthMode.REGISTER) }
-  var fullName by remember { mutableStateOf("") }
-  var identifier by remember { mutableStateOf("") }
-  var otpCode by remember { mutableStateOf("") }
-  var activeVerificationId by remember { mutableStateOf("") }
-  var isOtpStep by remember { mutableStateOf(false) }
-
-  // Countdown for resend
-  var resendTimer by remember { mutableIntStateOf(60) }
   var showProviderModal by remember { mutableStateOf<AuthState.ProviderConfigRequired?>(null) }
   var localErrorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -121,11 +96,6 @@ fun AuthScreen(
       is AuthState.Authenticated -> {
         onAuthSuccess()
       }
-      is AuthState.OtpSent -> {
-        isOtpStep = true
-        activeVerificationId = state.verificationId
-        resendTimer = state.resendCountdown
-      }
       is AuthState.ProviderConfigRequired -> {
         showProviderModal = state
       }
@@ -133,14 +103,6 @@ fun AuthScreen(
         localErrorMessage = state.message
       }
       else -> Unit
-    }
-  }
-
-  // Timer countdown
-  LaunchedEffect(isOtpStep, resendTimer) {
-    if (isOtpStep && resendTimer > 0) {
-      delay(1000)
-      resendTimer -= 1
     }
   }
 
@@ -168,15 +130,7 @@ fun AuthScreen(
         verticalAlignment = Alignment.CenterVertically
       ) {
         IconButton(
-          onClick = {
-            if (isOtpStep) {
-              isOtpStep = false
-              otpCode = ""
-              viewModel.resetAuthState()
-            } else {
-              onBackToIntro()
-            }
-          },
+          onClick = onBackToIntro,
           modifier = Modifier.testTag("auth_back_btn")
         ) {
           Icon(
@@ -215,30 +169,30 @@ fun AuthScreen(
         }
       }
 
-      Spacer(modifier = Modifier.height(16.dp))
+      Spacer(modifier = Modifier.height(20.dp))
 
       // Brand Logo & Header
       Box(
         modifier = Modifier
-          .size(72.dp)
-          .clip(RoundedCornerShape(18.dp))
+          .size(80.dp)
+          .clip(RoundedCornerShape(22.dp))
           .background(
             brush = Brush.linearGradient(
-              listOf(TechBluePrimary.copy(alpha = 0.3f), NavyCardElevated)
+              listOf(TechBluePrimary.copy(alpha = 0.35f), NavyCardElevated)
             )
           )
-          .border(1.5.dp, TechCyanAccent.copy(alpha = 0.6f), RoundedCornerShape(18.dp)),
+          .border(1.5.dp, TechCyanAccent.copy(alpha = 0.7f), RoundedCornerShape(22.dp)),
         contentAlignment = Alignment.Center
       ) {
         Icon(
           imageVector = Icons.Default.Computer,
           contentDescription = "Computer Master",
           tint = TechCyanAccent,
-          modifier = Modifier.size(38.dp)
+          modifier = Modifier.size(42.dp)
         )
       }
 
-      Spacer(modifier = Modifier.height(14.dp))
+      Spacer(modifier = Modifier.height(16.dp))
 
       Text(
         text = "Computer Master",
@@ -257,326 +211,139 @@ fun AuthScreen(
         )
       )
 
-      Spacer(modifier = Modifier.height(6.dp))
+      Spacer(modifier = Modifier.height(8.dp))
 
       Text(
         text = AppStrings.authSubtitle(currentLanguage),
-        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp, lineHeight = 18.sp),
         color = TextSecondary,
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(horizontal = 16.dp)
       )
 
-      Spacer(modifier = Modifier.height(24.dp))
+      Spacer(modifier = Modifier.height(32.dp))
 
-      if (!isOtpStep) {
-        // TAB SELECTOR: REGISTER vs LOGIN
-        TabRow(
-          selectedTabIndex = if (selectedMode == AuthMode.REGISTER) 0 else 1,
-          containerColor = NavyCard,
-          contentColor = TechCyanAccent,
-          indicator = { tabPositions ->
-            TabRowDefaults.SecondaryIndicator(
-              Modifier.tabIndicatorOffset(tabPositions[if (selectedMode == AuthMode.REGISTER) 0 else 1]),
-              color = TechCyanAccent,
-              height = 3.dp
+      // Google Sign-In Action Card
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(20.dp))
+          .background(NavyCard)
+          .border(1.dp, NavyCardBorder, RoundedCornerShape(20.dp))
+          .padding(24.dp)
+      ) {
+        Column(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          // Feature highlights
+          Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+          ) {
+            AuthBenefitRow(
+              icon = Icons.Default.Shield,
+              title = "Secure Firebase Authentication",
+              subtitle = "Verified with Google Identity Services"
             )
-          },
-          modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, NavyCardBorder, RoundedCornerShape(12.dp))
-        ) {
-          Tab(
-            selected = selectedMode == AuthMode.REGISTER,
-            onClick = {
-              selectedMode = AuthMode.REGISTER
-              localErrorMessage = null
-            },
-            text = {
-              Text(
-                text = AppStrings.authRegisterTab(currentLanguage),
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                color = if (selectedMode == AuthMode.REGISTER) TechCyanAccent else TextSecondary
-              )
-            },
-            modifier = Modifier.testTag("auth_tab_register")
-          )
+            AuthBenefitRow(
+              icon = Icons.Default.CheckCircle,
+              title = "Instant Progress Sync",
+              subtitle = "Preserve lessons, quizzes & XP across devices"
+            )
+            AuthBenefitRow(
+              icon = Icons.Default.Lock,
+              title = "Privacy Protected",
+              subtitle = "Zero tracking • No passwords stored"
+            )
+          }
 
-          Tab(
-            selected = selectedMode == AuthMode.LOGIN,
-            onClick = {
-              selectedMode = AuthMode.LOGIN
-              localErrorMessage = null
-            },
-            text = {
-              Text(
-                text = AppStrings.authLoginTab(currentLanguage),
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                color = if (selectedMode == AuthMode.LOGIN) TechCyanAccent else TextSecondary
-              )
-            },
-            modifier = Modifier.testTag("auth_tab_login")
-          )
-        }
+          Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Input Card
-        Box(
-          modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(NavyCard)
-            .border(1.dp, NavyCardBorder, RoundedCornerShape(16.dp))
-            .padding(20.dp)
-        ) {
-          Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            // Full name field only in register mode
-            if (selectedMode == AuthMode.REGISTER) {
-              OutlinedTextField(
-                value = fullName,
-                onValueChange = { fullName = it },
-                label = { Text(AppStrings.authFullName(currentLanguage)) },
-                leadingIcon = {
-                  Icon(Icons.Default.Person, contentDescription = null, tint = TechCyanAccent)
-                },
-                singleLine = true,
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .testTag("input_full_name"),
-                colors = OutlinedTextFieldDefaults.colors(
-                  focusedBorderColor = TechCyanAccent,
-                  unfocusedBorderColor = NavyCardBorder,
-                  focusedTextColor = TextPrimary,
-                  unfocusedTextColor = TextPrimary
-                ),
-                shape = RoundedCornerShape(12.dp)
-              )
-            }
-
-            // Phone or Email Field
-            OutlinedTextField(
-              value = identifier,
-              onValueChange = { identifier = it },
-              label = { Text(AppStrings.authPhoneOrEmail(currentLanguage)) },
-              placeholder = { Text("+91 9876543210 or user@example.com") },
-              leadingIcon = {
-                Icon(Icons.Default.Phone, contentDescription = null, tint = TechCyanAccent)
-              },
-              singleLine = true,
-              keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Done
-              ),
+          localErrorMessage?.let { err ->
+            Box(
               modifier = Modifier
                 .fillMaxWidth()
-                .testTag("input_identifier"),
-              colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = TechCyanAccent,
-                unfocusedBorderColor = NavyCardBorder,
-                focusedTextColor = TextPrimary,
-                unfocusedTextColor = TextPrimary
-              ),
-              shape = RoundedCornerShape(12.dp)
-            )
-
-            localErrorMessage?.let { err ->
+                .clip(RoundedCornerShape(10.dp))
+                .background(TechRed.copy(alpha = 0.15f))
+                .border(1.dp, TechRed.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                .padding(12.dp)
+            ) {
               Text(
                 text = err,
-                style = MaterialTheme.typography.bodySmall.copy(color = TechRed),
-                modifier = Modifier.padding(horizontal = 4.dp)
+                style = MaterialTheme.typography.bodySmall.copy(color = TechRed, fontSize = 12.sp)
               )
             }
-
-            Button(
-              onClick = {
-                localErrorMessage = null
-                if (identifier.isBlank()) {
-                  localErrorMessage = "Please enter a valid phone number or email address."
-                  return@Button
-                }
-                viewModel.requestAuthOtp(
-                  identifier = identifier,
-                  isRegister = selectedMode == AuthMode.REGISTER,
-                  displayName = if (selectedMode == AuthMode.REGISTER) fullName.ifBlank { null } else null
-                )
-              },
-              enabled = authState !is AuthState.SendingOtp,
-              modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .testTag("btn_send_otp"),
-              colors = ButtonDefaults.buttonColors(containerColor = TechBluePrimary),
-              shape = RoundedCornerShape(12.dp)
-            ) {
-              if (authState is AuthState.SendingOtp) {
-                CircularProgressIndicator(
-                  modifier = Modifier.size(20.dp),
-                  color = TechCyanAccent,
-                  strokeWidth = 2.dp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Sending OTP...")
-              } else {
-                Icon(Icons.Default.Pin, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                  text = AppStrings.authSendOtp(currentLanguage),
-                  style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
-                )
-              }
-            }
+            Spacer(modifier = Modifier.height(16.dp))
           }
-        }
-      } else {
-        // STEP 2: OTP VERIFICATION VIEW
-        Box(
-          modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(NavyCard)
-            .border(1.dp, NavyCardBorder, RoundedCornerShape(16.dp))
-            .padding(20.dp)
-        ) {
-          Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-              Box(
-                modifier = Modifier
-                  .size(36.dp)
-                  .clip(CircleShape)
-                  .background(TechCyanAccent.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
-              ) {
-                Icon(
-                  imageVector = Icons.Default.VpnKey,
-                  contentDescription = null,
-                  tint = TechCyanAccent,
-                  modifier = Modifier.size(20.dp)
-                )
-              }
-              Column {
-                Text(
-                  text = AppStrings.authOtpVerification(currentLanguage),
-                  style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                  color = TextPrimary
-                )
-                Text(
-                  text = "Sent to $identifier",
-                  style = MaterialTheme.typography.bodySmall,
-                  color = TextSecondary
-                )
-              }
-            }
 
-            OutlinedTextField(
-              value = otpCode,
-              onValueChange = { if (it.length <= 6) otpCode = it },
-              label = { Text(AppStrings.authEnterOtp(currentLanguage)) },
-              placeholder = { Text("123456") },
-              leadingIcon = {
-                Icon(Icons.Default.Lock, contentDescription = null, tint = TechCyanAccent)
-              },
-              singleLine = true,
-              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-              modifier = Modifier
-                .fillMaxWidth()
-                .testTag("input_otp_code"),
-              colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = TechCyanAccent,
-                unfocusedBorderColor = NavyCardBorder,
-                focusedTextColor = TextPrimary,
-                unfocusedTextColor = TextPrimary
-              ),
-              shape = RoundedCornerShape(12.dp)
+          // Polished "Continue with Google" Button
+          Button(
+            onClick = {
+              localErrorMessage = null
+              viewModel.signInWithGoogle(context)
+            },
+            enabled = authState !is AuthState.Authenticating,
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(54.dp)
+              .testTag("btn_continue_with_google"),
+            colors = ButtonDefaults.buttonColors(
+              containerColor = Color.White,
+              contentColor = Color(0xFF1F2937),
+              disabledContainerColor = Color.White.copy(alpha = 0.7f),
+              disabledContentColor = Color(0xFF1F2937).copy(alpha = 0.7f)
+            ),
+            shape = RoundedCornerShape(14.dp),
+            elevation = ButtonDefaults.buttonElevation(
+              defaultElevation = 2.dp,
+              pressedElevation = 4.dp
             )
-
-            localErrorMessage?.let { err ->
-              Text(
-                text = err,
-                style = MaterialTheme.typography.bodySmall.copy(color = TechRed),
-                modifier = Modifier.padding(horizontal = 4.dp)
+          ) {
+            if (authState is AuthState.Authenticating) {
+              CircularProgressIndicator(
+                modifier = Modifier.size(22.dp),
+                color = TechBluePrimary,
+                strokeWidth = 2.5.dp
               )
-            }
-
-            Button(
-              onClick = {
-                localErrorMessage = null
-                if (otpCode.trim().length < 6) {
-                  localErrorMessage = "Please enter the 6-digit verification code."
-                  return@Button
-                }
-                viewModel.verifyAuthOtp(
-                  verificationId = activeVerificationId,
-                  otpCode = otpCode,
-                  targetIdentifier = identifier,
-                  isRegister = selectedMode == AuthMode.REGISTER,
-                  displayName = fullName.ifBlank { null }
-                )
-              },
-              enabled = authState !is AuthState.VerifyingOtp,
-              modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .testTag("btn_verify_otp"),
-              colors = ButtonDefaults.buttonColors(containerColor = TechCyanAccent),
-              shape = RoundedCornerShape(12.dp)
-            ) {
-              if (authState is AuthState.VerifyingOtp) {
-                CircularProgressIndicator(
-                  modifier = Modifier.size(20.dp),
-                  color = NavyDarkest,
-                  strokeWidth = 2.dp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Verifying...", color = NavyDarkest)
-              } else {
-                Text(
-                  text = AppStrings.authVerifyAndContinue(currentLanguage),
-                  style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = NavyDarkest
-                  )
-                )
-              }
-            }
-
-            Row(
-              modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.SpaceBetween,
-              verticalAlignment = Alignment.CenterVertically
-            ) {
+              Spacer(modifier = Modifier.width(10.dp))
               Text(
-                text = if (resendTimer > 0) "Resend in ${resendTimer}s" else "Didn't receive code?",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextTertiary
+                text = AppStrings.signingInWithGoogle(currentLanguage),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontSize = 15.sp,
+                  color = Color(0xFF1F2937)
+                )
               )
-
-              if (resendTimer == 0) {
-                OutlinedButton(
-                  onClick = {
-                    resendTimer = 60
-                    viewModel.requestAuthOtp(
-                      identifier = identifier,
-                      isRegister = selectedMode == AuthMode.REGISTER,
-                      displayName = fullName.ifBlank { null }
-                    )
-                  },
-                  colors = ButtonDefaults.outlinedButtonColors(contentColor = TechCyanAccent),
-                  modifier = Modifier.testTag("btn_resend_otp")
-                ) {
-                  Text(AppStrings.authResendOtp(currentLanguage), fontSize = 12.sp)
-                }
-              }
+            } else {
+              GoogleLogoIcon(modifier = Modifier.size(24.dp))
+              Spacer(modifier = Modifier.width(12.dp))
+              Text(
+                text = AppStrings.continueWithGoogle(currentLanguage),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontSize = 15.sp,
+                  letterSpacing = 0.2.sp,
+                  color = Color(0xFF1F2937)
+                )
+              )
             }
           }
+
+          Spacer(modifier = Modifier.height(12.dp))
+
+          Text(
+            text = AppStrings.googleAuthBenefit(currentLanguage),
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontSize = 11.sp,
+              color = TextTertiary
+            ),
+            textAlign = TextAlign.Center
+          )
         }
       }
 
-      Spacer(modifier = Modifier.height(24.dp))
+      Spacer(modifier = Modifier.height(28.dp))
 
       // Security Notice Card
       Box(
@@ -598,7 +365,7 @@ fun AuthScreen(
             modifier = Modifier.size(20.dp)
           )
           Text(
-            text = AppStrings.authSecurityNote(currentLanguage),
+            text = "Official Firebase Authentication: Industry-standard OAuth 2.0 and Credential Manager token exchange.",
             style = MaterialTheme.typography.bodySmall.copy(
               fontSize = 11.sp,
               color = TextSecondary,
@@ -609,7 +376,7 @@ fun AuthScreen(
       }
     }
 
-    // Modal when external authentication provider is not configured
+    // Modal when external provider config is needed
     showProviderModal?.let { modal ->
       AlertDialog(
         onDismissRequest = {
@@ -622,7 +389,7 @@ fun AuthScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
           ) {
             Icon(Icons.Default.Warning, contentDescription = null, tint = TechAmber)
-            Text(modal.title, style = MaterialTheme.typography.titleMedium)
+            Text(modal.title, style = MaterialTheme.typography.titleMedium, color = TextPrimary)
           }
         },
         text = {
@@ -645,10 +412,6 @@ fun AuthScreen(
                 )
               )
             }
-            Text(
-              "Security Policy: In accordance with security mandates, Computer Master strictly prohibits dummy bypasses or fake hardcoded OTPs.",
-              style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp, color = TextTertiary)
-            )
           }
         },
         confirmButton = {
@@ -659,10 +422,50 @@ fun AuthScreen(
             },
             colors = ButtonDefaults.buttonColors(containerColor = TechBluePrimary)
           ) {
-            Text("Understand")
+            Text("OK")
           }
         },
         containerColor = NavyCardElevated
+      )
+    }
+  }
+}
+
+@Composable
+private fun AuthBenefitRow(
+  icon: androidx.compose.ui.graphics.vector.ImageVector,
+  title: String,
+  subtitle: String
+) {
+  Row(
+    modifier = Modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(12.dp)
+  ) {
+    Box(
+      modifier = Modifier
+        .size(36.dp)
+        .clip(CircleShape)
+        .background(TechBluePrimary.copy(alpha = 0.15f)),
+      contentAlignment = Alignment.Center
+    ) {
+      Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = TechCyanAccent,
+        modifier = Modifier.size(18.dp)
+      )
+    }
+    Column {
+      Text(
+        text = title,
+        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+        color = TextPrimary
+      )
+      Text(
+        text = subtitle,
+        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+        color = TextSecondary
       )
     }
   }
