@@ -1,11 +1,11 @@
 {
-  "versionCode": 3,
-  "versionName": "1.2.0",
+  "versionCode": 4,
+  "versionName": "1.3.0",
   "minSupportedVersion": 1,
-  "apkUrl": "https://github.com/SoumenTechUniverse/Computer-Master/releases/download/v1.2.0/app-debug.apk",
-  "updateMessage": "What's new in Computer Master v1.2.0:\n• New continuous 3D intro screen with interactive exploration.\n• Register/Login and OTP authentication architecture.\n• Secure session persistence.\n• Internet connection requirement for real-time validation.\n• All existing educational lessons, 3D simulations, and quizzes preserved.",
-  "updateMessageBn": "কম্পিউটার মাস্টার v1.2.0-এর নতুন বৈশিষ্ট্যসমূহ:\n• নতুন নিরবচ্ছিন্ন ৩ডি ইন্ট্রো স্ক্রিন এবং ইন্টারঅ্যাক্টিভ অ্যানিমেশন।\n• রেজিস্টার/লগইন এবং ওটিপি প্রমাণীকরণ আর্কিটেকচার।\n• সুরক্ষিত সেশন সংরক্ষণ ব্যবস্থা।\n• রিয়েল-টাইম সুরক্ষার জন্য ইন্টারনেট সংযোগের আবশ্যকতা।\n• পূর্বের সকল শিক্ষামূলক পাঠ, ৩ডি সিমুলেশন ও কুইজ অক্ষুণ্ণ রাখা হয়েছে।",
-  "updateMessageHi": "कंप्यूटर मास्टर v1.2.0 में नई विशेषताएं:\n• नया निरंतर 3D इंट्रो स्क्रीन और इंटरएक्टिव एनिमेशन।\n• रजिस्टर/लॉगिन और ओटीपी प्रमाणीकरण आर्किटेक्चर।\n• सुरक्षित सत्र (सेशन) निरंतरता।\n• रियल-टाइम सत्यापन के लिए इंटरनेट कनेक्टिविटी की आवश्यकता।\n• सभी मौजूदा शैक्षणिक पाठ, 3D सिमुलेशन और क्विज़ सुरक्षित रूप से उपलब्ध हैं।",
-  "releaseDate": "2026-09-21",
-  "fileSize": "15.2 MB"
+  "apkUrl": "https://github.com/SoumenTechUniverse/Computer-Master/releases/download/v1.3.0/app-debug.apk",
+  "updateMessage": "What's new in Computer Master v1.3.0:\n• Reliable Get Started interaction in preview and devices.\n• Proactive Firebase Authentication initialization support.\n• Performance optimizations and smooth transition between splash and auth.\n• All existing educational lessons, 3D simulations, and quizzes preserved.",
+  "updateMessageBn": "কম্পিউটার মাস্টার v1.3.0-এর নতুন বৈশিষ্ট্যসমূহ:\n• প্রিভিউ ও ডিভাইসে নির্ভরযোগ্য গেট স্টার্টেড ইন্টারেকশন।\n• প্রো-অ্যাক্টিভ ফায়ারবেস অথেনটিকেশন ইনিশিয়ালাইজেশন সুবিধা।\n• পারফরম্যান্স অপ্টিমাইজেশন ও মসৃণ ট্রানজিশন।\n• পূর্বের সকল শিক্ষামূলক পাঠ, ৩ডি সিমুলেশন ও কুইজ অক্ষুণ্ণ রাখা হয়েছে।",
+  "updateMessageHi": "कंप्यूटर मास्टर v1.3.0 में नई विशेषताएं:\n• प्रीव्यू और डिवाइस में बेहतर गेट स्टार्टेड इंटरैक्शन।\n• प्रो-एक्टिव फायरबेस प्रमाणीकरण आरंभीकरण।\n• बेहतर प्रदर्शन और स्मूद ट्रांज़िशन।\n• सभी मौजूदा शैक्षणिक पाठ, 3D सिमुलेशन और क्विज़ सुरक्षित रूप से उपलब्ध हैं।",
+  "releaseDate": "2026-09-22",
+  "fileSize": "15.3 MB"
 }
