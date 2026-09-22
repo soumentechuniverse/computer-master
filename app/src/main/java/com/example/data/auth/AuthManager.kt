@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.security.MessageDigest
 import java.util.UUID
 
 /**
@@ -34,7 +35,6 @@ import java.util.UUID
 class AuthManager(private val context: Context) {
 
   private val sessionManager = SessionManager(context)
-  private val credentialManager = CredentialManager.create(context)
 
   // Web Client ID extracted from google-services.json oauth_client (client_type: 3)
   private val defaultWebClientId = "682580183716-63mrfii4tgboa06u2pm6qudcnpv9bc4p.apps.googleusercontent.com"
@@ -146,13 +146,21 @@ class AuthManager(private val context: Context) {
       return
     }
 
-    val resolvedContext: Context = activityContext.findActivity() ?: activityContext
+    val resolvedActivity: Activity? = activityContext.findActivity()
+    val invocationContext: Context = resolvedActivity ?: activityContext
+    val credentialManager = CredentialManager.create(invocationContext)
 
     try {
+      // Generate a cryptographically random raw nonce and hash with SHA-256
+      val rawNonce = UUID.randomUUID().toString()
+      val digest = MessageDigest.getInstance("SHA-256").digest(rawNonce.toByteArray())
+      val hashedNonce = digest.joinToString("") { "%02x".format(it) }
+
       val googleIdOption = GetGoogleIdOption.Builder()
         .setFilterByAuthorizedAccounts(false)
         .setServerClientId(defaultWebClientId)
         .setAutoSelectEnabled(false)
+        .setNonce(hashedNonce)
         .build()
 
       val request = GetCredentialRequest.Builder()
@@ -161,7 +169,7 @@ class AuthManager(private val context: Context) {
 
       val result = credentialManager.getCredential(
         request = request,
-        context = resolvedContext
+        context = invocationContext
       )
 
       val credential = result.credential
@@ -196,12 +204,8 @@ class AuthManager(private val context: Context) {
       Log.d("AuthManager", "Google sign-in cancelled by user")
       resetState()
     } catch (e: NoCredentialException) {
-      Log.i("AuthManager", "Credential Manager returned NoCredentialException: ${e.message}")
-      _authState.value = AuthState.ProviderConfigRequired(
-        title = "Google Play Services Notice",
-        description = "No Google account or Google Play Services identity credential is active in this environment.",
-        setupInstructions = "On physical devices, ensure you are signed into your Google account and Google Play Services is updated. In the web emulator preview, Google Play Services authentication is not emulated; install the APK on an Android device to sign in."
-      )
+      Log.w("AuthManager", "NoCredentialException received from CredentialManager: ${e.message}", e)
+      _authState.value = AuthState.AuthError("No Google account selected or available. Tap Continue with Google to try again.")
     } catch (e: GetCredentialException) {
       Log.e("AuthManager", "Credential Manager error: ${e.message}", e)
       _authState.value = AuthState.AuthError(e.localizedMessage ?: "Google Sign-In was cancelled or failed.")
@@ -232,7 +236,7 @@ class AuthManager(private val context: Context) {
 
     CoroutineScope(Dispatchers.IO).launch {
       try {
-        credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        CredentialManager.create(context).clearCredentialState(ClearCredentialStateRequest())
       } catch (e: Throwable) {
         Log.w("AuthManager", "Error clearing credentials: ${e.message}")
       }
