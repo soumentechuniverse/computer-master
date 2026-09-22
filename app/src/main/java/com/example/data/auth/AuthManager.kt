@@ -12,6 +12,7 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -204,8 +205,61 @@ class AuthManager(private val context: Context) {
       Log.d("AuthManager", "Google sign-in cancelled by user")
       resetState()
     } catch (e: NoCredentialException) {
-      Log.w("AuthManager", "NoCredentialException received from CredentialManager: ${e.message}", e)
-      _authState.value = AuthState.AuthError("No Google account selected or available. Tap Continue with Google to try again.")
+      Log.i("AuthManager", "GetGoogleIdOption returned NoCredentialException (${e.message}), attempting GetSignInWithGoogleOption fallback.")
+      try {
+        val fallbackRawNonce = UUID.randomUUID().toString()
+        val fallbackDigest = MessageDigest.getInstance("SHA-256").digest(fallbackRawNonce.toByteArray())
+        val fallbackHashedNonce = fallbackDigest.joinToString("") { "%02x".format(it) }
+
+        val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(defaultWebClientId)
+          .setNonce(fallbackHashedNonce)
+          .build()
+
+        val fallbackRequest = GetCredentialRequest.Builder()
+          .addCredentialOption(signInWithGoogleOption)
+          .build()
+
+        val fallbackResult = credentialManager.getCredential(
+          request = fallbackRequest,
+          context = invocationContext
+        )
+
+        val fallbackCredential = fallbackResult.credential
+        if (fallbackCredential is CustomCredential && fallbackCredential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+          val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(fallbackCredential.data)
+          val idToken = googleIdTokenCredential.idToken
+
+          val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+          val authResult = auth.signInWithCredential(firebaseCredential).await()
+          val fbUser = authResult.user
+
+          if (fbUser != null) {
+            val appUser = AuthUser(
+              uid = fbUser.uid,
+              identifier = fbUser.email ?: googleIdTokenCredential.id,
+              isPhone = false,
+              displayName = fbUser.displayName ?: googleIdTokenCredential.displayName ?: "Computer Master Student",
+              photoUrl = fbUser.photoUrl?.toString() ?: googleIdTokenCredential.profilePictureUri?.toString(),
+              token = idToken,
+              sessionCreatedAt = System.currentTimeMillis()
+            )
+            sessionManager.saveSession(appUser)
+            _authState.value = AuthState.Authenticated(appUser)
+          } else {
+            _authState.value = AuthState.AuthError("Authentication succeeded but no user profile was returned.")
+          }
+        } else {
+          _authState.value = AuthState.AuthError("Unrecognized credential type returned by Google Identity fallback.")
+        }
+      } catch (cancelEx: GetCredentialCancellationException) {
+        Log.d("AuthManager", "Google sign-in fallback cancelled by user")
+        resetState()
+      } catch (fallbackError: Throwable) {
+        Log.e("AuthManager", "Google Sign-In fallback failed: ${fallbackError.message}", fallbackError)
+        _authState.value = AuthState.AuthError(
+          fallbackError.localizedMessage ?: "No Google account selected or available. Tap Continue with Google to try again."
+        )
+      }
     } catch (e: GetCredentialException) {
       Log.e("AuthManager", "Credential Manager error: ${e.message}", e)
       _authState.value = AuthState.AuthError(e.localizedMessage ?: "Google Sign-In was cancelled or failed.")
