@@ -1,6 +1,8 @@
 package com.example.data.auth
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.util.Log
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
@@ -8,6 +10,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.FirebaseApp
@@ -143,6 +146,8 @@ class AuthManager(private val context: Context) {
       return
     }
 
+    val resolvedContext: Context = activityContext.findActivity() ?: activityContext
+
     try {
       val googleIdOption = GetGoogleIdOption.Builder()
         .setFilterByAuthorizedAccounts(false)
@@ -156,7 +161,7 @@ class AuthManager(private val context: Context) {
 
       val result = credentialManager.getCredential(
         request = request,
-        context = activityContext
+        context = resolvedContext
       )
 
       val credential = result.credential
@@ -190,6 +195,11 @@ class AuthManager(private val context: Context) {
     } catch (e: GetCredentialCancellationException) {
       Log.d("AuthManager", "Google sign-in cancelled by user")
       resetState()
+    } catch (e: NoCredentialException) {
+      Log.e("AuthManager", "No credentials available: ${e.message}", e)
+      _authState.value = AuthState.AuthError(
+        "No Google credentials available. Please ensure your Google account has authorized access or check Google Play Services."
+      )
     } catch (e: GetCredentialException) {
       Log.e("AuthManager", "Credential Manager error: ${e.message}", e)
       _authState.value = AuthState.AuthError(e.localizedMessage ?: "Google Sign-In was cancelled or failed.")
@@ -197,6 +207,15 @@ class AuthManager(private val context: Context) {
       Log.e("AuthManager", "Google Sign-In failed: ${e.message}", e)
       _authState.value = AuthState.AuthError(e.localizedMessage ?: "Failed to authenticate with Google.")
     }
+  }
+
+  private fun Context.findActivity(): Activity? {
+    var ctx: Context? = this
+    while (ctx is ContextWrapper) {
+      if (ctx is Activity) return ctx
+      ctx = ctx.baseContext
+    }
+    return null
   }
 
   /**
