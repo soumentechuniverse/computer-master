@@ -34,6 +34,10 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > debug.keystore
 
+      - name: Print SHA-1 fingerprint
+        run: |
+          keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android
+
       - name: Build APK
         run: gradle assembleDebug
 
