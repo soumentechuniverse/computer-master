@@ -1,167 +1,3 @@
-package com.example.data.auth
-
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
-import android.util.Log
-import androidx.credentials.ClearCredentialStateRequest
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialCancellationException
-import androidx.credentials.exceptions.GetCredentialException
-import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.security.MessageDigest
-import java.util.UUID
-
-/**
- * Real Firebase Authentication Manager for Computer Master.
- * Uses one Google Sign-In flow through Android Credential Manager
- * and Firebase Authentication.
- */
-class AuthManager(private val context: Context) {
-
-  private val sessionManager = SessionManager(context)
-
-  private val defaultWebClientId =
-    "682580183716-63mrfii4tgboa06u2pm6qudcnpv9bc4p.apps.googleusercontent.com"
-
-  private val firebaseAuth: FirebaseAuth? by lazy {
-    try {
-      if (isExternalProviderConfigured()) {
-        FirebaseAuth.getInstance()
-      } else {
-        null
-      }
-    } catch (e: Throwable) {
-      Log.w("AuthManager", "FirebaseAuth not initialized: ${e.message}")
-      null
-    }
-  }
-
-  private val _authState = MutableStateFlow<AuthState>(
-    if (sessionManager.isAuthenticated()) {
-      val user = sessionManager.getAuthenticatedUser()
-      if (user != null) {
-        AuthState.Authenticated(user)
-      } else {
-        AuthState.Unauthenticated
-      }
-    } else {
-      AuthState.Unauthenticated
-    }
-  )
-
-  val authState: StateFlow<AuthState> = _authState.asStateFlow()
-
-  val isAuthenticated: Boolean
-    get() = sessionManager.isAuthenticated()
-
-  val currentUser: AuthUser?
-    get() = sessionManager.getAuthenticatedUser()
-
-  init {
-    try {
-      firebaseAuth?.addAuthStateListener { auth ->
-        val fbUser = auth.currentUser
-
-        if (fbUser != null) {
-          val appUser = AuthUser(
-            uid = fbUser.uid,
-            identifier = fbUser.email
-              ?: fbUser.phoneNumber
-              ?: "user_${fbUser.uid.take(6)}",
-            isPhone = fbUser.email == null && fbUser.phoneNumber != null,
-            displayName = fbUser.displayName ?: "Student Learner",
-            photoUrl = fbUser.photoUrl?.toString(),
-            token = null,
-            sessionCreatedAt = System.currentTimeMillis()
-          )
-
-          sessionManager.saveSession(appUser)
-          _authState.value = AuthState.Authenticated(appUser)
-
-        } else if (!sessionManager.isAuthenticated()) {
-          _authState.value = AuthState.Unauthenticated
-        }
-      }
-    } catch (e: Throwable) {
-      Log.w(
-        "AuthManager",
-        "Failed to register Firebase auth listener: ${e.message}"
-      )
-    }
-  }
-
-  /**
-   * Ensures Firebase is initialized.
-   */
-  fun isExternalProviderConfigured(): Boolean {
-    return try {
-      if (FirebaseApp.getApps(context).isEmpty()) {
-
-        val defaultApp = FirebaseApp.initializeApp(context)
-
-        if (
-          defaultApp == null &&
-          FirebaseApp.getApps(context).isEmpty()
-        ) {
-          try {
-            val options = FirebaseOptions.Builder()
-              .setApplicationId(
-                "1:682580183716:android:772bae14e8ea4ccca67431"
-              )
-              .setApiKey(
-                "AIzaSyBNIGmaSzzBs1KoQpaUezSvAHrw5P0OCno"
-              )
-              .setProjectId("computer-master-8f53d")
-              .setStorageBucket(
-                "computer-master-8f53d.firebasestorage.app"
-              )
-              .setGcmSenderId("682580183716")
-              .build()
-
-            FirebaseApp.initializeApp(context, options)
-
-          } catch (initErr: Throwable) {
-            Log.w(
-              "AuthManager",
-              "Explicit FirebaseOptions initialization failed: ${initErr.message}"
-            )
-          }
-        }
-      }
-
-      FirebaseApp.getApps(context).isNotEmpty()
-
-    } catch (e: Throwable) {
-      Log.w(
-        "AuthManager",
-        "FirebaseApp initialization check failed: ${e.message}"
-      )
-      false
-    }
-  }
-
-  /**
-   * Google Sign-In.
-   *
-   * IMPORTANT:
-   * Only ONE Credential Manager request is made.
-   * There is no GoogleIdOption -> fallback -> second picker flow.
-   */
   suspend fun signInWithGoogle(activityContext: Context) {
 
     _authState.value = AuthState.Authenticating
@@ -192,12 +28,18 @@ class AuthManager(private val context: Context) {
     val invocationContext: Context =
       resolvedActivity ?: activityContext
 
+    var authStage = "Starting Google Sign-In"
+
     try {
 
-      /*
-       * Generate a cryptographically random nonce.
-       * The hashed nonce is sent to Google Identity.
-       */
+      Log.d(
+        "AUTH_DEBUG",
+        "START Google Sign-In"
+      )
+
+      // STEP 1: Create nonce
+      authStage = "Creating security nonce"
+
       val rawNonce = UUID.randomUUID().toString()
 
       val digest = MessageDigest
@@ -209,11 +51,14 @@ class AuthManager(private val context: Context) {
           "%02x".format(it)
         }
 
-      /*
-       * Use the dedicated Sign-In with Google option.
-       *
-       * This is the ONLY Google credential option used here.
-       */
+      Log.d(
+        "AUTH_DEBUG",
+        "STEP 1: Nonce created"
+      )
+
+      // STEP 2: Create Google Sign-In option
+      authStage = "Creating Google Sign-In option"
+
       val googleSignInOption =
         GetSignInWithGoogleOption.Builder(
           defaultWebClientId
@@ -221,15 +66,27 @@ class AuthManager(private val context: Context) {
           .setNonce(hashedNonce)
           .build()
 
+      Log.d(
+        "AUTH_DEBUG",
+        "STEP 2: Google Sign-In option created"
+      )
+
+      // STEP 3: Create credential request
+      authStage = "Creating Credential request"
+
       val request =
         GetCredentialRequest.Builder()
           .addCredentialOption(googleSignInOption)
           .build()
 
-      /*
-       * IMPORTANT:
-       * Only one getCredential() call.
-       */
+      Log.d(
+        "AUTH_DEBUG",
+        "STEP 3: Credential request created"
+      )
+
+      // STEP 4: Open Google account picker
+      authStage = "Opening Google account picker"
+
       val result =
         CredentialManager
           .create(invocationContext)
@@ -238,7 +95,20 @@ class AuthManager(private val context: Context) {
             context = invocationContext
           )
 
+      Log.d(
+        "AUTH_DEBUG",
+        "STEP 4: Google account picker returned"
+      )
+
+      // STEP 5: Read returned credential
+      authStage = "Reading Google credential"
+
       val credential = result.credential
+
+      Log.d(
+        "AUTH_DEBUG",
+        "STEP 5: Credential received type=${credential.type}"
+      )
 
       if (
         credential is CustomCredential &&
@@ -246,294 +116,244 @@ class AuthManager(private val context: Context) {
         GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
       ) {
 
+        // STEP 6: Create Google ID token credential
+        authStage = "Creating Google ID token credential"
+
         val googleIdTokenCredential =
-          GoogleIdTokenCredential.createFrom(
-            credential.data
-          )
+          try {
+
+            GoogleIdTokenCredential.createFrom(
+              credential.data
+            )
+
+          } catch (e: Exception) {
+
+            Log.e(
+              "AUTH_DEBUG",
+              "STEP 6 FAILED: Could not create Google ID token",
+              e
+            )
+
+            _authState.value =
+              AuthState.AuthError(
+                "Google Sign-In failed at Step 6.\n\n" +
+                  "Could not read the Google account information.\n\n" +
+                  "${e.message ?: "Unknown error"}"
+              )
+
+            return
+          }
+
+        Log.d(
+          "AUTH_DEBUG",
+          "STEP 6: Google ID token created successfully"
+        )
 
         val idToken =
           googleIdTokenCredential.idToken
 
-        /*
-         * Exchange Google ID token for Firebase credential.
-         */
+        Log.d(
+          "AUTH_DEBUG",
+          "STEP 6: ID token received"
+        )
+
+        // STEP 7: Create Firebase credential
+        authStage = "Creating Firebase credential"
+
         val firebaseCredential =
-          GoogleAuthProvider.getCredential(
-            idToken,
-            null
-          )
+          try {
+
+            GoogleAuthProvider.getCredential(
+              idToken,
+              null
+            )
+
+          } catch (e: Exception) {
+
+            Log.e(
+              "AUTH_DEBUG",
+              "STEP 7 FAILED: Could not create Firebase credential",
+              e
+            )
+
+            _authState.value =
+              AuthState.AuthError(
+                "Google Sign-In failed at Step 7.\n\n" +
+                  "Could not create the Firebase credential.\n\n" +
+                  "${e.message ?: "Unknown error"}"
+              )
+
+            return
+          }
+
+        Log.d(
+          "AUTH_DEBUG",
+          "STEP 7: Firebase credential created"
+        )
+
+        // STEP 8: Sign in to Firebase
+        authStage = "Signing in to Firebase"
 
         val authResult =
-          auth.signInWithCredential(
-            firebaseCredential
-          ).await()
+          try {
+
+            auth.signInWithCredential(
+              firebaseCredential
+            ).await()
+
+          } catch (e: Exception) {
+
+            Log.e(
+              "AUTH_DEBUG",
+              "STEP 8 FAILED: Firebase sign-in failed",
+              e
+            )
+
+            _authState.value =
+              AuthState.AuthError(
+                "Google Sign-In failed at Step 8.\n\n" +
+                  "Firebase rejected the Google account.\n\n" +
+                  "${e.message ?: "Unknown Firebase error"}"
+              )
+
+            return
+          }
+
+        Log.d(
+          "AUTH_DEBUG",
+          "STEP 8: Firebase sign-in successful"
+        )
+
+        // STEP 9: Get Firebase user
+        authStage = "Reading Firebase user"
 
         val fbUser = authResult.user
 
-        if (fbUser != null) {
-
-          val appUser = AuthUser(
-            uid = fbUser.uid,
-            identifier =
-              fbUser.email
-                ?: googleIdTokenCredential.id,
-            isPhone = false,
-            displayName =
-              fbUser.displayName
-                ?: googleIdTokenCredential.displayName
-                ?: "Computer Master Student",
-            photoUrl =
-              fbUser.photoUrl?.toString()
-                ?: googleIdTokenCredential
-                  .profilePictureUri
-                  ?.toString(),
-            token = idToken,
-            sessionCreatedAt =
-              System.currentTimeMillis()
-          )
-
-          sessionManager.saveSession(appUser)
-
-          _authState.value =
-            AuthState.Authenticated(appUser)
-
-        } else {
+        if (fbUser == null) {
 
           _authState.value =
             AuthState.AuthError(
-              "Authentication succeeded but no user profile was returned."
+              "Authentication succeeded, but Firebase did not return a user."
             )
+
+          return
         }
+
+        Log.d(
+          "AUTH_DEBUG",
+          "STEP 9: Firebase user received"
+        )
+
+        // STEP 10: Create Computer Master user
+        authStage = "Creating Computer Master user session"
+
+        val appUser = AuthUser(
+          uid = fbUser.uid,
+          identifier =
+            fbUser.email
+              ?: googleIdTokenCredential.id,
+          isPhone = false,
+          displayName =
+            fbUser.displayName
+              ?: googleIdTokenCredential.displayName
+              ?: "Computer Master Student",
+          photoUrl =
+            fbUser.photoUrl?.toString()
+              ?: googleIdTokenCredential
+                .profilePictureUri
+                ?.toString(),
+          token = idToken,
+          sessionCreatedAt =
+            System.currentTimeMillis()
+        )
+
+        Log.d(
+          "AUTH_DEBUG",
+          "STEP 10: App user created"
+        )
+
+        // STEP 11: Save session
+        authStage = "Saving user session"
+
+        sessionManager.saveSession(appUser)
+
+        Log.d(
+          "AUTH_DEBUG",
+          "STEP 11: Session saved"
+        )
+
+        // STEP 12: Set authenticated state
+        authStage = "Setting Authenticated state"
+
+        _authState.value =
+          AuthState.Authenticated(appUser)
+
+        Log.d(
+          "AUTH_DEBUG",
+          "STEP 12: Authenticated state SET uid=${appUser.uid}"
+        )
 
       } else {
 
+        Log.e(
+          "AUTH_DEBUG",
+          "Invalid Google credential type: ${credential.type}"
+        )
+
         _authState.value =
           AuthState.AuthError(
-            "Google did not return a valid ID credential."
+            "Google did not return a valid Google ID credential.\n\n" +
+              "Credential type: ${credential.type}"
           )
       }
 
     } catch (e: GetCredentialCancellationException) {
 
-      Log.d(
-        "AuthManager",
-        "Google sign-in cancelled by user"
+      Log.e(
+        "AUTH_DEBUG",
+        "Google Sign-In CANCELLED at stage: $authStage",
+        e
       )
 
-      resetState()
+      // Do not silently reset the state.
+      // Show the actual stage so the problem can be identified.
+
+      _authState.value =
+        AuthState.AuthError(
+          "Google Sign-In was cancelled or interrupted.\n\n" +
+            "Stage: $authStage\n\n" +
+            "${e.message ?: "No additional information"}"
+        )
 
     } catch (e: GetCredentialException) {
 
       Log.e(
-        "AuthManager",
-        "Google Credential Manager error: ${e.message}",
+        "AUTH_DEBUG",
+        "Credential Manager FAILED at stage: $authStage",
         e
       )
 
       _authState.value =
         AuthState.AuthError(
-          "Google Sign-In could not be completed. Please try again."
+          "Google Sign-In failed.\n\n" +
+            "Stage: $authStage\n\n" +
+            "${e.message ?: "Credential Manager error"}"
         )
 
     } catch (e: Throwable) {
 
       Log.e(
-        "AuthManager",
-        "Google Sign-In failed: ${e.message}",
+        "AUTH_DEBUG",
+        "Google Sign-In FAILED at stage: $authStage",
         e
       )
 
       _authState.value =
         AuthState.AuthError(
-          e.localizedMessage
-            ?: "Failed to authenticate with Google."
+          "Google Sign-In failed.\n\n" +
+            "Stage: $authStage\n\n" +
+            "${e::class.simpleName}: " +
+            "${e.message ?: "Unknown error"}"
         )
     }
   }
-
-  private fun Context.findActivity(): Activity? {
-
-    var ctx: Context? = this
-
-    while (ctx is ContextWrapper) {
-
-      if (ctx is Activity) {
-        return ctx
-      }
-
-      ctx = ctx.baseContext
-    }
-
-    return null
-  }
-
-  /**
-   * Logs out from Firebase and clears Credential Manager state.
-   */
-  fun logout() {
-
-    try {
-      firebaseAuth?.signOut()
-    } catch (e: Throwable) {
-      Log.w(
-        "AuthManager",
-        "Error signing out of Firebase: ${e.message}"
-      )
-    }
-
-    CoroutineScope(Dispatchers.IO).launch {
-
-      try {
-        CredentialManager
-          .create(context)
-          .clearCredentialState(
-            ClearCredentialStateRequest()
-          )
-
-      } catch (e: Throwable) {
-        Log.w(
-          "AuthManager",
-          "Error clearing credentials: ${e.message}"
-        )
-      }
-    }
-
-    sessionManager.clearSession()
-
-    _authState.value =
-      AuthState.Unauthenticated
-  }
-
-  /**
-   * Resets temporary authentication state.
-   */
-  fun resetState() {
-
-    if (sessionManager.isAuthenticated()) {
-
-      val user =
-        sessionManager.getAuthenticatedUser()
-
-      if (user != null) {
-
-        _authState.value =
-          AuthState.Authenticated(user)
-
-        return
-      }
-    }
-
-    _authState.value =
-      AuthState.Unauthenticated
-  }
-
-  /*
-   * Backward compatibility methods for old OTP architecture.
-   */
-
-  fun requestOtp(
-    identifier: String,
-    isRegister: Boolean,
-    displayName: String? = null
-  ) {
-
-    val cleanIdentifier =
-      identifier.trim()
-
-    if (cleanIdentifier.isBlank()) {
-
-      _authState.value =
-        AuthState.AuthError(
-          "Please enter a valid identifier."
-        )
-
-      return
-    }
-
-    _authState.value =
-      AuthState.SendingOtp
-
-    if (!isExternalProviderConfigured()) {
-
-      _authState.value =
-        AuthState.ProviderConfigRequired(
-          title =
-            "Firebase Authentication Required",
-          description =
-            "Please sign in with Google directly using the Continue with Google option.",
-          setupInstructions =
-            "Google Sign-In is configured and ready."
-        )
-
-      return
-    }
-
-    val verificationId =
-      UUID.randomUUID().toString()
-
-    _authState.value =
-      AuthState.OtpSent(
-        verificationId = verificationId,
-        targetIdentifier = cleanIdentifier,
-        isRegister = isRegister,
-        resendCountdown = 60
-      )
-  }
-
-  fun verifyOtp(
-    verificationId: String,
-    otpCode: String,
-    targetIdentifier: String,
-    isRegister: Boolean,
-    displayName: String? = null
-  ) {
-
-    val cleanCode =
-      otpCode.trim()
-
-    if (cleanCode.length < 6) {
-
-      _authState.value =
-        AuthState.AuthError(
-          "Please enter the complete 6-digit OTP."
-        )
-
-      return
-    }
-
-    _authState.value =
-      AuthState.VerifyingOtp
-
-    try {
-
-      val newUser = AuthUser(
-        uid =
-          "user_${UUID.randomUUID().toString().take(8)}",
-        identifier =
-          targetIdentifier,
-        isPhone =
-          !targetIdentifier.contains("@"),
-        displayName =
-          displayName
-            ?: if (isRegister) "Learner" else null,
-        photoUrl = null,
-        token =
-          "token_${UUID.randomUUID()}",
-        sessionCreatedAt =
-          System.currentTimeMillis()
-      )
-
-      sessionManager.saveSession(newUser)
-
-      _authState.value =
-        AuthState.Authenticated(newUser)
-
-    } catch (e: Exception) {
-
-      _authState.value =
-        AuthState.AuthError(
-          "Invalid or expired OTP."
-        )
-    }
-  }
-}
