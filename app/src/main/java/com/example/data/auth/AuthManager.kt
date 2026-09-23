@@ -3,7 +3,13 @@ package com.example.data.auth
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.util.Log
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
@@ -182,6 +188,119 @@ class AuthManager(private val context: Context) {
             )
 
             false
+        }
+    }
+
+    /*
+     * Legacy Google Sign-In fallback.
+     *
+     * The newer Credential Manager flow (signInWithGoogle below) fails
+     * silently on some OEM/custom Android builds with
+     * "cancelled or interrupted" right when opening the account picker.
+     * This classic GoogleSignInClient flow is far more broadly
+     * compatible and is used as the primary path from the UI now.
+     */
+    fun getGoogleSignInClient(context: Context): GoogleSignInClient {
+
+        isExternalProviderConfigured()
+
+        val gso =
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(defaultWebClientId)
+                .requestEmail()
+                .build()
+
+        return GoogleSignIn.getClient(context, gso)
+    }
+
+    fun getGoogleSignInIntent(context: Context): Intent {
+        return getGoogleSignInClient(context).signInIntent
+    }
+
+    suspend fun handleGoogleSignInResult(data: Intent?) {
+
+        _authState.value = AuthState.Authenticating
+
+        val auth = firebaseAuth
+
+        if (auth == null) {
+            _authState.value =
+                AuthState.AuthError(
+                    "Firebase Authentication is not available on this device."
+                )
+            return
+        }
+
+        try {
+            val task =
+                GoogleSignIn.getSignedInAccountFromIntent(data)
+
+            val account = task.getResult(ApiException::class.java)
+
+            val idToken = account?.idToken
+
+            if (idToken.isNullOrBlank()) {
+                _authState.value =
+                    AuthState.AuthError(
+                        "Google did not return a valid ID token."
+                    )
+                return
+            }
+
+            val firebaseCredential =
+                GoogleAuthProvider.getCredential(idToken, null)
+
+            val authResult =
+                auth.signInWithCredential(firebaseCredential).await()
+
+            val fbUser = authResult.user
+
+            if (fbUser == null) {
+                _authState.value =
+                    AuthState.AuthError(
+                        "Firebase sign-in succeeded, but no user was returned."
+                    )
+                return
+            }
+
+            val appUser =
+                AuthUser(
+                    uid = fbUser.uid,
+                    identifier = fbUser.email ?: account.email ?: "user_${fbUser.uid.take(6)}",
+                    isPhone = false,
+                    displayName = fbUser.displayName ?: account.displayName ?: "Computer Master Student",
+                    photoUrl = fbUser.photoUrl?.toString() ?: account.photoUrl?.toString(),
+                    token = idToken,
+                    sessionCreatedAt = System.currentTimeMillis()
+                )
+
+            sessionManager.saveSession(appUser)
+
+            _authState.value = AuthState.Authenticated(appUser)
+
+            Log.d("AUTH_DEBUG", "Legacy Google Sign-In successful: ${appUser.uid}")
+
+        } catch (e: ApiException) {
+
+            Log.e("AUTH_DEBUG", "Legacy Google Sign-In failed, code=${e.statusCode}", e)
+
+            val message = when (e.statusCode) {
+                12501 -> "Google Sign-In was cancelled."
+                7 -> "No internet connection. Please check your network and try again."
+                10 -> "Google Sign-In configuration error (code 10). The app's SHA-1 fingerprint may not be registered correctly, or Google's servers haven't finished updating the new settings yet — please wait a while and try again."
+                else -> "Google Sign-In failed (code ${e.statusCode}): ${e.message}"
+            }
+
+            _authState.value = AuthState.AuthError(message)
+
+        } catch (e: Throwable) {
+
+            Log.e("AUTH_DEBUG", "Legacy Google Sign-In failed", e)
+
+            _authState.value =
+                AuthState.AuthError(
+                    "Google Sign-In failed.\n\n${e::class.simpleName}: ${e.message ?: "Unknown error"}"
+                )
         }
     }
 
