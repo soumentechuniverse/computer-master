@@ -147,6 +147,16 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
     }
   }
 
+  fun getGoogleSignInIntent(activityContext: android.content.Context): android.content.Intent {
+    return authManager.getGoogleSignInIntent(activityContext)
+  }
+
+  fun handleGoogleSignInResult(data: android.content.Intent?) {
+    viewModelScope.launch {
+      authManager.handleGoogleSignInResult(data)
+    }
+  }
+
   fun requestAuthOtp(identifier: String, isRegister: Boolean, displayName: String? = null) {
     authManager.requestOtp(identifier, isRegister, displayName)
   }
