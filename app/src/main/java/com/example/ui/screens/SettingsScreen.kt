@@ -81,6 +81,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import com.example.ui.components.GoogleLogoIcon
@@ -298,9 +300,15 @@ fun SettingsScreen(
             val context = LocalContext.current
             val authState by viewModel.authState.collectAsState()
 
+            val googleSignInLauncher = rememberLauncherForActivityResult(
+              contract = ActivityResultContracts.StartActivityForResult()
+            ) { result ->
+              viewModel.handleGoogleSignInResult(result.data)
+            }
+
             Button(
               onClick = {
-                viewModel.signInWithGoogle(context)
+                googleSignInLauncher.launch(viewModel.getGoogleSignInIntent(context))
               },
               enabled = authState !is com.example.data.auth.AuthState.Authenticating,
               modifier = Modifier
