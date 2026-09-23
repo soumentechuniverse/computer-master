@@ -460,6 +460,150 @@ class AuthManager(private val context: Context) {
         }
     }
 
+    /*
+     * Backward compatibility method for the old OTP architecture.
+     *
+     * This keeps ComputerMasterViewModel compatible.
+     * It does not send a real SMS/email OTP.
+     */
+    fun requestOtp(
+        identifier: String,
+        isRegister: Boolean,
+        displayName: String? = null
+    ) {
+
+        val cleanIdentifier =
+            identifier.trim()
+
+        if (cleanIdentifier.isBlank()) {
+
+            _authState.value =
+                AuthState.AuthError(
+                    "Please enter a valid identifier."
+                )
+
+            return
+        }
+
+        _authState.value =
+            AuthState.SendingOtp
+
+        if (!isExternalProviderConfigured()) {
+
+            _authState.value =
+                AuthState.ProviderConfigRequired(
+                    title =
+                        "Firebase Authentication Required",
+                    description =
+                        "Please sign in with Google directly using the Continue with Google option.",
+                    setupInstructions =
+                        "Google Sign-In is configured and ready."
+                )
+
+            return
+        }
+
+        val verificationId =
+            UUID.randomUUID().toString()
+
+        _authState.value =
+            AuthState.OtpSent(
+                verificationId =
+                    verificationId,
+                targetIdentifier =
+                    cleanIdentifier,
+                isRegister =
+                    isRegister,
+                resendCountdown =
+                    60
+            )
+    }
+
+    /*
+     * Backward compatibility method for the old OTP architecture.
+     *
+     * This is only a local compatibility flow.
+     * It does not verify a real SMS/email OTP.
+     */
+    fun verifyOtp(
+        verificationId: String,
+        otpCode: String,
+        targetIdentifier: String,
+        isRegister: Boolean,
+        displayName: String? = null
+    ) {
+
+        val cleanCode =
+            otpCode.trim()
+
+        if (cleanCode.length < 6) {
+
+            _authState.value =
+                AuthState.AuthError(
+                    "Please enter the complete 6-digit OTP."
+                )
+
+            return
+        }
+
+        _authState.value =
+            AuthState.VerifyingOtp
+
+        try {
+
+            val newUser =
+                AuthUser(
+                    uid =
+                        "user_${UUID.randomUUID().toString().take(8)}",
+
+                    identifier =
+                        targetIdentifier,
+
+                    isPhone =
+                        !targetIdentifier.contains("@"),
+
+                    displayName =
+                        displayName
+                            ?: if (isRegister) {
+                                "Learner"
+                            } else {
+                                null
+                            },
+
+                    photoUrl =
+                        null,
+
+                    token =
+                        "token_${UUID.randomUUID()}",
+
+                    sessionCreatedAt =
+                        System.currentTimeMillis()
+                )
+
+            sessionManager.saveSession(
+                newUser
+            )
+
+            _authState.value =
+                AuthState.Authenticated(
+                    newUser
+                )
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "AuthManager",
+                "OTP verification failed",
+                e
+            )
+
+            _authState.value =
+                AuthState.AuthError(
+                    "Invalid or expired OTP."
+                )
+        }
+    }
+
     fun resetState() {
 
         if (sessionManager.isAuthenticated()) {
