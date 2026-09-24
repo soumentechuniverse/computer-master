@@ -11,13 +11,11 @@ object CourseSeedData {
   fun getInitialCourses(): List<Course> {
     return listOf(
       // =================================================================
-      // BEGINNER COURSES (7 COURSES)
+      // 1. Computer Fundamentals
       // =================================================================
-
-      // 1. Computer Basics
       Course(
         id = "course_basics",
-        title = "Computer Basics",
+        title = "Computer Fundamentals",
         description = "Understand computer hardware, CPU, RAM, storage devices, motherboards, input/output peripherals, and how computing works.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
@@ -26,7 +24,7 @@ object CourseSeedData {
         iconName = "computer",
         progressPercent = 30,
         isBookmarked = true,
-        tags = listOf("Hardware", "CPU", "RAM", "Components"),
+        tags = listOf("Fundamentals", "Hardware", "CPU", "RAM", "Components"),
         modules = listOf(
           CourseModule(
             id = "mod_b1",
@@ -77,16 +75,72 @@ object CourseSeedData {
         )
       ),
 
-      // 2. Windows & File Management
+      // =================================================================
+      // 2. Computer Hardware
+      // =================================================================
+      Course(
+        id = "course_hardware",
+        title = "Computer Hardware",
+        description = "Explore internal PC architecture, motherboards, microprocessors, power supplies, expansion slots, cooling systems, and physical connectivity.",
+        level = CourseLevel.BEGINNER,
+        difficulty = 1,
+        lessonCount = 0,
+        estimatedHours = 0.0,
+        iconName = "hardware",
+        progressPercent = 0,
+        isBookmarked = false,
+        tags = listOf("Hardware", "Motherboard", "Components", "Power Supply"),
+        modules = emptyList()
+      ),
+
+      // =================================================================
+      // 3. Software
+      // =================================================================
+      Course(
+        id = "course_software",
+        title = "Software",
+        description = "Learn system software, operating systems, application suites, utility programs, device drivers, and software licensing principles.",
+        level = CourseLevel.BEGINNER,
+        difficulty = 1,
+        lessonCount = 0,
+        estimatedHours = 0.0,
+        iconName = "software",
+        progressPercent = 0,
+        isBookmarked = false,
+        tags = listOf("Software", "Applications", "Utilities", "Drivers"),
+        modules = emptyList()
+      ),
+
+      // =================================================================
+      // 4. Operating Systems
+      // =================================================================
+      Course(
+        id = "course_os",
+        title = "Operating Systems",
+        description = "Understand kernel functions, memory management, process scheduling, file systems, device management, and multi-user environments.",
+        level = CourseLevel.BEGINNER,
+        difficulty = 1,
+        lessonCount = 0,
+        estimatedHours = 0.0,
+        iconName = "os",
+        progressPercent = 0,
+        isBookmarked = false,
+        tags = listOf("OS", "Kernel", "Processes", "Memory Management"),
+        modules = emptyList()
+      ),
+
+      // =================================================================
+      // 5. Windows
+      // =================================================================
       Course(
         id = "course_windows",
-        title = "Windows & File Management",
-        description = "Master File Explorer, folder hierarchy, extensions, system settings, Task Manager, and keyboard shortcuts for maximum speed.",
+        title = "Windows",
+        description = "Master Windows navigation, desktop personalization, Task Manager, system settings, and keyboard shortcuts for maximum speed.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
         lessonCount = 7,
         estimatedHours = 2.5,
-        iconName = "folder",
+        iconName = "windows",
         progressPercent = 28,
         tags = listOf("Windows", "OS", "Files", "Productivity"),
         modules = listOf(
@@ -136,51 +190,71 @@ object CourseSeedData {
         )
       ),
 
-      // 3. Keyboard & Typing
+      // =================================================================
+      // 6. Files and Folders
+      // =================================================================
       Course(
-        id = "course_typing",
-        title = "Keyboard & Typing",
-        description = "Learn home row touch typing, numeric keypad speed, ergonomic posture, and master common developer and Office shortcuts.",
+        id = "course_files",
+        title = "Files and Folders",
+        description = "Master File Explorer, hierarchical folder structures, path addressing, search operators, file extensions, and ZIP archiving.",
+        level = CourseLevel.BEGINNER,
+        difficulty = 1,
+        lessonCount = 0,
+        estimatedHours = 0.0,
+        iconName = "folder",
+        progressPercent = 0,
+        isBookmarked = false,
+        tags = listOf("Files", "Folders", "Organization", "Archives", "Paths"),
+        modules = emptyList()
+      ),
+
+      // =================================================================
+      // 7. Internet
+      // =================================================================
+      Course(
+        id = "course_internet",
+        title = "Internet",
+        description = "Navigate the web safely, use advanced search operators, master email etiquette, avoid phishing scams, and organize cloud storage.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
         lessonCount = 6,
         estimatedHours = 2.0,
-        iconName = "keyboard",
-        progressPercent = 75,
-        tags = listOf("Typing", "Speed", "Ergonomics"),
+        iconName = "globe",
+        progressPercent = 80,
+        tags = listOf("Internet", "Email", "Web", "Cloud"),
         modules = listOf(
           CourseModule(
-            id = "mod_t1",
-            title = "Touch Typing Mastery",
+            id = "mod_ie1",
+            title = "Web Navigation & Safety",
             chapters = listOf(
               Chapter(
-                id = "chap_t1_1",
-                title = "Home Row & Posture",
+                id = "chap_ie1_1",
+                title = "Browsers & Search",
                 lessons = listOf(
-                  Lesson("les_t1", "Home Row Technique (ASDF JKL;)", 15, "Finger positioning and muscle memory anchor points.", true),
-                  Lesson("les_t2", "Top & Bottom Row Muscle Memory Drills", 20, "Reaching keys without looking down at the keyboard.", true)
+                  Lesson("les_ie1", "How the Web Works: URLs, DNS & Browsers", 15, "Demystifying client-server architecture and domain names.", true),
+                  Lesson("les_ie2", "Advanced Google Search Operators & Filters", 18, "Using site:, filetype:, quotes, and minus operators.", true)
                 )
               ),
               Chapter(
-                id = "chap_t1_2",
-                title = "Number & Symbol Rows",
+                id = "chap_ie1_2",
+                title = "Cyber Hygiene Basics",
                 lessons = listOf(
-                  Lesson("les_t3", "Numbers, Special Symbols & Punctuation", 18, "Shift key mechanics and bracket placement.", true),
-                  Lesson("les_t4", "Numeric Keypad Speed Training", 15, "10-key touch typing drills for spreadsheets and data entry.", false)
+                  Lesson("les_ie3", "HTTPS, Cookies, Cache & Private Browsing", 16, "Understanding site encryption and digital footprint tracking.", true),
+                  Lesson("les_ie4", "Spotting Phishing Scams, Spoof URLs & Malware", 20, "Sender verification, suspicious attachments, and fraud prevention.", true)
                 )
               )
             )
           ),
           CourseModule(
-            id = "mod_t2",
-            title = "Speed & Shortcut Fluency",
+            id = "mod_ie2",
+            title = "Communication & Cloud Storage",
             chapters = listOf(
               Chapter(
-                id = "chap_t2_1",
-                title = "Ergonomics & Benchmarks",
+                id = "chap_ie2_1",
+                title = "Professional Workflows",
                 lessons = listOf(
-                  Lesson("les_t5", "Typing Ergonomics & Repetitive Strain Prevention", 12, "Wrist angle, chair height, and healthy micro-breaks.", false),
-                  Lesson("les_t6", "Word Processing & Coding Speed Benchmarks", 20, "Measuring WPM and reducing error rates.", false)
+                  Lesson("les_ie5", "Professional Email Formatting (CC, BCC & Signatures)", 18, "Formal etiquette, subject lines, and attachment protocols.", false),
+                  Lesson("les_ie6", "Cloud Storage: Google Drive, OneDrive & File Sharing", 15, "Permissions, sharing links, and folder organization.", false)
                 )
               )
             )
@@ -188,7 +262,71 @@ object CourseSeedData {
         )
       ),
 
-      // 4. Microsoft Word
+      // =================================================================
+      // 8. Networking
+      // =================================================================
+      Course(
+        id = "course_networking",
+        title = "Networking",
+        description = "Master the OSI model, TCP/IP, IP addressing, subnetting, DNS, DHCP, routing, switches, firewalls, and network troubleshooting tools.",
+        level = CourseLevel.INTERMEDIATE,
+        difficulty = 2,
+        lessonCount = 8,
+        estimatedHours = 4.5,
+        iconName = "network",
+        progressPercent = 40,
+        tags = listOf("Networking", "TCP/IP", "DNS", "Subnetting"),
+        modules = listOf(
+          CourseModule(
+            id = "mod_net1",
+            title = "Network Models & Addressing",
+            chapters = listOf(
+              Chapter(
+                id = "chap_net1_1",
+                title = "Layered Architecture",
+                lessons = listOf(
+                  Lesson("les_net1", "The 7-Layer OSI Model vs 4-Layer TCP/IP", 25, "Physical, Data Link, Network, Transport, and Application duties.", true),
+                  Lesson("les_net2", "IPv4 vs IPv6 Addressing & Subnetting Basics", 30, "CIDR notation, subnet masks, and network vs host bits.", true)
+                )
+              ),
+              Chapter(
+                id = "chap_net1_2",
+                title = "Hardware & Addressing Services",
+                lessons = listOf(
+                  Lesson("les_net3", "Routers, Switches, Access Points & Modems", 22, "Layer 2 MAC frame forwarding vs Layer 3 packet routing.", false),
+                  Lesson("les_net4", "DNS, DHCP & Default Gateways in Action", 25, "Name resolution queries and dynamic IP leasing handshakes.", false)
+                )
+              )
+            )
+          ),
+          CourseModule(
+            id = "mod_net2",
+            title = "Protocols & Diagnostics",
+            chapters = listOf(
+              Chapter(
+                id = "chap_net2_1",
+                title = "Transport & Application Layer",
+                lessons = listOf(
+                  Lesson("les_net5", "TCP vs UDP: Reliability vs Real-Time Speed", 20, "SYN/ACK 3-way handshakes versus connectionless datagrams.", false),
+                  Lesson("les_net6", "HTTP/HTTPS, SSH, FTP & TLS Handshakes", 25, "Port numbers, symmetric session keys, and certificates.", false)
+                )
+              ),
+              Chapter(
+                id = "chap_net2_2",
+                title = "Troubleshooting",
+                lessons = listOf(
+                  Lesson("les_net7", "Command-Line Diagnostics: Ping, Traceroute, Netstat", 25, "Diagnosing packet drops, routing loops, and port conflicts.", false),
+                  Lesson("les_net8", "Networking Troubleshooting Scenario Quiz", 20, "Solve simulated enterprise LAN outage scenarios.", false)
+                )
+              )
+            )
+          )
+        )
+      ),
+
+      // =================================================================
+      // 9. Microsoft Word
+      // =================================================================
       Course(
         id = "course_word",
         title = "Microsoft Word",
@@ -248,7 +386,9 @@ object CourseSeedData {
         )
       ),
 
-      // 5. Microsoft Excel
+      // =================================================================
+      // 10. Microsoft Excel
+      // =================================================================
       Course(
         id = "course_excel",
         title = "Microsoft Excel",
@@ -309,7 +449,9 @@ object CourseSeedData {
         )
       ),
 
-      // 6. Microsoft PowerPoint
+      // =================================================================
+      // 11. Microsoft PowerPoint
+      // =================================================================
       Course(
         id = "course_powerpoint",
         title = "Microsoft PowerPoint",
@@ -368,126 +510,12 @@ object CourseSeedData {
         )
       ),
 
-      // 7. Internet & Email
-      Course(
-        id = "course_internet",
-        title = "Internet & Email",
-        description = "Navigate the web safely, use advanced search operators, master email etiquette, avoid phishing scams, and organize cloud storage.",
-        level = CourseLevel.BEGINNER,
-        difficulty = 1,
-        lessonCount = 6,
-        estimatedHours = 2.0,
-        iconName = "globe",
-        progressPercent = 80,
-        tags = listOf("Internet", "Email", "Web", "Cloud"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_ie1",
-            title = "Web Navigation & Safety",
-            chapters = listOf(
-              Chapter(
-                id = "chap_ie1_1",
-                title = "Browsers & Search",
-                lessons = listOf(
-                  Lesson("les_ie1", "How the Web Works: URLs, DNS & Browsers", 15, "Demystifying client-server architecture and domain names.", true),
-                  Lesson("les_ie2", "Advanced Google Search Operators & Filters", 18, "Using site:, filetype:, quotes, and minus operators.", true)
-                )
-              ),
-              Chapter(
-                id = "chap_ie1_2",
-                title = "Cyber Hygiene Basics",
-                lessons = listOf(
-                  Lesson("les_ie3", "HTTPS, Cookies, Cache & Private Browsing", 16, "Understanding site encryption and digital footprint tracking.", true),
-                  Lesson("les_ie4", "Spotting Phishing Scams, Spoof URLs & Malware", 20, "Sender verification, suspicious attachments, and fraud prevention.", true)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_ie2",
-            title = "Communication & Cloud Storage",
-            chapters = listOf(
-              Chapter(
-                id = "chap_ie2_1",
-                title = "Professional Workflows",
-                lessons = listOf(
-                  Lesson("les_ie5", "Professional Email Formatting (CC, BCC & Signatures)", 18, "Formal etiquette, subject lines, and attachment protocols.", false),
-                  Lesson("les_ie6", "Cloud Storage: Google Drive, OneDrive & File Sharing", 15, "Permissions, sharing links, and folder organization.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
       // =================================================================
-      // INTERMEDIATE COURSES (7 COURSES)
+      // 12. Programming Basics
       // =================================================================
-
-      // 8. Computer Networking
-      Course(
-        id = "course_networking",
-        title = "Computer Networking",
-        description = "Master the OSI model, TCP/IP, IP addressing, subnetting, DNS, DHCP, routing, switches, firewalls, and network troubleshooting tools.",
-        level = CourseLevel.INTERMEDIATE,
-        difficulty = 2,
-        lessonCount = 8,
-        estimatedHours = 4.5,
-        iconName = "network",
-        progressPercent = 40,
-        tags = listOf("Networking", "TCP/IP", "DNS", "Subnetting"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_net1",
-            title = "Network Models & Addressing",
-            chapters = listOf(
-              Chapter(
-                id = "chap_net1_1",
-                title = "Layered Architecture",
-                lessons = listOf(
-                  Lesson("les_net1", "The 7-Layer OSI Model vs 4-Layer TCP/IP", 25, "Physical, Data Link, Network, Transport, and Application duties.", true),
-                  Lesson("les_net2", "IPv4 vs IPv6 Addressing & Subnetting Basics", 30, "CIDR notation, subnet masks, and network vs host bits.", true)
-                )
-              ),
-              Chapter(
-                id = "chap_net1_2",
-                title = "Hardware & Addressing Services",
-                lessons = listOf(
-                  Lesson("les_net3", "Routers, Switches, Access Points & Modems", 22, "Layer 2 MAC frame forwarding vs Layer 3 packet routing.", false),
-                  Lesson("les_net4", "DNS, DHCP & Default Gateways in Action", 25, "Name resolution queries and dynamic IP leasing handshakes.", false)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_net2",
-            title = "Protocols & Diagnostics",
-            chapters = listOf(
-              Chapter(
-                id = "chap_net2_1",
-                title = "Transport & Application Layer",
-                lessons = listOf(
-                  Lesson("les_net5", "TCP vs UDP: Reliability vs Real-Time Speed", 20, "SYN/ACK 3-way handshakes versus connectionless datagrams.", false),
-                  Lesson("les_net6", "HTTP/HTTPS, SSH, FTP & TLS Handshakes", 25, "Port numbers, symmetric session keys, and certificates.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_net2_2",
-                title = "Troubleshooting",
-                lessons = listOf(
-                  Lesson("les_net7", "Command-Line Diagnostics: Ping, Traceroute, Netstat", 25, "Diagnosing packet drops, routing loops, and port conflicts.", false),
-                  Lesson("les_net8", "Networking Troubleshooting Scenario Quiz", 20, "Solve simulated enterprise LAN outage scenarios.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
-      // 9. Programming Fundamentals
       Course(
         id = "course_programming",
-        title = "Programming Fundamentals",
+        title = "Programming Basics",
         description = "Core logic of computer science: variables, data types, conditional branching, loops, functions, data structures, and debugging.",
         level = CourseLevel.INTERMEDIATE,
         difficulty = 2,
@@ -544,254 +572,12 @@ object CourseSeedData {
         )
       ),
 
-      // 10. Python
-      Course(
-        id = "course_python",
-        title = "Python",
-        description = "Learn modern Python from scratch: syntax, collections, list comprehensions, OOP, file handling, web scraping, and automation scripts.",
-        level = CourseLevel.INTERMEDIATE,
-        difficulty = 2,
-        lessonCount = 9,
-        estimatedHours = 5.0,
-        iconName = "python",
-        progressPercent = 45,
-        isBookmarked = true,
-        tags = listOf("Python", "Coding", "Automation", "Scripts"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_py1",
-            title = "Python Core Syntax & Data Structures",
-            chapters = listOf(
-              Chapter(
-                id = "chap_py1_1",
-                title = "Foundations",
-                lessons = listOf(
-                  Lesson("les_py1", "Python Setup, Virtual Environments & REPL", 18, "Installing Python 3, pip, venv, and running your first script.", true),
-                  Lesson("les_py2", "Variables, Dynamic Typing & F-String Formatting", 20, "String manipulation, numeric operations, and type casting.", true)
-                )
-              ),
-              Chapter(
-                id = "chap_py1_2",
-                title = "Collections & Comprehensions",
-                lessons = listOf(
-                  Lesson("les_py3", "Lists, Tuples, Dictionaries & Sets", 25, "Mutation rules, dictionary keys, and set unions/intersections.", true),
-                  Lesson("les_py4", "List Comprehensions & Generator Expressions", 25, "Writing elegant, one-line expressive data transformations.", false)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_py2",
-            title = "Advanced Python & Automation",
-            chapters = listOf(
-              Chapter(
-                id = "chap_py2_1",
-                title = "OOP & File I/O",
-                lessons = listOf(
-                  Lesson("les_py5", "Classes, Methods, Inheritance & Dunder Methods", 30, "__init__, __str__, and custom object representations.", false),
-                  Lesson("les_py6", "Reading & Writing Text, CSV and JSON Files", 22, "Using context managers ('with' open) and json module.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_py2_2",
-                title = "Web Scraping & Real Projects",
-                lessons = listOf(
-                  Lesson("les_py7", "Error Handling & Custom Exceptions", 20, "Try, except, else, finally blocks and defensive coding.", false),
-                  Lesson("les_py8", "Automating Tasks with Requests & Beautiful Soup", 30, "HTTP GET requests, HTML parsing, and data harvesting.", false),
-                  Lesson("les_py9", "Building a Python CLI Automation Tool", 30, "Crafting an end-to-end command-line utility with argparse.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
-      // 11. C/C++
-      Course(
-        id = "course_cpp",
-        title = "C/C++",
-        description = "Understand low-level systems programming, pointers, memory allocation (stack vs heap), structs, OOP, templates, and the STL.",
-        level = CourseLevel.INTERMEDIATE,
-        difficulty = 2,
-        lessonCount = 9,
-        estimatedHours = 5.5,
-        iconName = "compiler",
-        progressPercent = 10,
-        tags = listOf("C", "C++", "Pointers", "Systems"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_cpp1",
-            title = "Memory & Low-Level Mechanics",
-            chapters = listOf(
-              Chapter(
-                id = "chap_cpp1_1",
-                title = "Compilation & Primitives",
-                lessons = listOf(
-                  Lesson("les_cpp1", "C/C++ Compilers, Preprocessor & Linkers", 22, "GCC, Clang, header files (#include), and object code.", true),
-                  Lesson("les_cpp2", "Primitive Data Types, Structs & Bitwise Operations", 25, "Memory sizes, signed/unsigned types, and struct alignment.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_cpp1_2",
-                title = "Pointers & Memory Architecture",
-                lessons = listOf(
-                  Lesson("les_cpp3", "Pointers, Memory Addresses & Dereferencing", 35, "Pointer arithmetic, null pointers, and void pointers.", false),
-                  Lesson("les_cpp4", "Stack vs Heap: Malloc, Free, New & Delete", 35, "Dynamic memory management and preventing memory leaks.", false)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_cpp2",
-            title = "C++ Modern Paradigms & STL",
-            chapters = listOf(
-              Chapter(
-                id = "chap_cpp2_1",
-                title = "OOP & Templates",
-                lessons = listOf(
-                  Lesson("les_cpp5", "Constructors, Destructors & Rule of Five", 28, "Resource Acquisition Is Initialization (RAII) idiom.", false),
-                  Lesson("les_cpp6", "Operator Overloading & Function Templates", 28, "Generic programming with type-safe template expansion.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_cpp2_2",
-                title = "Modern C++ & STL",
-                lessons = listOf(
-                  Lesson("les_cpp7", "STL Containers: Vectors, Maps & Iterators", 30, "High-performance standard template library algorithms.", false),
-                  Lesson("les_cpp8", "Smart Pointers: unique_ptr & shared_ptr", 25, "Automated reference counting and ownership models.", false),
-                  Lesson("les_cpp9", "Building a High-Performance Data Pipeline", 30, "Low-latency binary file processor project.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
-      // 12. JavaScript
-      Course(
-        id = "course_javascript",
-        title = "JavaScript",
-        description = "Modern ECMAScript (ES6+), DOM manipulation, closures, event loop, Promises, async/await, modules, and API integrations.",
-        level = CourseLevel.INTERMEDIATE,
-        difficulty = 2,
-        lessonCount = 8,
-        estimatedHours = 4.5,
-        iconName = "javascript",
-        progressPercent = 50,
-        tags = listOf("JavaScript", "ES6", "Async", "Web"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_js1",
-            title = "Modern JS (ES6+) Syntax & Scope",
-            chapters = listOf(
-              Chapter(
-                id = "chap_js1_1",
-                title = "Core Language",
-                lessons = listOf(
-                  Lesson("les_js1", "Variables (let, const), Scopes & Hoisting", 20, "Temporal dead zone and block scoping mechanics.", true),
-                  Lesson("les_js2", "Arrow Functions, Destructuring & Rest/Spread", 22, "Modern shorthand syntax and object manipulation.", true)
-                )
-              ),
-              Chapter(
-                id = "chap_js1_2",
-                title = "Data & Closures",
-                lessons = listOf(
-                  Lesson("les_js3", "Array Methods: map, filter, reduce & flatMap", 28, "Declarative functional transformations on dataset arrays.", true),
-                  Lesson("les_js4", "Closures, Lexical Scope & The 'this' Keyword", 30, "Function factories, private state, and execution context.", false)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_js2",
-            title = "Asynchronous JavaScript & Web APIs",
-            chapters = listOf(
-              Chapter(
-                id = "chap_js2_1",
-                title = "Promises & Event Loop",
-                lessons = listOf(
-                  Lesson("les_js5", "The Event Loop, Call Stack & Microtask Queue", 25, "Non-blocking I/O execution lifecycle in browser engines.", false),
-                  Lesson("les_js6", "Promises, Async/Await & Error Handling", 28, "Resolving async flows without callback hell.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_js2_2",
-                title = "Web APIs & Projects",
-                lessons = listOf(
-                  Lesson("les_js7", "Fetch API, JSON Parsing & ES Modules", 25, "Connecting to cloud REST APIs and modular exports.", false),
-                  Lesson("les_js8", "JavaScript Interactive Mini-App Project", 25, "Build a real-time reactive currency converter application.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
-      // 13. Web Development
-      Course(
-        id = "course_web",
-        title = "Web Development",
-        description = "Full web stack introduction: semantic HTML5, modern CSS3 Flexbox/Grid, responsive layouts, web performance, and client-server REST APIs.",
-        level = CourseLevel.INTERMEDIATE,
-        difficulty = 2,
-        lessonCount = 9,
-        estimatedHours = 5.0,
-        iconName = "browser",
-        progressPercent = 30,
-        tags = listOf("WebDev", "HTML", "CSS", "Frontend"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_web1",
-            title = "Frontend Foundations (HTML5 & CSS3)",
-            chapters = listOf(
-              Chapter(
-                id = "chap_web1_1",
-                title = "Semantic Markup",
-                lessons = listOf(
-                  Lesson("les_web1", "Semantic HTML5 Elements & Accessibility (a11y)", 20, "Header, nav, main, article, and ARIA attributes.", true),
-                  Lesson("les_web2", "CSS Box Model, Selectors & Specificity", 22, "Margins, borders, padding, content box, and cascades.", true)
-                )
-              ),
-              Chapter(
-                id = "chap_web1_2",
-                title = "Modern Layout Systems",
-                lessons = listOf(
-                  Lesson("les_web3", "Flexbox: Aligning & Distributing UI Elements", 25, "Justify content, align items, flex-grow, and wrapping.", false),
-                  Lesson("les_web4", "CSS Grid: Complex Two-Dimensional Layouts", 28, "Grid template areas, auto-fit, minmax, and responsive grids.", false)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_web2",
-            title = "Responsive Web & Modern Architecture",
-            chapters = listOf(
-              Chapter(
-                id = "chap_web2_1",
-                title = "DOM & Mobile-First",
-                lessons = listOf(
-                  Lesson("les_web5", "Media Queries & Mobile-First Design Principles", 22, "Breakpoints for mobile, tablet, and desktop viewports.", false),
-                  Lesson("les_web6", "DOM Manipulation & Event Listeners with JS", 28, "Dynamic element creation, class toggles, and event delegation.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_web2_2",
-                title = "Performance & Deployment",
-                lessons = listOf(
-                  Lesson("les_web7", "Web Performance, Minification & SEO Basics", 20, "Core Web Vitals, asset optimization, and meta tags.", false),
-                  Lesson("les_web8", "Connecting to REST APIs from Webpages", 25, "Handling CORS, async fetch requests, and loading states.", false),
-                  Lesson("les_web9", "Building & Deploying a Responsive Website", 35, "Deploying a live landing page to a production CDN.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
-      // 14. Database & SQL
+      // =================================================================
+      // 13. Databases
+      // =================================================================
       Course(
         id = "course_sql",
-        title = "Database & SQL",
+        title = "Databases",
         description = "Relational database concepts, SQL queries (SELECT, JOIN, GROUP BY), table design, foreign keys, normalization, and ACID transactions.",
         level = CourseLevel.INTERMEDIATE,
         difficulty = 2,
@@ -849,134 +635,11 @@ object CourseSeedData {
       ),
 
       // =================================================================
-      // ADVANCED COURSES (6 COURSES)
+      // 14. Cyber Security
       // =================================================================
-
-      // 15. App Development
-      Course(
-        id = "course_appdev",
-        title = "App Development",
-        description = "Build native Android apps with Kotlin and Jetpack Compose. State management, Room database, Coroutines, MVVM, and Play Store publishing.",
-        level = CourseLevel.ADVANCED,
-        difficulty = 3,
-        lessonCount = 9,
-        estimatedHours = 6.0,
-        iconName = "smartphone",
-        progressPercent = 15,
-        tags = listOf("Android", "Kotlin", "Compose", "Mobile"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_app1",
-            title = "Native Mobile Architecture",
-            chapters = listOf(
-              Chapter(
-                id = "chap_app1_1",
-                title = "Operating System & UI",
-                lessons = listOf(
-                  Lesson("les_app1", "Mobile Ecosystems: Android Architectural Layers", 25, "Linux kernel, HAL, ART runtime, and application framework.", true),
-                  Lesson("les_app2", "Modern Declarative UI: Jetpack Compose Fundamentals", 30, "Composables, Recomposition, Modifiers, and Material 3 design.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_app1_2",
-                title = "State & Navigation",
-                lessons = listOf(
-                  Lesson("les_app3", "State Hoisting, ViewModels & Reactive Data Flow", 32, "StateFlow, SharedFlow, and lifecycle-aware collection.", false),
-                  Lesson("les_app4", "Type-Safe Navigation & Screen Backstack", 28, "Setting up NavHost, routes, and passing serialized arguments.", false)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_app2",
-            title = "Hardware, Storage & Production",
-            chapters = listOf(
-              Chapter(
-                id = "chap_app2_1",
-                title = "Offline Persistence & Hardware",
-                lessons = listOf(
-                  Lesson("les_app5", "Local Persistence with Room Database & SQLite", 30, "Entities, DAOs, type converters, and migration strategies.", false),
-                  Lesson("les_app6", "Sensors, Location, Permissions & Biometrics", 30, "Declaring and requesting runtime permissions gracefully.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_app2_2",
-                title = "Networking & Release",
-                lessons = listOf(
-                  Lesson("les_app7", "Asynchronous Networking with Retrofit & Coroutines", 30, "Background threads, Dispatchers.IO, and Moshi JSON parsing.", false),
-                  Lesson("les_app8", "App Performance, Memory Profiling & LeakCanary", 28, "Detecting memory leaks, jank, and overdraw issues.", false),
-                  Lesson("les_app9", "Publishing to the Google Play Store", 25, "Keystores, Android App Bundles (AAB), and release tracks.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
-      // 16. Linux
-      Course(
-        id = "course_linux",
-        title = "Linux",
-        description = "Master the Linux CLI, bash scripting, file system hierarchy, user permissions, process management, systemd, SSH, and server administration.",
-        level = CourseLevel.ADVANCED,
-        difficulty = 3,
-        lessonCount = 8,
-        estimatedHours = 5.0,
-        iconName = "terminal",
-        progressPercent = 40,
-        tags = listOf("Linux", "CLI", "Bash", "SysAdmin"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_lin1",
-            title = "The Linux File System & Shell",
-            chapters = listOf(
-              Chapter(
-                id = "chap_lin1_1",
-                title = "Terminal Foundations",
-                lessons = listOf(
-                  Lesson("les_lin1", "Linux File System Hierarchy (/etc, /var, /bin)", 22, "Understanding root directory structure and mount points.", true),
-                  Lesson("les_lin2", "Essential Navigation & File Ops (ls, cd, cp, mv, rm)", 22, "Mastering command flags, globbing, and relative paths.", true)
-                )
-              ),
-              Chapter(
-                id = "chap_lin1_2",
-                title = "Permissions & Streams",
-                lessons = listOf(
-                  Lesson("les_lin3", "Permissions: chmod, chown, SUID & Access Control", 28, "Octal notation (755, 644), group ownership, and umask.", false),
-                  Lesson("les_lin4", "Stream Redirection, Pipes (|), Grep, Sed & Awk", 30, "Chaining standard input/output/error streams for data wrangling.", false)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_lin2",
-            title = "Administration & Automation",
-            chapters = listOf(
-              Chapter(
-                id = "chap_lin2_1",
-                title = "Processes & Services",
-                lessons = listOf(
-                  Lesson("les_lin5", "Process Control: ps, top, kill & Systemd Services", 28, "Managing background daemons with systemctl and journalctl.", false),
-                  Lesson("les_lin6", "Package Management (apt, dnf, pacman) & Repositories", 22, "Dependency resolution, repository mirrors, and GPG keys.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_lin2_2",
-                title = "Scripting & Security",
-                lessons = listOf(
-                  Lesson("les_lin7", "Writing Bash Automation Scripts & Cron Jobs", 30, "Variables, loops, exit codes, and scheduled crontabs.", false),
-                  Lesson("les_lin8", "Hardening Linux SSH Servers & Firewall Rules", 28, "Key-based authentication, ufw/iptables, and fail2ban setup.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
-      // 17. Cybersecurity Fundamentals
       Course(
         id = "course_cyber",
-        title = "Cybersecurity Fundamentals",
+        title = "Cyber Security",
         description = "Understand the CIA triad, network threats, malware types, symmetric/asymmetric encryption, OWASP Top 10, penetration testing, and defense.",
         level = CourseLevel.ADVANCED,
         difficulty = 3,
@@ -1034,7 +697,9 @@ object CourseSeedData {
         )
       ),
 
-      // 18. Cloud Computing
+      // =================================================================
+      // 15. Cloud Computing
+      // =================================================================
       Course(
         id = "course_cloud",
         title = "Cloud Computing",
@@ -1095,67 +760,9 @@ object CourseSeedData {
         )
       ),
 
-      // 19. Advanced IT
-      Course(
-        id = "course_it",
-        title = "Advanced IT",
-        description = "Enterprise IT administration: Active Directory, Group Policy, LDAP, enterprise virtualization (ESXi/Proxmox), disaster recovery, and RAID.",
-        level = CourseLevel.ADVANCED,
-        difficulty = 3,
-        lessonCount = 8,
-        estimatedHours = 5.0,
-        iconName = "server",
-        progressPercent = 10,
-        tags = listOf("Enterprise", "ActiveDirectory", "RAID", "Virtualization"),
-        modules = listOf(
-          CourseModule(
-            id = "mod_it1",
-            title = "Enterprise Infrastructure & Identity",
-            chapters = listOf(
-              Chapter(
-                id = "chap_it1_1",
-                title = "Directory Services",
-                lessons = listOf(
-                  Lesson("les_it1", "Active Directory, Domain Controllers & LDAP", 28, "Domain forests, Kerberos authentication, and organizational units.", true),
-                  Lesson("les_it2", "Group Policy Objects (GPO) Enterprise Management", 26, "Centrally enforcing security baselines across corporate fleets.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_it1_2",
-                title = "Virtualization & Storage",
-                lessons = listOf(
-                  Lesson("les_it3", "Type-1 Hypervisors: VMware ESXi, Proxmox & Hyper-V", 30, "Bare-metal hypervisor architecture and hardware passthrough.", false),
-                  Lesson("les_it4", "SAN, NAS, RAID Levels (0, 1, 5, 10) & iSCSI", 28, "Parity calculations, hot-spares, and storage networks.", false)
-                )
-              )
-            )
-          ),
-          CourseModule(
-            id = "mod_it2",
-            title = "Reliability & IT Operations",
-            chapters = listOf(
-              Chapter(
-                id = "chap_it2_1",
-                title = "Disaster Recovery",
-                lessons = listOf(
-                  Lesson("les_it5", "The 3-2-1 Backup Strategy & RTO/RPO Calculations", 25, "Three copies, two media types, one offsite, and recovery objectives.", false),
-                  Lesson("les_it6", "Hardware Diagnostics: Memory Tests, SMART & PSU Rails", 25, "MemTest86, CrystalDisk, and PSU rail voltage troubleshooting.", false)
-                )
-              ),
-              Chapter(
-                id = "chap_it2_2",
-                title = "ITIL & Capstone",
-                lessons = listOf(
-                  Lesson("les_it7", "ITIL Framework: Incident, Problem & Change Management", 22, "SLA tiers, escalation paths, and root cause post-mortems.", false),
-                  Lesson("les_it8", "Enterprise Network Disaster Recovery Simulation", 30, "Resolve multi-tier enterprise network outage simulations.", false)
-                )
-              )
-            )
-          )
-        )
-      ),
-
-      // 20. Artificial Intelligence
+      // =================================================================
+      // 16. Artificial Intelligence
+      // =================================================================
       Course(
         id = "course_ai",
         title = "Artificial Intelligence",
@@ -1210,6 +817,86 @@ object CourseSeedData {
                 lessons = listOf(
                   Lesson("les_ai8", "Retrieval-Augmented Generation (RAG) Architectures", 32, "Connecting LLMs to private vector databases and live docs.", false),
                   Lesson("les_ai9", "AI Alignment, Safety, Bias & The Future of AGI", 26, "Responsible AI development, hallucination mitigation, and alignment.", false)
+                )
+              )
+            )
+          )
+        )
+      ),
+
+      // =================================================================
+      // 17. Computer Troubleshooting
+      // =================================================================
+      Course(
+        id = "course_troubleshooting",
+        title = "Computer Troubleshooting",
+        description = "Diagnose common PC boot failures, blue screens (BSOD), overheating, malware infections, peripheral issues, and driver conflicts.",
+        level = CourseLevel.INTERMEDIATE,
+        difficulty = 2,
+        lessonCount = 0,
+        estimatedHours = 0.0,
+        iconName = "troubleshooting",
+        progressPercent = 0,
+        isBookmarked = false,
+        tags = listOf("Troubleshooting", "BSOD", "Diagnostics", "Hardware Repair", "Fixes"),
+        modules = emptyList()
+      ),
+
+      // =================================================================
+      // 18. Advanced Computer Knowledge
+      // =================================================================
+      Course(
+        id = "course_it",
+        title = "Advanced Computer Knowledge",
+        description = "Enterprise IT administration: Active Directory, Group Policy, LDAP, enterprise virtualization (ESXi/Proxmox), disaster recovery, and RAID.",
+        level = CourseLevel.ADVANCED,
+        difficulty = 3,
+        lessonCount = 8,
+        estimatedHours = 5.0,
+        iconName = "server",
+        progressPercent = 10,
+        tags = listOf("Enterprise", "ActiveDirectory", "RAID", "Virtualization"),
+        modules = listOf(
+          CourseModule(
+            id = "mod_it1",
+            title = "Enterprise Infrastructure & Identity",
+            chapters = listOf(
+              Chapter(
+                id = "chap_it1_1",
+                title = "Directory Services",
+                lessons = listOf(
+                  Lesson("les_it1", "Active Directory, Domain Controllers & LDAP", 28, "Domain forests, Kerberos authentication, and organizational units.", true),
+                  Lesson("les_it2", "Group Policy Objects (GPO) Enterprise Management", 26, "Centrally enforcing security baselines across corporate fleets.", false)
+                )
+              ),
+              Chapter(
+                id = "chap_it1_2",
+                title = "Virtualization & Storage",
+                lessons = listOf(
+                  Lesson("les_it3", "Type-1 Hypervisors: VMware ESXi, Proxmox & Hyper-V", 30, "Bare-metal hypervisor architecture and hardware passthrough.", false),
+                  Lesson("les_it4", "SAN, NAS, RAID Levels (0, 1, 5, 10) & iSCSI", 28, "Parity calculations, hot-spares, and storage networks.", false)
+                )
+              )
+            )
+          ),
+          CourseModule(
+            id = "mod_it2",
+            title = "Reliability & IT Operations",
+            chapters = listOf(
+              Chapter(
+                id = "chap_it2_1",
+                title = "Disaster Recovery",
+                lessons = listOf(
+                  Lesson("les_it5", "The 3-2-1 Backup Strategy & RTO/RPO Calculations", 25, "Three copies, two media types, one offsite, and recovery objectives.", false),
+                  Lesson("les_it6", "Hardware Diagnostics: Memory Tests, SMART & PSU Rails", 25, "MemTest86, CrystalDisk, and PSU rail voltage troubleshooting.", false)
+                )
+              ),
+              Chapter(
+                id = "chap_it2_2",
+                title = "ITIL & Capstone",
+                lessons = listOf(
+                  Lesson("les_it7", "ITIL Framework: Incident, Problem & Change Management", 22, "SLA tiers, escalation paths, and root cause post-mortems.", false),
+                  Lesson("les_it8", "Enterprise Network Disaster Recovery Simulation", 30, "Resolve multi-tier enterprise network outage simulations.", false)
                 )
               )
             )

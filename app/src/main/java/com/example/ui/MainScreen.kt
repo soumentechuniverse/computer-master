@@ -58,15 +58,9 @@ fun MainScreen(
 
   LaunchedEffect(Unit) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      if (
-        ContextCompat.checkSelfPermission(
-          context,
-          Manifest.permission.POST_NOTIFICATIONS
-        ) != PackageManager.PERMISSION_GRANTED
-      ) {
-        notificationPermissionLauncher.launch(
-          Manifest.permission.POST_NOTIFICATIONS
-        )
+      if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+        != PackageManager.PERMISSION_GRANTED) {
+        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
       }
     }
   }
@@ -79,10 +73,8 @@ fun MainScreen(
     NavRoutes.PROFILE
   )
 
-  // Splash screen is the only pre-app screen.
-  // Login/Auth is not used.
-  val isAuthOrSplash = currentRoute == NavRoutes.SPLASH
-
+  // Internet required gate for main app content (Splash allowed for initial entry)
+  val isAuthOrSplash = currentRoute == NavRoutes.SPLASH || currentRoute == NavRoutes.AUTH
   val showBottomBar = currentRoute in topLevelRoutes && isOnline
 
   ProvideAppLanguage(language = currentLanguage) {
@@ -111,13 +103,11 @@ fun MainScreen(
         }
       }
     ) { innerPadding ->
-
       Box(
         modifier = Modifier
           .fillMaxSize()
           .padding(innerPadding)
       ) {
-
         AppNavigation(
           navController = navController,
           viewModel = viewModel
@@ -128,9 +118,7 @@ fun MainScreen(
         if (!isOnline && !isAuthOrSplash) {
           InternetRequiredScreen(
             currentLanguage = currentLanguage,
-            onRetry = {
-              viewModel.checkNetworkConnection()
-            }
+            onRetry = { viewModel.checkNetworkConnection() }
           )
         }
 
@@ -140,26 +128,19 @@ fun MainScreen(
             updateState = updateState,
             currentLanguage = currentLanguage,
             currentVersionName = viewModel.updateManager.currentVersionName,
-
             onUpdateNow = { info ->
               if (updateState is UpdateUiState.ReadyToInstall) {
-                viewModel.launchPackageInstaller(
-                  (updateState as UpdateUiState.ReadyToInstall).apkFile
-                )
+                viewModel.launchPackageInstaller((updateState as UpdateUiState.ReadyToInstall).apkFile)
               } else {
                 viewModel.downloadUpdateApk(info)
               }
             },
-
             onLater = { dismissedVersionCode ->
               viewModel.dismissUpdateDialog(dismissedVersionCode)
             },
-
             onRetry = {
               if (updateState is UpdateUiState.UpdateAvailable) {
-                viewModel.downloadUpdateApk(
-                  (updateState as UpdateUiState.UpdateAvailable).info
-                )
+                viewModel.downloadUpdateApk((updateState as UpdateUiState.UpdateAvailable).info)
               } else {
                 viewModel.checkForUpdates(isManual = true)
               }

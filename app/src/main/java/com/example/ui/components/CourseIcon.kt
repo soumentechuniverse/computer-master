@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Computer
@@ -72,11 +73,31 @@ fun CourseIcon(
 private fun getIconAndGradient(iconName: String): Pair<ImageVector, Brush> {
   return when (iconName.lowercase()) {
     // 1. Computer Basics → Desktop computer
-    "computer", "desktop", "hardware" -> Pair(
+    "computer", "desktop", "fundamentals" -> Pair(
       Icons.Default.Computer,
       Brush.linearGradient(listOf(Color(0xFF1E40AF), TechCyanAccent))
     )
-    // 2. Windows & File Management → Folder/files
+    // 2. Computer Hardware → Hardware / Chip
+    "hardware" -> Pair(
+      Icons.Default.Memory,
+      Brush.linearGradient(listOf(Color(0xFF2563EB), Color(0xFF60A5FA)))
+    )
+    // 3. Software
+    "software" -> Pair(
+      Icons.Default.Code,
+      Brush.linearGradient(listOf(Color(0xFF6366F1), Color(0xFFA855F7)))
+    )
+    // 4. Operating Systems
+    "os", "operatingsystem", "operating_systems" -> Pair(
+      Icons.Default.Terminal,
+      Brush.linearGradient(listOf(Color(0xFF0F766E), Color(0xFF14B8A6)))
+    )
+    // 5. Troubleshooting
+    "troubleshooting", "repair", "tools" -> Pair(
+      Icons.Default.Build,
+      Brush.linearGradient(listOf(Color(0xFFE11D48), Color(0xFFFB7185)))
+    )
+    // 6. Windows & File Management → Folder/files
     "folder", "files", "window", "windows" -> Pair(
       Icons.Default.Folder,
       Brush.linearGradient(listOf(Color(0xFF0284C7), Color(0xFF38BDF8)))
