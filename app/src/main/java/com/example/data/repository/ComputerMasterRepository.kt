@@ -647,6 +647,14 @@ class ComputerMasterRepository(context: Context) {
     prefs.edit().putBoolean("update_notifications_enabled", enabled).apply()
   }
 
+  fun getSoundEffectsEnabled(): Boolean {
+    return prefs.getBoolean("sound_effects_enabled", true)
+  }
+
+  fun saveSoundEffectsEnabled(enabled: Boolean) {
+    prefs.edit().putBoolean("sound_effects_enabled", enabled).apply()
+  }
+
   fun resetAllProgress() {
     val currentLang = getSavedLanguage()
     prefs.edit().clear().apply()

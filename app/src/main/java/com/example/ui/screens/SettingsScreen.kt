@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -111,6 +112,7 @@ fun SettingsScreen(
   val updateState by viewModel.updateState.collectAsState()
   val themeMode by viewModel.themeMode.collectAsState()
   val updateNotificationsEnabled by viewModel.updateNotificationsEnabled.collectAsState()
+  val soundEffectsEnabled by viewModel.soundEffectsEnabled.collectAsState()
   val accountState by viewModel.accountState.collectAsState()
 
   // Dialog visibility states
@@ -979,6 +981,44 @@ fun SettingsScreen(
                 checkedThumbColor = Color.White,
                 checkedTrackColor = TechBluePrimary
               )
+            )
+          }
+
+          Spacer(modifier = Modifier.height(14.dp))
+
+          // Sound Effects
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Row(
+              modifier = Modifier.weight(1f),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+              Icon(Icons.Default.VolumeUp, contentDescription = null, tint = TechCyanAccent, modifier = Modifier.size(20.dp))
+              Column {
+                Text(
+                  text = AppStrings.soundEffects(currentLanguage),
+                  style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                  color = TextPrimary
+                )
+                Text(
+                  text = AppStrings.soundEffectsDesc(currentLanguage),
+                  style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                  color = TextSecondary
+                )
+              }
+            }
+            Switch(
+              checked = soundEffectsEnabled,
+              onCheckedChange = { viewModel.setSoundEffectsEnabled(it) },
+              colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = TechBluePrimary
+              ),
+              modifier = Modifier.testTag("settings_sound_effects_switch")
             )
           }
 

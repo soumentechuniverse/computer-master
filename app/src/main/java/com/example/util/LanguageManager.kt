@@ -217,6 +217,18 @@ object AppStrings {
     AppLanguage.HINDI -> "सही उत्तर पर हल्का कंपन"
   }
 
+  fun soundEffects(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "সাউন্ড এফেক্টস"
+    AppLanguage.ENGLISH -> "Sound Effects"
+    AppLanguage.HINDI -> "ध्वनि प्रभाव"
+  }
+
+  fun soundEffectsDesc(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "বোতাম, পাঠ এবং কুইজের জন্য অডিও প্রতিক্রিয়া"
+    AppLanguage.ENGLISH -> "Audio feedback for buttons, lessons, and quizzes"
+    AppLanguage.HINDI -> "बटन, पाठ और क्विज़ के लिए ऑडियो प्रतिक्रिया"
+  }
+
   fun resetProgress(lang: AppLanguage): String = when (lang) {
     AppLanguage.BENGALI -> "শেখার অগ্রগতি রিসেট করুন"
     AppLanguage.ENGLISH -> "Reset Learning State"

@@ -22,6 +22,7 @@ import com.example.data.update.UpdateUiState
 import com.example.ui.theme.AppThemeMode
 import com.example.util.AppLanguage
 import com.example.util.NetworkMonitor
+import com.example.util.SoundManager
 import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -65,6 +66,9 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
 
     val authManager =
         AuthManager(application.applicationContext)
+
+    val soundManager =
+        SoundManager.getInstance(application.applicationContext)
 
     val isOnline: StateFlow<Boolean> =
         networkMonitor.isOnline
@@ -122,6 +126,12 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
 
     val updateNotificationsEnabled: StateFlow<Boolean> =
         _updateNotificationsEnabled.asStateFlow()
+
+    private val _soundEffectsEnabled =
+        MutableStateFlow(repository.getSoundEffectsEnabled())
+
+    val soundEffectsEnabled: StateFlow<Boolean> =
+        _soundEffectsEnabled.asStateFlow()
 
     private val _accountState =
         MutableStateFlow(
@@ -247,6 +257,12 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
         repository.saveUpdateNotificationsEnabled(enabled)
     }
 
+    fun setSoundEffectsEnabled(enabled: Boolean) {
+        _soundEffectsEnabled.value = enabled
+        repository.saveSoundEffectsEnabled(enabled)
+        soundManager.setSoundEnabled(enabled)
+    }
+
     fun logout() {
         authManager.logout()
 
@@ -291,6 +307,14 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
                             trimmed,
                             ignoreCase = true
                         ) ||
+                        course.courseCategory.contains(
+                            trimmed,
+                            ignoreCase = true
+                        ) ||
+                        course.category.contains(
+                            trimmed,
+                            ignoreCase = true
+                        ) ||
                         course.description.contains(
                             trimmed,
                             ignoreCase = true
@@ -311,8 +335,8 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
 
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
+            SharingStarted.Eagerly,
+            repository.courses.value
         )
 
     private val _activeQuizState =
@@ -331,10 +355,12 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
 
     fun toggleBookmark(courseId: String) {
         repository.toggleBookmark(courseId)
+        soundManager.playBookmark()
     }
 
     fun toggleLessonBookmark(lessonId: String) {
         repository.toggleLessonBookmark(lessonId)
+        soundManager.playBookmark()
     }
 
     fun isLessonBookmarked(lessonId: String): Boolean {
@@ -346,21 +372,31 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
         lessonId: String,
         completed: Boolean
     ) {
+        val course = repository.courses.value.find { it.id == courseId }
+        val wasCompleted = course?.allLessons?.find { it.id == lessonId }?.isCompleted ?: false
         repository.setLessonCompleted(
             courseId,
             lessonId,
             completed
         )
+        if (completed && !wasCompleted) {
+            soundManager.playLessonCompleted()
+        }
     }
 
     fun toggleLessonCompletion(
         courseId: String,
         lessonId: String
     ) {
+        val course = repository.courses.value.find { it.id == courseId }
+        val wasCompleted = course?.allLessons?.find { it.id == lessonId }?.isCompleted ?: false
         repository.toggleLessonCompletion(
             courseId,
             lessonId
         )
+        if (!wasCompleted) {
+            soundManager.playLessonCompleted()
+        }
     }
 
     fun startCourse(courseId: String) {
@@ -385,6 +421,7 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
             title,
             content
         )
+        soundManager.playNoteSaved()
     }
 
     fun deleteNote(noteId: String) {
@@ -454,6 +491,12 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
 
         val isCorrect =
             index == currentQ.correctOptionIndex
+
+        if (isCorrect) {
+            soundManager.playQuizCorrect()
+        } else {
+            soundManager.playQuizWrong()
+        }
 
         val newCorrectCount =
             if (isCorrect) {

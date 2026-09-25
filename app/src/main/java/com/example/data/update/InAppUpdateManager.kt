@@ -458,7 +458,18 @@ class InAppUpdateManager(private val context: Context) {
         .setAutoCancel(true)
         .build()
 
-      NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+      val hasNotificationPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        androidx.core.content.ContextCompat.checkSelfPermission(
+          context,
+          android.Manifest.permission.POST_NOTIFICATIONS
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+      } else {
+        true
+      }
+
+      if (hasNotificationPermission) {
+        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+      }
     } catch (_: Exception) {
       // Gracefully ignore notification errors
     }

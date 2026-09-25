@@ -31,6 +31,10 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
 
+    if (savedInstanceState == null) {
+      viewModel.soundManager.playStartup()
+    }
+
     // Install a crash catcher so a silent crash writes its stack trace
     // to SharedPreferences instead of just killing the app with no trace.
     val prefs = getSharedPreferences("crash_log", MODE_PRIVATE)

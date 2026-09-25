@@ -51,6 +51,7 @@ fun AppNavigation(
     ) {
       SplashScreen(
         onGetStarted = {
+          viewModel.soundManager.playGetStarted()
           navController.navigate(NavRoutes.COURSES) {
             popUpTo(NavRoutes.SPLASH) { inclusive = true }
           }
@@ -65,6 +66,7 @@ fun AppNavigation(
     ) {
       WelcomeScreen(
         onGetStarted = {
+          viewModel.soundManager.playGetStarted()
           navController.navigate(NavRoutes.HOME) {
             popUpTo(NavRoutes.WELCOME) { inclusive = true }
           }
@@ -79,6 +81,7 @@ fun AppNavigation(
       HomeScreen(
         viewModel = viewModel,
         onNavigateToCourse = { courseId ->
+          viewModel.soundManager.playCourseClick()
           navController.navigate(NavRoutes.courseDetail(courseId))
         },
         onNavigateToCoursesTab = { level ->
@@ -99,9 +102,11 @@ fun AppNavigation(
           }
         },
         onNavigateToHardwareVisualLesson = {
+          viewModel.soundManager.playLessonOpen()
           navController.navigate(NavRoutes.HARDWARE_VISUAL_LESSON)
         },
         onNavigateToCpuRamRomLesson = {
+          viewModel.soundManager.playLessonOpen()
           navController.navigate(NavRoutes.CPU_RAM_ROM_LESSON)
         },
         onNavigateToSettings = {
@@ -127,8 +132,12 @@ fun AppNavigation(
     ) {
       ComputerHardwareVisualLessonScreen(
         viewModel = viewModel,
-        onBackClick = { navController.popBackStack() },
+        onBackClick = {
+          viewModel.soundManager.playBack()
+          navController.popBackStack()
+        },
         onNavigateToLesson = { cId, lId ->
+          viewModel.soundManager.playLessonOpen()
           navController.navigate(NavRoutes.lessonDetail(cId, lId))
         }
       )
@@ -151,13 +160,18 @@ fun AppNavigation(
     ) {
       val currentLanguage by viewModel.currentLanguage.collectAsState()
       CpuRamRomVisualLessonScreen(
-        onNavigateBack = { navController.popBackStack() },
+        onNavigateBack = {
+          viewModel.soundManager.playBack()
+          navController.popBackStack()
+        },
         onPreviousLesson = {
+          viewModel.soundManager.playLessonOpen()
           navController.navigate(NavRoutes.HARDWARE_VISUAL_LESSON) {
             popUpTo(NavRoutes.CPU_RAM_ROM_LESSON) { inclusive = true }
           }
         },
         onNextLesson = {
+          viewModel.soundManager.playLessonOpen()
           navController.navigate(NavRoutes.lessonDetail("course_basics", "cb_lesson_9")) {
             popUpTo(NavRoutes.CPU_RAM_ROM_LESSON) { inclusive = true }
           }
@@ -170,6 +184,7 @@ fun AppNavigation(
       CoursesScreen(
         viewModel = viewModel,
         onNavigateToCourseDetail = { courseId ->
+          viewModel.soundManager.playCourseClick()
           navController.navigate(NavRoutes.courseDetail(courseId))
         }
       )
@@ -195,11 +210,15 @@ fun AppNavigation(
       CourseDetailScreen(
         courseId = courseId,
         viewModel = viewModel,
-        onBackClick = { navController.popBackStack() },
+        onBackClick = {
+          viewModel.soundManager.playBack()
+          navController.popBackStack()
+        },
         onNavigateToQuiz = {
           navController.navigate(NavRoutes.QUIZ)
         },
         onNavigateToLesson = { cId, lId ->
+          viewModel.soundManager.playLessonOpen()
           navController.navigate(NavRoutes.lessonDetail(cId, lId))
         }
       )
@@ -230,8 +249,12 @@ fun AppNavigation(
       if (lessonId == "cb_lesson_3") {
         ComputerHardwareVisualLessonScreen(
           viewModel = viewModel,
-          onBackClick = { navController.popBackStack() },
+          onBackClick = {
+            viewModel.soundManager.playBack()
+            navController.popBackStack()
+          },
           onNavigateToLesson = { cId, nextLessonId ->
+            viewModel.soundManager.playLessonOpen()
             navController.navigate(NavRoutes.lessonDetail(cId, nextLessonId)) {
               popUpTo(NavRoutes.LESSON_DETAIL) { inclusive = true }
             }
@@ -240,13 +263,18 @@ fun AppNavigation(
       } else if (lessonId in listOf("cb_lesson_6", "cb_lesson_7", "cb_lesson_8")) {
         val currentLanguage by viewModel.currentLanguage.collectAsState()
         CpuRamRomVisualLessonScreen(
-          onNavigateBack = { navController.popBackStack() },
+          onNavigateBack = {
+            viewModel.soundManager.playBack()
+            navController.popBackStack()
+          },
           onPreviousLesson = {
+            viewModel.soundManager.playLessonOpen()
             navController.navigate(NavRoutes.lessonDetail(courseId, "cb_lesson_5")) {
               popUpTo(NavRoutes.LESSON_DETAIL) { inclusive = true }
             }
           },
           onNextLesson = {
+            viewModel.soundManager.playLessonOpen()
             navController.navigate(NavRoutes.lessonDetail(courseId, "cb_lesson_9")) {
               popUpTo(NavRoutes.LESSON_DETAIL) { inclusive = true }
             }
@@ -258,8 +286,12 @@ fun AppNavigation(
           courseId = courseId,
           lessonId = lessonId,
           viewModel = viewModel,
-          onBackClick = { navController.popBackStack() },
+          onBackClick = {
+            viewModel.soundManager.playBack()
+            navController.popBackStack()
+          },
           onNavigateToLesson = { nextLessonId ->
+            viewModel.soundManager.playLessonOpen()
             navController.navigate(NavRoutes.lessonDetail(courseId, nextLessonId)) {
               popUpTo(NavRoutes.LESSON_DETAIL) { inclusive = true }
             }
@@ -279,6 +311,7 @@ fun AppNavigation(
       ProgressScreen(
         viewModel = viewModel,
         onNavigateToCourse = { courseId ->
+          viewModel.soundManager.playCourseClick()
           navController.navigate(NavRoutes.courseDetail(courseId))
         }
       )
@@ -288,6 +321,7 @@ fun AppNavigation(
       ProfileScreen(
         viewModel = viewModel,
         onNavigateToCourse = { courseId ->
+          viewModel.soundManager.playCourseClick()
           navController.navigate(NavRoutes.courseDetail(courseId))
         },
         onNavigateToSettings = {
@@ -299,7 +333,10 @@ fun AppNavigation(
     composable(NavRoutes.SETTINGS) {
       SettingsScreen(
         viewModel = viewModel,
-        onBackClick = { navController.popBackStack() },
+        onBackClick = {
+          viewModel.soundManager.playBack()
+          navController.popBackStack()
+        },
         onLogout = {
           navController.navigate(NavRoutes.SPLASH) {
             popUpTo(0) { inclusive = true }

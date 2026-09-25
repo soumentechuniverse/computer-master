@@ -52,7 +52,11 @@ data class Course(
   val progressPercent: Int = 0,
   val isBookmarked: Boolean = false,
   val tags: List<String> = emptyList(),
+  val category: String = "",
 ) {
+  val courseCategory: String
+    get() = if (category.isNotBlank()) category else getCategoryForCourse(id, tags)
+
   val isStarted: Boolean
     get() = progressPercent > 0
 
@@ -74,4 +78,21 @@ data class Course(
 
   val completedLessonsCount: Int
     get() = allLessons.count { it.isCompleted }
+
+  companion object {
+    fun getCategoryForCourse(id: String, tags: List<String> = emptyList()): String = when (id) {
+      "course_basics", "course_hardware" -> "Hardware & Architecture"
+      "course_troubleshooting" -> "Hardware & Troubleshooting"
+      "course_software", "course_os", "course_windows", "course_files" -> "Operating Systems & Software"
+      "course_internet", "course_networking" -> "Networking & Web"
+      "course_word", "course_excel", "course_powerpoint" -> "Office & Productivity"
+      "course_programming" -> "Programming & Logic"
+      "course_sql" -> "Databases & Data"
+      "course_cyber" -> "Cyber Security"
+      "course_cloud" -> "Cloud & DevOps"
+      "course_ai" -> "Artificial Intelligence"
+      "course_it" -> "Enterprise IT & Advanced"
+      else -> tags.firstOrNull() ?: "General Computing"
+    }
+  }
 }

@@ -119,4 +119,87 @@ class ExampleRobolectricTest {
     assertEquals(0, troubleshooting.lessonCount)
     assert(troubleshooting.modules.isEmpty())
   }
+
+  @Test
+  fun `verify all 10 sound resources exist and SoundManager operates correctly`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+
+    // Verify all 10 sound raw resources exist
+    val soundResources = listOf(
+      R.raw.sound_startup,
+      R.raw.sound_get_started,
+      R.raw.sound_course_click,
+      R.raw.sound_lesson_open,
+      R.raw.sound_lesson_complete,
+      R.raw.sound_quiz_correct,
+      R.raw.sound_quiz_wrong,
+      R.raw.sound_bookmark,
+      R.raw.sound_note_saved,
+      R.raw.sound_back
+    )
+
+    assertEquals(10, soundResources.size)
+
+    for (resId in soundResources) {
+      val inputStream = context.resources.openRawResource(resId)
+      assert(inputStream.available() > 0)
+      inputStream.close()
+    }
+
+    // Verify SoundManager initialization and toggle settings
+    val soundManager = com.example.util.SoundManager.getInstance(context)
+    assert(soundManager.isSoundEnabled)
+
+    soundManager.setSoundEnabled(false)
+    assert(!soundManager.isSoundEnabled)
+
+    soundManager.setSoundEnabled(true)
+    assert(soundManager.isSoundEnabled)
+
+    // Verify all 10 sound playback methods execute cleanly
+    soundManager.playStartup()
+    soundManager.playGetStarted()
+    soundManager.playCourseClick()
+    soundManager.playLessonOpen()
+    soundManager.playLessonCompleted()
+    soundManager.playQuizCorrect()
+    soundManager.playQuizWrong()
+    soundManager.playBookmark()
+    soundManager.playNoteSaved()
+    soundManager.playBack()
+  }
+
+  @Test
+  fun `verify course search by title and category`() {
+    val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
+
+    // Initial total courses should be 18
+    assertEquals(18, viewModel.allCourses.value.size)
+
+    // Search by title: "Excel"
+    viewModel.setSearchQuery("Excel")
+    var filtered = viewModel.filteredCourses.value
+    assertEquals(1, filtered.size)
+    assertEquals("Microsoft Excel", filtered.first().title)
+
+    // Search by category: "Office" -> matches Word, Excel, PowerPoint
+    viewModel.setSearchQuery("Office")
+    filtered = viewModel.filteredCourses.value
+    assertEquals(3, filtered.size)
+    val officeTitles = filtered.map { it.title }.toSet()
+    assert(officeTitles.contains("Microsoft Word"))
+    assert(officeTitles.contains("Microsoft Excel"))
+    assert(officeTitles.contains("Microsoft PowerPoint"))
+
+    // Search by category: "Security" -> matches Cyber Security
+    viewModel.setSearchQuery("Security")
+    filtered = viewModel.filteredCourses.value
+    assert(filtered.any { it.title == "Cyber Security" })
+
+    // Clear search -> returns all 18 courses
+    viewModel.setSearchQuery("")
+    filtered = viewModel.filteredCourses.value
+    assertEquals(18, filtered.size)
+  }
 }

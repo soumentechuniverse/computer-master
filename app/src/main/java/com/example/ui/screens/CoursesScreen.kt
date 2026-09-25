@@ -85,7 +85,8 @@ import com.example.ui.viewmodel.ComputerMasterViewModel
 
 /**
  * Professional 18-Course Library Screen.
- * Displays a responsive LazyVerticalGrid (2 columns on phones, 3-4 on larger displays).
+ * Features a dedicated search bar at the top for quickly finding courses by title or category,
+ * quick category pills, level filters, and a responsive LazyVerticalGrid.
  */
 @Composable
 fun CoursesScreen(
@@ -98,58 +99,64 @@ fun CoursesScreen(
   val searchQuery by viewModel.searchQuery.collectAsState()
   val focusManager = LocalFocusManager.current
 
-  BoxWithConstraints(
+  Column(
     modifier = modifier
       .fillMaxSize()
       .background(NavyDarkest)
       .testTag("courses_screen")
   ) {
-    val columnCount = when {
-      maxWidth >= 900.dp -> 4
-      maxWidth >= 600.dp -> 3
-      else -> 2
-    }
+    // 1. PINNED TOP SEARCH & FILTER BAR
+    CoursesTopSearchBar(
+      searchQuery = searchQuery,
+      onSearchQueryChange = { viewModel.setSearchQuery(it) },
+      selectedLevel = selectedLevel,
+      onLevelSelected = { viewModel.setSelectedLevel(it) },
+      totalCoursesCount = courses.size,
+      onClearFocus = { focusManager.clearFocus() },
+      onResetFilters = {
+        viewModel.setSearchQuery("")
+        viewModel.setSelectedLevel(CourseLevel.ALL)
+      }
+    )
 
-    LazyVerticalGrid(
-      columns = GridCells.Fixed(columnCount),
+    // 2. COURSES CONTENT (Grid or Empty State)
+    BoxWithConstraints(
       modifier = Modifier
-        .fillMaxSize()
-        .testTag("courses_grid"),
-      contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
-      horizontalArrangement = Arrangement.spacedBy(12.dp),
-      verticalArrangement = Arrangement.spacedBy(12.dp)
+        .fillMaxWidth()
+        .weight(1f)
     ) {
-      // 1. TOP HEADER: Title, Search Field, and Difficulty Filter Chips
-      item(span = { GridItemSpan(maxLineSpan) }) {
-        CoursesHeader(
-          searchQuery = searchQuery,
-          onSearchQueryChange = { viewModel.setSearchQuery(it) },
-          selectedLevel = selectedLevel,
-          onLevelSelected = { viewModel.setSelectedLevel(it) },
-          totalCoursesCount = courses.size,
-          onClearFocus = { focusManager.clearFocus() }
-        )
+      val columnCount = when {
+        maxWidth >= 900.dp -> 4
+        maxWidth >= 600.dp -> 3
+        else -> 2
       }
 
-      // 2. EMPTY STATE
       if (courses.isEmpty()) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-          CoursesEmptyState(
-            onResetFilters = {
-              viewModel.setSearchQuery("")
-              viewModel.setSelectedLevel(CourseLevel.ALL)
-            }
-          )
-        }
+        CoursesEmptyState(
+          searchQuery = searchQuery,
+          onResetFilters = {
+            viewModel.setSearchQuery("")
+            viewModel.setSelectedLevel(CourseLevel.ALL)
+          }
+        )
       } else {
-        // 3. RESPONSIVE COURSE GRID ITEMS
-        itemsIndexed(courses, key = { _, course -> course.id }) { index, course ->
-          CourseGridCard(
-            course = course,
-            index = index,
-            onClick = { onNavigateToCourseDetail(course.id) },
-            onBookmarkClick = { viewModel.toggleBookmark(course.id) }
-          )
+        LazyVerticalGrid(
+          columns = GridCells.Fixed(columnCount),
+          modifier = Modifier
+            .fillMaxSize()
+            .testTag("courses_grid"),
+          contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+          verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+          itemsIndexed(courses, key = { _, course -> course.id }) { index, course ->
+            CourseGridCard(
+              course = course,
+              index = index,
+              onClick = { onNavigateToCourseDetail(course.id) },
+              onBookmarkClick = { viewModel.toggleBookmark(course.id) }
+            )
+          }
         }
       }
     }
@@ -157,24 +164,43 @@ fun CoursesScreen(
 }
 
 /**
- * Top section containing "Computer Courses" title, instant search bar,
- * and difficulty filter chips.
+ * Prominent Search Bar and Filter System pinned at the top of CoursesScreen.
+ * Supports instant search by Course Title or Category with real-time feedback.
  */
 @Composable
-private fun CoursesHeader(
+private fun CoursesTopSearchBar(
   searchQuery: String,
   onSearchQueryChange: (String) -> Unit,
   selectedLevel: CourseLevel,
   onLevelSelected: (CourseLevel) -> Unit,
   totalCoursesCount: Int,
-  onClearFocus: () -> Unit
+  onClearFocus: () -> Unit,
+  onResetFilters: () -> Unit
 ) {
+  val categories = remember {
+    listOf(
+      "All" to "",
+      "Hardware" to "Hardware",
+      "Operating Systems" to "Operating Systems",
+      "Office" to "Office",
+      "Programming" to "Programming",
+      "Databases" to "Databases",
+      "Networking" to "Networking",
+      "Security" to "Security",
+      "Cloud" to "Cloud",
+      "AI" to "AI",
+      "Troubleshooting" to "Troubleshooting"
+    )
+  }
+
   Column(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(bottom = 6.dp)
+      .background(NavyDarkest)
+      .padding(horizontal = 16.dp, vertical = 10.dp)
+      .testTag("courses_search_bar")
   ) {
-    // Top Bar: Title & Total Courses Badge
+    // Top Bar: Screen Title & 18 Courses Badge
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
@@ -185,7 +211,7 @@ private fun CoursesHeader(
           text = "Computer Courses",
           style = MaterialTheme.typography.headlineMedium.copy(
             fontWeight = FontWeight.Bold,
-            fontSize = 24.sp
+            fontSize = 22.sp
           ),
           color = TextPrimary,
           modifier = Modifier.testTag("courses_screen_title")
@@ -193,7 +219,7 @@ private fun CoursesHeader(
         Spacer(modifier = Modifier.height(2.dp))
         Text(
           text = "18 Courses • Beginner to Advanced Knowledge",
-          style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+          style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
           color = TextSecondary
         )
       }
@@ -203,7 +229,7 @@ private fun CoursesHeader(
           .clip(RoundedCornerShape(12.dp))
           .background(TechBluePrimary.copy(alpha = 0.15f))
           .border(1.dp, TechBluePrimary.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
-          .padding(horizontal = 10.dp, vertical = 6.dp)
+          .padding(horizontal = 10.dp, vertical = 5.dp)
       ) {
         Text(
           text = "18 Courses",
@@ -216,17 +242,19 @@ private fun CoursesHeader(
       }
     }
 
-    Spacer(modifier = Modifier.height(14.dp))
+    Spacer(modifier = Modifier.height(10.dp))
 
-    // Search Field
+    // Dedicated Search Input Field for Title or Category
     OutlinedTextField(
       value = searchQuery,
       onValueChange = onSearchQueryChange,
       placeholder = {
         Text(
-          text = "Search 18 courses, topics, keywords...",
+          text = "Search by title or category (e.g. Python, Hardware, Office)...",
           style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-          color = TextTertiary
+          color = TextTertiary,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
         )
       },
       leadingIcon = {
@@ -240,8 +268,13 @@ private fun CoursesHeader(
       trailingIcon = {
         if (searchQuery.isNotEmpty()) {
           IconButton(
-            onClick = { onSearchQueryChange("") },
-            modifier = Modifier.size(28.dp)
+            onClick = {
+              onSearchQueryChange("")
+              onClearFocus()
+            },
+            modifier = Modifier
+              .size(28.dp)
+              .testTag("courses_search_clear_button")
           ) {
             Icon(
               imageVector = Icons.Default.Close,
@@ -262,7 +295,7 @@ private fun CoursesHeader(
       colors = OutlinedTextFieldDefaults.colors(
         focusedContainerColor = NavyCard,
         unfocusedContainerColor = NavyCard,
-        focusedBorderColor = TechBluePrimary,
+        focusedBorderColor = TechCyanAccent,
         unfocusedBorderColor = NavyCardBorder,
         focusedTextColor = TextPrimary,
         unfocusedTextColor = TextPrimary,
@@ -271,39 +304,117 @@ private fun CoursesHeader(
       )
     )
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 
-    // Difficulty Filter Chips: All, Beginner, Intermediate, Advanced
+    // Quick Category Filter Pills Row
+    LazyRow(
+      horizontalArrangement = Arrangement.spacedBy(6.dp),
+      modifier = Modifier
+        .fillMaxWidth()
+        .testTag("courses_category_chips")
+    ) {
+      items(categories) { (label, queryValue) ->
+        val isSelected = if (queryValue.isEmpty()) {
+          searchQuery.isBlank()
+        } else {
+          searchQuery.trim().equals(queryValue, ignoreCase = true)
+        }
+
+        Box(
+          modifier = Modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+              if (isSelected) {
+                Brush.horizontalGradient(listOf(TechBluePrimary, Color(0xFF1D4ED8)))
+              } else {
+                Brush.horizontalGradient(listOf(NavyCard, NavyCardElevated))
+              }
+            )
+            .border(
+              width = 1.dp,
+              color = if (isSelected) TechCyanAccent.copy(alpha = 0.85f) else NavyCardBorder,
+              shape = RoundedCornerShape(14.dp)
+            )
+            .clickable {
+              if (isSelected && queryValue.isNotEmpty()) {
+                onSearchQueryChange("")
+              } else {
+                onSearchQueryChange(queryValue)
+              }
+            }
+            .padding(horizontal = 10.dp, vertical = 5.dp)
+            .testTag("category_chip_${label.lowercase().replace(" ", "_")}")
+        ) {
+          Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+              fontSize = 11.sp
+            ),
+            color = if (isSelected) Color.White else TextSecondary
+          )
+        }
+      }
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    // Difficulty Level Filter Chips Row
     DifficultyFilterChips(
       selectedLevel = selectedLevel,
       onLevelSelected = onLevelSelected
     )
 
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 
-    // Results Count Row
+    // Results Count & Reset Row
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.CenterVertically
     ) {
       Text(
-        text = if (selectedLevel == CourseLevel.ALL) "All Courses" else "${selectedLevel.label} Level",
-        style = MaterialTheme.typography.titleSmall.copy(
+        text = if (searchQuery.isNotBlank()) {
+          "Results for \"$searchQuery\" ($totalCoursesCount found)"
+        } else if (selectedLevel != CourseLevel.ALL) {
+          "${selectedLevel.label} Courses ($totalCoursesCount found)"
+        } else {
+          "All 18 Courses"
+        },
+        style = MaterialTheme.typography.bodySmall.copy(
           fontWeight = FontWeight.SemiBold,
-          fontSize = 14.sp
+          fontSize = 12.sp
         ),
-        color = TextPrimary
+        color = TextPrimary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.weight(1f, fill = false)
       )
 
-      Text(
-        text = "Showing $totalCoursesCount of 18 courses",
-        style = MaterialTheme.typography.labelSmall.copy(
-          fontWeight = FontWeight.Medium,
-          fontSize = 11.sp
-        ),
-        color = TechCyanAccent
-      )
+      if (searchQuery.isNotBlank() || selectedLevel != CourseLevel.ALL) {
+        Text(
+          text = "Clear All",
+          style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 11.sp
+          ),
+          color = TechCyanAccent,
+          modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .clickable { onResetFilters() }
+            .padding(horizontal = 6.dp, vertical = 2.dp)
+            .testTag("courses_clear_all_filters")
+        )
+      } else {
+        Text(
+          text = "Showing $totalCoursesCount of 18",
+          style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.Medium,
+            fontSize = 11.sp
+          ),
+          color = TechCyanAccent
+        )
+      }
     }
   }
 }
@@ -351,13 +462,13 @@ private fun DifficultyFilterChips(
             shape = RoundedCornerShape(20.dp)
           )
           .clickable { onLevelSelected(level) }
-          .padding(horizontal = 14.dp, vertical = 7.dp)
+          .padding(horizontal = 12.dp, vertical = 6.dp)
       ) {
         Text(
           text = level.label,
           style = MaterialTheme.typography.labelSmall.copy(
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            fontSize = 12.sp
+            fontSize = 11.5.sp
           ),
           color = if (isSelected) Color.White else TextSecondary
         )
@@ -369,7 +480,7 @@ private fun DifficultyFilterChips(
 /**
  * Reusable Course Grid Card component.
  * Features rounded premium design, modern educational icon, level badge,
- * lesson count, progress indicator (where progress exists), and smooth entrance animation.
+ * course category tag, lesson count, progress indicator, and smooth entrance animation.
  */
 @Composable
 fun CourseGridCard(
@@ -440,7 +551,29 @@ fun CourseGridCard(
         CourseLevelBadge(level = course.level)
       }
 
-      Spacer(modifier = Modifier.height(10.dp))
+      Spacer(modifier = Modifier.height(8.dp))
+
+      // Category Pill / Tag
+      Box(
+        modifier = Modifier
+          .clip(RoundedCornerShape(6.dp))
+          .background(TechCyanAccent.copy(alpha = 0.12f))
+          .border(0.5.dp, TechCyanAccent.copy(alpha = 0.35f), RoundedCornerShape(6.dp))
+          .padding(horizontal = 6.dp, vertical = 2.dp)
+      ) {
+        Text(
+          text = course.courseCategory,
+          style = MaterialTheme.typography.labelSmall.copy(
+            fontSize = 9.5.sp,
+            fontWeight = FontWeight.Medium
+          ),
+          color = TechCyanAccent,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
+        )
+      }
+
+      Spacer(modifier = Modifier.height(6.dp))
 
       // Course Title
       Text(
@@ -598,12 +731,13 @@ private fun CourseLevelBadge(level: CourseLevel) {
  */
 @Composable
 private fun CoursesEmptyState(
+  searchQuery: String = "",
   onResetFilters: () -> Unit
 ) {
   Box(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(vertical = 40.dp, horizontal = 16.dp),
+      .padding(vertical = 32.dp, horizontal = 16.dp),
     contentAlignment = Alignment.Center
   ) {
     Column(
@@ -618,21 +752,22 @@ private fun CoursesEmptyState(
       Icon(
         imageVector = Icons.Default.Search,
         contentDescription = null,
-        tint = TextTertiary,
+        tint = TechCyanAccent,
         modifier = Modifier.size(44.dp)
       )
       Spacer(modifier = Modifier.height(12.dp))
       Text(
-        text = "No matching courses found",
+        text = if (searchQuery.isNotBlank()) "No courses found for \"$searchQuery\"" else "No matching courses found",
         style = MaterialTheme.typography.titleMedium.copy(
           fontWeight = FontWeight.Bold,
           fontSize = 16.sp
         ),
-        color = TextPrimary
+        color = TextPrimary,
+        textAlign = androidx.compose.ui.text.style.TextAlign.Center
       )
       Spacer(modifier = Modifier.height(6.dp))
       Text(
-        text = "Try adjusting your search query or switching the difficulty filter.",
+        text = "Try searching by another title (e.g. Word, Python, Hardware) or category (e.g. Office, Security, Operating Systems).",
         style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
         color = TextSecondary,
         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -641,9 +776,10 @@ private fun CoursesEmptyState(
       Button(
         onClick = onResetFilters,
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = TechBluePrimary)
+        colors = ButtonDefaults.buttonColors(containerColor = TechBluePrimary),
+        modifier = Modifier.testTag("courses_reset_filters_button")
       ) {
-        Text("Reset Filters")
+        Text("Clear Search & Filters")
       }
     }
   }
