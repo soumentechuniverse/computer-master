@@ -95,13 +95,13 @@ class ComputerMasterRepository(context: Context) {
     )
 
     _dailyActivities.value = listOf(
-      DailyActivity("Mon", 1.5f, true),
-      DailyActivity("Tue", 2.0f, true),
-      DailyActivity("Wed", 1.0f, true),
-      DailyActivity("Thu", 2.5f, true),
-      DailyActivity("Fri", 1.8f, true),
-      DailyActivity("Sat", 0.5f, false),
-      DailyActivity("Sun", 0.0f, false)
+      DailyActivity("Mon", 1.5f, true, lessonsCount = 4),
+      DailyActivity("Tue", 2.0f, true, lessonsCount = 6),
+      DailyActivity("Wed", 1.0f, true, lessonsCount = 3),
+      DailyActivity("Thu", 2.5f, true, lessonsCount = 7),
+      DailyActivity("Fri", 1.8f, true, lessonsCount = 5),
+      DailyActivity("Sat", 0.5f, false, lessonsCount = 2),
+      DailyActivity("Sun", 0.0f, false, lessonsCount = 1)
     )
 
     // Seed Quizzes: Daily Knowledge Check + 10 Computer Basics Lesson Quizzes + Final Exam + Chapter Quizzes

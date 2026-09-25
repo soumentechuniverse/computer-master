@@ -81,6 +81,7 @@ import com.example.data.repository.ComputerBasicsLessonRepository
 import com.example.ui.components.CourseIcon
 import com.example.ui.components.EducationalVisualDiagram
 import com.example.ui.components.LessonNotesDialog
+import com.example.ui.components.LessonQuizModeView
 import com.example.ui.components.LevelBadge
 import com.example.ui.theme.NavyCard
 import com.example.ui.theme.NavyCardBorder
@@ -123,6 +124,7 @@ fun LessonScreen(
   val isBookmarked = bookmarkedLessons.contains(lessonId)
 
   var showNotesDialog by remember { mutableStateOf(false) }
+  var isQuizModeActive by remember { mutableStateOf(false) }
 
   if (lesson == null) {
     Box(
@@ -133,6 +135,20 @@ fun LessonScreen(
     ) {
       Text(text = "Lesson not found", color = TextPrimary)
     }
+    return
+  }
+
+  // Quiz Mode Active View
+  if (isQuizModeActive) {
+    LessonQuizModeView(
+      lessonId = lesson.lessonId,
+      lessonTitle = lesson.title,
+      courseId = courseId,
+      courseTitle = course?.title ?: lesson.courseTitle,
+      viewModel = viewModel,
+      onExitQuizMode = { isQuizModeActive = false },
+      modifier = modifier
+    )
     return
   }
 
@@ -177,6 +193,38 @@ fun LessonScreen(
           }
         },
         actions = {
+          // Quiz Mode Action Button
+          Box(
+            modifier = Modifier
+              .clip(RoundedCornerShape(10.dp))
+              .background(TechCyanAccent.copy(alpha = 0.15f))
+              .border(1.dp, TechCyanAccent.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
+              .clickable { isQuizModeActive = true }
+              .padding(horizontal = 8.dp, vertical = 5.dp)
+              .testTag("lesson_quiz_mode_header_button"),
+            contentAlignment = Alignment.Center
+          ) {
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+              Icon(
+                imageVector = Icons.Default.Quiz,
+                contentDescription = "Quiz Mode",
+                tint = TechCyanAccent,
+                modifier = Modifier.size(15.dp)
+              )
+              Text(
+                text = "Quiz Mode",
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontSize = 11.sp
+                ),
+                color = TechCyanAccent
+              )
+            }
+          }
+
           // Study Notes Action
           IconButton(
             onClick = { showNotesDialog = true },
@@ -354,8 +402,7 @@ fun LessonScreen(
 
             Button(
               onClick = {
-                viewModel.startQuizForLesson(lesson.lessonId)
-                onNavigateToQuiz()
+                isQuizModeActive = true
               },
               modifier = Modifier
                 .fillMaxWidth()
@@ -369,7 +416,7 @@ fun LessonScreen(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
               ) {
                 Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
-                Text("Take Lesson Quiz (5 Questions)", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold))
+                Text("Start Lesson Quiz Mode (5 Questions)", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold))
               }
             }
           }

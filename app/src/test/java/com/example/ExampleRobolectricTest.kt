@@ -7,9 +7,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [34])
 class ExampleRobolectricTest {
 
   @Test
@@ -179,12 +180,14 @@ class ExampleRobolectricTest {
 
     // Search by title: "Excel"
     viewModel.setSearchQuery("Excel")
+    ShadowLooper.idleMainLooper()
     var filtered = viewModel.filteredCourses.value
     assertEquals(1, filtered.size)
     assertEquals("Microsoft Excel", filtered.first().title)
 
     // Search by category: "Office" -> matches Word, Excel, PowerPoint
     viewModel.setSearchQuery("Office")
+    ShadowLooper.idleMainLooper()
     filtered = viewModel.filteredCourses.value
     assertEquals(3, filtered.size)
     val officeTitles = filtered.map { it.title }.toSet()
@@ -194,12 +197,92 @@ class ExampleRobolectricTest {
 
     // Search by category: "Security" -> matches Cyber Security
     viewModel.setSearchQuery("Security")
+    ShadowLooper.idleMainLooper()
     filtered = viewModel.filteredCourses.value
     assert(filtered.any { it.title == "Cyber Security" })
 
     // Clear search -> returns all 18 courses
     viewModel.setSearchQuery("")
+    ShadowLooper.idleMainLooper()
     filtered = viewModel.filteredCourses.value
     assertEquals(18, filtered.size)
+  }
+
+  @Test
+  fun `verify past week learning activity lessons completed`() {
+    val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
+
+    val activities = viewModel.dailyActivities.value
+    assertEquals(7, activities.size)
+
+    val expectedDays = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    assertEquals(expectedDays, activities.map { it.day })
+
+    // Verify lessons completed counts over the past week
+    val totalLessonsPastWeek = activities.sumOf { it.lessonsCount }
+    assertEquals(28, totalLessonsPastWeek)
+
+    val thursday = activities.first { it.day == "Thu" }
+    assertEquals(7, thursday.lessonsCount)
+
+    assert(activities.all { it.lessonsCount >= 0 })
+  }
+
+  @Test
+  fun `verify lesson quiz mode generates 5 multiple choice questions with options and explanations`() {
+    // 1. Verify curated Computer Basics lesson quiz has 5 questions
+    val cbQuiz = com.example.data.repository.LessonQuizGenerator.generateQuizForLesson(
+      lessonId = "cb_lesson_1",
+      lessonTitle = "What is a Computer?",
+      courseId = "course_basics",
+      courseTitle = "Computer Basics"
+    )
+    assertEquals(5, cbQuiz.questions.size)
+    cbQuiz.questions.forEach { question ->
+      assertEquals(4, question.options.size)
+      assert(question.correctOptionIndex in 0..3)
+      assert(question.explanation.isNotBlank())
+    }
+
+    // 2. Verify dynamic quiz generation for Excel lesson generates 5 multiple-choice questions
+    val excelQuiz = com.example.data.repository.LessonQuizGenerator.generateQuizForLesson(
+      lessonId = "excel_lesson_3",
+      lessonTitle = "Excel Core Formulas & Calculations",
+      courseId = "course_excel",
+      courseTitle = "Microsoft Excel"
+    )
+    assertEquals(5, excelQuiz.questions.size)
+    assertEquals("Excel Core Formulas & Calculations Quiz", excelQuiz.title)
+    excelQuiz.questions.forEach { question ->
+      assertEquals(4, question.options.size)
+      assert(question.correctOptionIndex in 0..3)
+      assert(question.explanation.isNotBlank())
+    }
+
+    // 3. Verify Programming Basics lesson quiz has 5 multiple-choice questions
+    val progQuiz = com.example.data.repository.LessonQuizGenerator.generateQuizForLesson(
+      lessonId = "prog_lesson_2",
+      lessonTitle = "Variables and Loops",
+      courseId = "course_programming",
+      courseTitle = "Programming Basics"
+    )
+    assertEquals(5, progQuiz.questions.size)
+    progQuiz.questions.forEach { question ->
+      assertEquals(4, question.options.size)
+      assert(question.correctOptionIndex in 0..3)
+      assert(question.explanation.isNotBlank())
+    }
+
+    // 4. Verify ViewModel startQuizForLesson initiates 5-question active quiz session
+    val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
+    viewModel.startQuizForLesson("cb_lesson_1", "What is a Computer?", "Computer Basics")
+
+    val activeState = viewModel.activeQuizState.value
+    assert(activeState.activeQuiz != null)
+    assertEquals(5, activeState.activeQuiz!!.questions.size)
+    assertEquals(0, activeState.currentQuestionIndex)
+    assert(!activeState.isQuizCompleted)
   }
 }

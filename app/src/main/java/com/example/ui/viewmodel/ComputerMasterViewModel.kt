@@ -447,17 +447,20 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
             )
     }
 
-    fun startQuizForLesson(lessonId: String) {
+    fun startQuizForLesson(
+        lessonId: String,
+        lessonTitle: String = "",
+        courseTitle: String = ""
+    ) {
         val quiz =
-            ComputerBasicsQuizRepository
-                .getQuizForLesson(lessonId)
-                ?: quizzes.value.find {
-                    it.lessonId == lessonId
-                }
+            com.example.data.repository.LessonQuizGenerator
+                .generateQuizForLesson(
+                    lessonId = lessonId,
+                    lessonTitle = if (lessonTitle.isNotBlank()) lessonTitle else "Lesson",
+                    courseTitle = if (courseTitle.isNotBlank()) courseTitle else "Computer Knowledge"
+                )
 
-        if (quiz != null) {
-            startQuiz(quiz)
-        }
+        startQuiz(quiz)
     }
 
     fun startQuizById(quizId: String) {
@@ -587,6 +590,21 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
                 total = total
             )
         }
+    }
+
+    fun submitCompletedQuiz(
+        quiz: Quiz,
+        userAnswers: List<QuizUserAnswer>,
+        scorePercentage: Int,
+        correctCount: Int,
+        totalQuestions: Int
+    ) {
+        repository.recordQuizAttempt(
+            quiz = quiz,
+            scorePercentage = scorePercentage,
+            correct = correctCount,
+            total = totalQuestions
+        )
     }
 
     fun openReviewMode() {

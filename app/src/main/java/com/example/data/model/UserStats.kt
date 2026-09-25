@@ -22,6 +22,7 @@ data class DailyActivity(
   val day: String,
   val hoursLearned: Float,
   val isCompleted: Boolean,
+  val lessonsCount: Int = 0,
 )
 
 data class UserProfile(

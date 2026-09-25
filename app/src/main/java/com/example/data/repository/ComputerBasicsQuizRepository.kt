@@ -1135,15 +1135,25 @@ object ComputerBasicsQuizRepository {
   // Map of all 10 lesson quizzes by lesson ID
   val lessonQuizzesByLessonId: Map<String, Quiz> = mapOf(
     "cb_l1" to lesson1Quiz,
+    "cb_lesson_1" to lesson1Quiz,
     "cb_l2" to lesson2Quiz,
+    "cb_lesson_2" to lesson2Quiz,
     "cb_l3" to lesson3Quiz,
+    "cb_lesson_3" to lesson3Quiz,
     "cb_l4" to lesson4Quiz,
+    "cb_lesson_4" to lesson4Quiz,
     "cb_l5" to lesson5Quiz,
+    "cb_lesson_5" to lesson5Quiz,
     "cb_l6" to lesson6Quiz,
+    "cb_lesson_6" to lesson6Quiz,
     "cb_l7" to lesson7Quiz,
+    "cb_lesson_7" to lesson7Quiz,
     "cb_l8" to lesson8Quiz,
+    "cb_lesson_8" to lesson8Quiz,
     "cb_l9" to lesson9Quiz,
-    "cb_l10" to lesson10Quiz
+    "cb_lesson_9" to lesson9Quiz,
+    "cb_l10" to lesson10Quiz,
+    "cb_lesson_10" to lesson10Quiz
   )
 
   // List of all 10 Computer Basics lesson quizzes in sequential order

@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.model.StudyNote
 import com.example.data.update.UpdateUiState
 import com.example.ui.components.CourseCard
+import com.example.ui.components.LearningActivityChart
 import com.example.ui.theme.NavyCard
 import com.example.ui.theme.NavyCardBorder
 import com.example.ui.theme.NavyCardElevated
@@ -101,6 +102,7 @@ fun ProfileScreen(
   val accountState by viewModel.accountState.collectAsState()
   val allCourses by viewModel.allCourses.collectAsState()
   val notes by viewModel.notes.collectAsState()
+  val dailyActivities by viewModel.dailyActivities.collectAsState()
 
   val bookmarkedCourses = allCourses.filter { it.isBookmarked }
   val completedCourses = allCourses.filter { it.progressPercent >= 100 }
@@ -141,6 +143,12 @@ fun ProfileScreen(
         coursesCount = userProfile.coursesStarted,
         quizAverage = userProfile.quizAverage
       )
+    }
+
+    // Learning Activity Chart (Visualizing lessons completed over the past week)
+    item {
+      Spacer(modifier = Modifier.height(10.dp))
+      LearningActivityChart(activities = dailyActivities)
     }
 
     // Bookmarked Courses Section
