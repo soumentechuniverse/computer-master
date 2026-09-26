@@ -7,7 +7,16 @@ data class Achievement(
   val iconName: String,
   val isUnlocked: Boolean,
   val unlockedDate: String? = null,
-)
+  val category: String = "General",
+  val currentProgress: Int = 0,
+  val maxProgress: Int = 1,
+  val xpReward: Int = 50,
+  val rarity: String = "Common",
+  val relatedCourseId: String? = null,
+) {
+  val progressPercent: Int
+    get() = if (maxProgress > 0) ((currentProgress.toFloat() / maxProgress) * 100).toInt().coerceIn(0, 100) else if (isUnlocked) 100 else 0
+}
 
 data class StudyNote(
   val id: String,

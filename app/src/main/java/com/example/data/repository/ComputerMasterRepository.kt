@@ -94,15 +94,182 @@ class ComputerMasterRepository(context: Context) {
 
   private fun loadSeedData() {
     _achievements.value = listOf(
-      Achievement("ach_1", "First Boot", "Completed your very first computer lesson", "power", true, "Sep 15"),
-      Achievement("ach_2", "Key Tactician", "Practiced touch typing for 3 consecutive days", "keyboard", true, "Sep 17"),
-      Achievement("ach_3", "Algorithm Mind", "Scored 100% on a Programming Fundamentals quiz", "code", true, "Sep 18"),
-      Achievement("ach_quiz_starter", "Quiz Starter", "Complete your first quiz", "quiz", false),
-      Achievement("ach_quiz_master", "Quiz Master", "Score 90% or higher on a quiz", "trophy", false),
-      Achievement("ach_4", "5-Day Streak", "Maintained an unbroken 5-day daily learning streak", "flame", true, "Today"),
-      Achievement("ach_5", "System Admin", "Mastered Windows File Management directory commands", "terminal", false),
-      Achievement("ach_6", "Cyber Shield", "Passed the Cybersecurity Fundamentals exam", "shield", false),
-      Achievement("ach_7", "AI Explorer", "Completed your first Neural Network architecture module", "brain", false)
+      Achievement(
+        id = "ach_first_lesson",
+        title = "First Lesson Completed",
+        description = "Completed your very first computer lesson in the library",
+        iconName = "check_circle",
+        isUnlocked = true,
+        unlockedDate = "Sep 15",
+        category = "Milestones",
+        currentProgress = 1,
+        maxProgress = 1,
+        xpReward = 50,
+        rarity = "Common"
+      ),
+      Achievement(
+        id = "ach_programming_pro",
+        title = "Programming Pro",
+        description = "Mastered core algorithms, logic loops, and Python programming syntax",
+        iconName = "code",
+        isUnlocked = false,
+        category = "Programming",
+        currentProgress = 0,
+        maxProgress = 3,
+        xpReward = 150,
+        rarity = "Rare",
+        relatedCourseId = "course_programming"
+      ),
+      Achievement(
+        id = "ach_hardware_hero",
+        title = "Hardware Hero",
+        description = "Explored essential computer hardware architecture, CPU, and RAM modules",
+        iconName = "cpu",
+        isUnlocked = false,
+        category = "Hardware",
+        currentProgress = 0,
+        maxProgress = 3,
+        xpReward = 100,
+        rarity = "Rare",
+        relatedCourseId = "course_hardware"
+      ),
+      Achievement(
+        id = "ach_networking_nav",
+        title = "Networking Navigator",
+        description = "Understood Internet addressing, DNS lookups, and TCP/IP network layers",
+        iconName = "network",
+        isUnlocked = false,
+        category = "Networking",
+        currentProgress = 0,
+        maxProgress = 2,
+        xpReward = 100,
+        rarity = "Rare",
+        relatedCourseId = "course_networking"
+      ),
+      Achievement(
+        id = "ach_cyber_shield",
+        title = "Cyber Shield",
+        description = "Completed cybersecurity fundamentals, phishing defenses, and encryption lessons",
+        iconName = "shield",
+        isUnlocked = false,
+        category = "Security",
+        currentProgress = 0,
+        maxProgress = 2,
+        xpReward = 150,
+        rarity = "Rare",
+        relatedCourseId = "course_cyber"
+      ),
+      Achievement(
+        id = "ach_sql_sage",
+        title = "Database Architect",
+        description = "Learned relational schema design, SQL CRUD statements, and data indexing",
+        iconName = "database",
+        isUnlocked = false,
+        category = "Databases",
+        currentProgress = 0,
+        maxProgress = 2,
+        xpReward = 120,
+        rarity = "Rare",
+        relatedCourseId = "course_sql"
+      ),
+      Achievement(
+        id = "ach_cloud_pioneer",
+        title = "Cloud & AI Explorer",
+        description = "Explored neural network architectures, modern AI models, and cloud computing",
+        iconName = "cloud",
+        isUnlocked = false,
+        category = "Cloud & AI",
+        currentProgress = 0,
+        maxProgress = 2,
+        xpReward = 200,
+        rarity = "Epic",
+        relatedCourseId = "course_cloud"
+      ),
+      Achievement(
+        id = "ach_course_finisher",
+        title = "Course Graduate",
+        description = "Achieved 100% completion in at least one full computer course",
+        iconName = "graduation",
+        isUnlocked = false,
+        category = "Milestones",
+        currentProgress = 0,
+        maxProgress = 1,
+        xpReward = 300,
+        rarity = "Epic"
+      ),
+      Achievement(
+        id = "ach_multi_scholar",
+        title = "Triple Threat",
+        description = "Enrolled and made active progress across 3 or more distinct courses",
+        iconName = "library",
+        isUnlocked = false,
+        category = "Milestones",
+        currentProgress = 0,
+        maxProgress = 3,
+        xpReward = 100,
+        rarity = "Rare"
+      ),
+      Achievement(
+        id = "ach_study_marathon",
+        title = "Study Marathon",
+        description = "Completed 10 total lessons across the course catalog",
+        iconName = "speed",
+        isUnlocked = false,
+        category = "Milestones",
+        currentProgress = 0,
+        maxProgress = 10,
+        xpReward = 250,
+        rarity = "Epic"
+      ),
+      Achievement(
+        id = "ach_grandmaster",
+        title = "Grandmaster of Bytes",
+        description = "Completed 20 total lessons, mastering extensive computing concepts",
+        iconName = "star",
+        isUnlocked = false,
+        category = "Milestones",
+        currentProgress = 0,
+        maxProgress = 20,
+        xpReward = 500,
+        rarity = "Legendary"
+      ),
+      Achievement(
+        id = "ach_quiz_starter",
+        title = "Quiz Starter",
+        description = "Completed your first knowledge check quiz evaluation",
+        iconName = "quiz",
+        isUnlocked = false,
+        category = "Quizzes",
+        currentProgress = 0,
+        maxProgress = 1,
+        xpReward = 50,
+        rarity = "Common"
+      ),
+      Achievement(
+        id = "ach_quiz_master",
+        title = "Quiz Ace",
+        description = "Scored 90% or higher on an interactive knowledge quiz",
+        iconName = "trophy",
+        isUnlocked = false,
+        category = "Quizzes",
+        currentProgress = 0,
+        maxProgress = 1,
+        xpReward = 200,
+        rarity = "Epic"
+      ),
+      Achievement(
+        id = "ach_streak_hero",
+        title = "5-Day Streak",
+        description = "Maintained an unbroken 5-day daily learning streak",
+        iconName = "flame",
+        isUnlocked = true,
+        unlockedDate = "Today",
+        category = "Habits",
+        currentProgress = 5,
+        maxProgress = 5,
+        xpReward = 100,
+        rarity = "Rare"
+      )
     )
 
     _dailyActivities.value = listOf(
@@ -374,16 +541,82 @@ class ComputerMasterRepository(context: Context) {
     courseProgressDao.insertOrUpdateCourseProgressList(progressList)
   }
 
-  private fun loadAchievementsFromPrefs() {
-    val unlockedIds = prefs.getString("unlocked_achievements", "")
-      ?.split(",")?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
-    if (unlockedIds.isNotEmpty()) {
-      _achievements.value = _achievements.value.map { ach ->
-        if (unlockedIds.contains(ach.id)) {
-          ach.copy(isUnlocked = true, unlockedDate = ach.unlockedDate ?: "Recently")
-        } else ach
+  fun evaluateAchievementsFromRoom() {
+    val currentCourses = _courses.value
+    val allCompletedLessons = currentCourses.flatMap { it.allLessons }.filter { it.isCompleted }
+    val totalLessonsCompleted = allCompletedLessons.size
+    val totalCoursesStarted = currentCourses.count { it.progressPercent > 0 }
+    val totalCoursesCompleted = currentCourses.count { it.progressPercent >= 100 }
+
+    val progLessonsCount = currentCourses
+      .filter { it.id == "course_programming" || it.id == "course_python" }
+      .sumOf { it.completedLessonsCount }
+
+    val hardwareLessonsCount = currentCourses
+      .filter { it.id == "course_basics" || it.id == "course_hardware" || it.id == "course_troubleshooting" }
+      .sumOf { it.completedLessonsCount }
+
+    val networkingLessonsCount = currentCourses
+      .filter { it.id == "course_networking" || it.id == "course_internet" }
+      .sumOf { it.completedLessonsCount }
+
+    val cyberLessonsCount = currentCourses
+      .filter { it.id == "course_cyber" }
+      .sumOf { it.completedLessonsCount }
+
+    val dbLessonsCount = currentCourses
+      .filter { it.id == "course_sql" }
+      .sumOf { it.completedLessonsCount }
+
+    val cloudLessonsCount = currentCourses
+      .filter { it.id == "course_cloud" || it.id == "course_ai" }
+      .sumOf { it.completedLessonsCount }
+
+    val quizCount = _userProfile.value.totalQuizzesCompleted
+    val highestQuiz = _userProfile.value.highestQuizScore
+    val streakDays = _userProfile.value.streakDays
+
+    val unlockedIds = prefs.getString("unlocked_achievements", "ach_first_lesson,ach_streak_hero")
+      ?.split(",")?.filter { it.isNotEmpty() }?.toMutableSet() ?: mutableSetOf()
+
+    val updatedAchievements = _achievements.value.map { ach ->
+      val (currentVal, targetVal, isEligible) = when (ach.id) {
+        "ach_first_lesson" -> Triple(totalLessonsCompleted.coerceAtLeast(1).coerceAtMost(1), 1, totalLessonsCompleted >= 1)
+        "ach_programming_pro" -> Triple(progLessonsCount.coerceAtMost(3), 3, progLessonsCount >= 3)
+        "ach_hardware_hero" -> Triple(hardwareLessonsCount.coerceAtMost(3), 3, hardwareLessonsCount >= 3)
+        "ach_networking_nav" -> Triple(networkingLessonsCount.coerceAtMost(2), 2, networkingLessonsCount >= 2)
+        "ach_cyber_shield" -> Triple(cyberLessonsCount.coerceAtMost(2), 2, cyberLessonsCount >= 2)
+        "ach_sql_sage" -> Triple(dbLessonsCount.coerceAtMost(2), 2, dbLessonsCount >= 2)
+        "ach_cloud_pioneer" -> Triple(cloudLessonsCount.coerceAtMost(2), 2, cloudLessonsCount >= 2)
+        "ach_course_finisher" -> Triple(totalCoursesCompleted.coerceAtMost(1), 1, totalCoursesCompleted >= 1)
+        "ach_multi_scholar" -> Triple(totalCoursesStarted.coerceAtMost(3), 3, totalCoursesStarted >= 3)
+        "ach_study_marathon" -> Triple(totalLessonsCompleted.coerceAtMost(10), 10, totalLessonsCompleted >= 10)
+        "ach_grandmaster" -> Triple(totalLessonsCompleted.coerceAtMost(20), 20, totalLessonsCompleted >= 20)
+        "ach_quiz_starter" -> Triple(quizCount.coerceAtMost(1), 1, quizCount >= 1)
+        "ach_quiz_master" -> Triple(if (highestQuiz >= 90) 1 else 0, 1, highestQuiz >= 90)
+        "ach_streak_hero" -> Triple(streakDays.coerceAtMost(5), 5, streakDays >= 5)
+        else -> Triple(ach.currentProgress, ach.maxProgress, ach.isUnlocked)
       }
+
+      val shouldUnlock = isEligible || unlockedIds.contains(ach.id)
+      if (shouldUnlock && !unlockedIds.contains(ach.id)) {
+        unlockedIds.add(ach.id)
+      }
+
+      ach.copy(
+        currentProgress = currentVal,
+        maxProgress = targetVal,
+        isUnlocked = shouldUnlock,
+        unlockedDate = if (shouldUnlock) (ach.unlockedDate ?: "Today") else null
+      )
     }
+
+    _achievements.value = updatedAchievements
+    prefs.edit().putString("unlocked_achievements", unlockedIds.joinToString(",")).apply()
+  }
+
+  private fun loadAchievementsFromPrefs() {
+    evaluateAchievementsFromRoom()
   }
 
   private fun loadRoomQuizResults() {
@@ -527,6 +760,7 @@ class ComputerMasterRepository(context: Context) {
       coursesStarted = if (startedCount > 0) startedCount else 4,
       coursesCompleted = finishedCount
     )
+    evaluateAchievementsFromRoom()
   }
 
   fun toggleBookmark(courseId: String) {

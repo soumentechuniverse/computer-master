@@ -13,6 +13,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.ui.screens.AchievementsScreen
 import com.example.ui.screens.ComputerHardwareVisualLessonScreen
 import com.example.ui.screens.CourseDetailScreen
 import com.example.ui.screens.CoursesScreen
@@ -313,6 +314,10 @@ fun AppNavigation(
         onNavigateToCourse = { courseId ->
           viewModel.soundManager.playCourseClick()
           navController.navigate(NavRoutes.courseDetail(courseId))
+        },
+        onNavigateToAchievements = {
+          viewModel.soundManager.playCourseClick()
+          navController.navigate(NavRoutes.ACHIEVEMENTS)
         }
       )
     }
@@ -326,6 +331,24 @@ fun AppNavigation(
         },
         onNavigateToSettings = {
           navController.navigate(NavRoutes.SETTINGS)
+        },
+        onNavigateToAchievements = {
+          viewModel.soundManager.playCourseClick()
+          navController.navigate(NavRoutes.ACHIEVEMENTS)
+        }
+      )
+    }
+
+    composable(NavRoutes.ACHIEVEMENTS) {
+      AchievementsScreen(
+        viewModel = viewModel,
+        onBackClick = {
+          viewModel.soundManager.playBack()
+          navController.popBackStack()
+        },
+        onNavigateToCourse = { courseId ->
+          viewModel.soundManager.playCourseClick()
+          navController.navigate(NavRoutes.courseDetail(courseId))
         }
       )
     }

@@ -394,4 +394,47 @@ class ExampleRobolectricTest {
     )
     assertEquals(6, monthTimeline.size)
   }
+
+  @Test
+  fun `verify achievements badges unlocked based on Room database progress`() = kotlinx.coroutines.runBlocking {
+    val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
+
+    val achievements = viewModel.achievements.value
+    assert(achievements.isNotEmpty())
+
+    // 1. Verify 'First Lesson Completed' badge exists
+    val firstLessonBadge = achievements.find { it.id == "ach_first_lesson" }
+    assert(firstLessonBadge != null)
+    assertEquals("First Lesson Completed", firstLessonBadge?.title)
+    // Should be unlocked if at least 1 lesson completed in Room
+    assert(firstLessonBadge!!.isUnlocked)
+
+    // 2. Verify 'Programming Pro' badge exists
+    val progBadge = achievements.find { it.id == "ach_programming_pro" }
+    assert(progBadge != null)
+    assertEquals("Programming Pro", progBadge?.title)
+    assertEquals("Programming", progBadge?.category)
+    assertEquals(3, progBadge?.maxProgress)
+
+    // 3. Complete programming lessons and verify progress increases
+    val progCourse = viewModel.allCourses.value.find { it.id == "course_programming" }
+    assert(progCourse != null)
+    progCourse!!.allLessons.take(3).forEach { lesson ->
+      viewModel.setLessonCompleted("course_programming", lesson.id, true)
+    }
+    org.robolectric.shadows.ShadowLooper.idleMainLooper()
+
+    // 4. Verify updated achievements reflect Room completions
+    val updatedAchievements = viewModel.achievements.value
+    val updatedProgBadge = updatedAchievements.first { it.id == "ach_programming_pro" }
+    assert(updatedProgBadge.currentProgress >= 1)
+
+    // 5. Verify badge categories and rarity distributions
+    val categories = updatedAchievements.map { it.category }.distinct()
+    assert(categories.contains("Programming"))
+    assert(categories.contains("Milestones"))
+    assert(categories.contains("Hardware"))
+    assert(categories.contains("Security"))
+  }
 }

@@ -13,6 +13,7 @@ object NavRoutes {
     const val PROGRESS = "progress"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
+    const val ACHIEVEMENTS = "achievements"
     const val HARDWARE_VISUAL_LESSON = "hardware_visual_lesson"
     const val CPU_RAM_ROM_LESSON = "cpu_ram_rom_lesson"
 

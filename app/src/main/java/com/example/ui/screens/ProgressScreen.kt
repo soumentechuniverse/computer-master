@@ -82,6 +82,7 @@ import com.example.ui.viewmodel.ComputerMasterViewModel
 fun ProgressScreen(
   viewModel: ComputerMasterViewModel,
   onNavigateToCourse: (String) -> Unit,
+  onNavigateToAchievements: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
   val userProfile by viewModel.userProfile.collectAsState()
@@ -359,16 +360,37 @@ fun ProgressScreen(
 
       // Achievements Section
       item {
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-          text = "Earned Achievements",
-          style = MaterialTheme.typography.titleMedium.copy(
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-          ),
-          color = TextPrimary,
-          modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
-        )
+        Spacer(modifier = Modifier.height(14.dp))
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(
+            text = "Earned Achievements",
+            style = MaterialTheme.typography.titleMedium.copy(
+              fontWeight = FontWeight.Bold,
+              fontSize = 18.sp
+            ),
+            color = TextPrimary
+          )
+
+          Text(
+            text = "View All Badges →",
+            style = MaterialTheme.typography.labelMedium.copy(
+              fontWeight = FontWeight.Bold,
+              fontSize = 12.sp,
+              color = TechCyanAccent
+            ),
+            modifier = Modifier
+              .clip(RoundedCornerShape(8.dp))
+              .clickable { onNavigateToAchievements() }
+              .padding(horizontal = 6.dp, vertical = 4.dp)
+              .testTag("view_all_achievements_header_button")
+          )
+        }
       }
 
       item {
@@ -378,7 +400,10 @@ fun ProgressScreen(
           modifier = Modifier.fillMaxWidth()
         ) {
           items(achievements, key = { it.id }) { achievement ->
-            AchievementItemCard(achievement = achievement)
+            AchievementItemCard(
+              achievement = achievement,
+              onClick = onNavigateToAchievements
+            )
           }
         }
       }
@@ -563,6 +588,7 @@ private fun SevenDayActivitySection(
 @Composable
 private fun AchievementItemCard(
   achievement: Achievement,
+  onClick: () -> Unit = {},
 ) {
   val iconVector = when (achievement.iconName) {
     "power" -> Icons.Default.PowerSettingsNew
@@ -585,6 +611,7 @@ private fun AchievementItemCard(
         if (achievement.isUnlocked) TechAmber.copy(alpha = 0.5f) else NavyCardBorder,
         RoundedCornerShape(16.dp)
       )
+      .clickable { onClick() }
       .padding(14.dp)
   ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

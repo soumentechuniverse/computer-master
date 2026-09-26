@@ -95,6 +95,7 @@ fun ProfileScreen(
   viewModel: ComputerMasterViewModel,
   onNavigateToCourse: (String) -> Unit,
   onNavigateToSettings: () -> Unit = {},
+  onNavigateToAchievements: () -> Unit = {},
   modifier: Modifier = Modifier,
 ) {
   val currentLanguage by viewModel.currentLanguage.collectAsState()
@@ -143,6 +144,77 @@ fun ProfileScreen(
         coursesCount = userProfile.coursesStarted,
         quizAverage = userProfile.quizAverage
       )
+    }
+
+    // Achievements & Badges Shortcut Banner
+    item {
+      val achievements by viewModel.achievements.collectAsState()
+      val unlockedCount = remember(achievements) { achievements.count { it.isUnlocked } }
+      val totalCount = remember(achievements) { achievements.size }
+
+      Spacer(modifier = Modifier.height(10.dp))
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(horizontal = 20.dp)
+          .clip(RoundedCornerShape(16.dp))
+          .background(NavyCard)
+          .border(1.dp, NavyCardBorder, RoundedCornerShape(16.dp))
+          .clickable { onNavigateToAchievements() }
+          .testTag("profile_achievements_banner")
+      ) {
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .background(
+              Brush.horizontalGradient(
+                listOf(
+                  TechAmber.copy(alpha = 0.15f),
+                  NavyCardElevated.copy(alpha = 0.6f)
+                )
+              )
+            )
+            .padding(14.dp),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+          ) {
+            Box(
+              modifier = Modifier
+                .size(38.dp)
+                .clip(CircleShape)
+                .background(TechAmber.copy(alpha = 0.2f))
+                .border(1.dp, TechAmber, CircleShape),
+              contentAlignment = Alignment.Center
+            ) {
+              Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = TechAmber, modifier = Modifier.size(20.dp))
+            }
+            Column {
+              Text(
+                text = "Achievements & Badges",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = TextPrimary
+              )
+              Text(
+                text = "$unlockedCount of $totalCount Badges Unlocked in Room",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                color = TextSecondary
+              )
+            }
+          }
+
+          Text(
+            text = "View Badges →",
+            style = MaterialTheme.typography.labelMedium.copy(
+              fontWeight = FontWeight.Bold,
+              color = TechCyanAccent
+            )
+          )
+        }
+      }
     }
 
     // Learning Activity Chart (Visualizing lessons completed over the past week)
