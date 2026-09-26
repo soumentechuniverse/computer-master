@@ -349,4 +349,49 @@ class ExampleRobolectricTest {
       updatedBasicsCourse.completedLessonsCount
     )
   }
+
+  @Test
+  fun `verify domain progress dashboard calculates metrics and time series for programming cybersecurity and networking`() {
+    val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
+    val courses = viewModel.allCourses.value
+    val dailyActivities = viewModel.dailyActivities.value
+
+    // 1. Calculate Domain Stats across courses
+    val domainStats = com.example.data.model.DomainProgressHelper.calculateDomainStats(courses)
+    assertEquals(6, domainStats.size)
+
+    val progStats = domainStats.first { it.domain == com.example.data.model.LearningDomain.PROGRAMMING }
+    val cyberStats = domainStats.first { it.domain == com.example.data.model.LearningDomain.CYBERSECURITY }
+    val netStats = domainStats.first { it.domain == com.example.data.model.LearningDomain.NETWORKING }
+
+    assert(progStats.totalLessons > 0)
+    assert(cyberStats.totalLessons > 0)
+    assert(netStats.totalLessons > 0)
+    assert(progStats.progressPercent in 0..100)
+    assert(cyberStats.progressPercent in 0..100)
+    assert(netStats.progressPercent in 0..100)
+
+    // 2. Generate 7-day timeline points
+    val weekTimeline = com.example.data.model.DomainProgressHelper.generateTimelinePoints(
+      com.example.data.model.TimeRange.SEVEN_DAYS,
+      domainStats,
+      dailyActivities
+    )
+    assertEquals(7, weekTimeline.size)
+    weekTimeline.forEach { pt ->
+      assert(pt.label.isNotBlank())
+      assert(pt.getProgressForDomain(com.example.data.model.LearningDomain.PROGRAMMING) in 0..100)
+      assert(pt.getProgressForDomain(com.example.data.model.LearningDomain.CYBERSECURITY) in 0..100)
+      assert(pt.getProgressForDomain(com.example.data.model.LearningDomain.NETWORKING) in 0..100)
+    }
+
+    // 3. Generate 30-day timeline points
+    val monthTimeline = com.example.data.model.DomainProgressHelper.generateTimelinePoints(
+      com.example.data.model.TimeRange.THIRTY_DAYS,
+      domainStats,
+      dailyActivities
+    )
+    assertEquals(6, monthTimeline.size)
+  }
 }

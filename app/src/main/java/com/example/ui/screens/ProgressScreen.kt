@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +61,7 @@ import com.example.data.model.Achievement
 import com.example.data.model.DailyActivity
 import com.example.ui.components.CourseIcon
 import com.example.ui.components.StatCard
+import com.example.ui.components.charts.DomainProgressDashboard
 import com.example.ui.theme.NavyCard
 import com.example.ui.theme.NavyCardBorder
 import com.example.ui.theme.NavyCardElevated
@@ -90,6 +95,8 @@ fun ProgressScreen(
     ((userProfile.lessonsCompleted.toFloat() / userProfile.totalLessons) * 100).toInt()
   } else 0
 
+  var selectedTab by remember { mutableIntStateOf(0) } // 0 = Domain Dashboard, 1 = Overview & Activity
+
   LazyColumn(
     modifier = modifier
       .fillMaxSize()
@@ -102,7 +109,7 @@ fun ProgressScreen(
       Column(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 12.dp)
+          .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 8.dp)
       ) {
         Text(
           text = "Learning Analytics",
@@ -120,170 +127,259 @@ fun ProgressScreen(
       }
     }
 
-    // Overall Progress Hero Component
+    // Top Segmented Tab Switcher (Domain Dashboard vs Overview)
     item {
-      OverallProgressHero(
-        overallPercent = overallProgressPercent,
-        completed = userProfile.lessonsCompleted,
-        remaining = lessonsRemaining,
-        total = userProfile.totalLessons
-      )
-    }
-
-    // Statistics Metric Cards
-    item {
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(horizontal = 20.dp, vertical = 8.dp)
-      ) {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-          StatCard(
-            title = "Courses Started",
-            value = "${userProfile.coursesStarted}",
-            icon = Icons.Default.School,
-            accentColor = TechCyanAccent,
-            subtitle = "Active",
-            modifier = Modifier.weight(1f)
-          )
-          StatCard(
-            title = "Completed",
-            value = "${userProfile.coursesCompleted}",
-            icon = Icons.Default.CheckCircle,
-            accentColor = TechGreen,
-            subtitle = "Finished",
-            modifier = Modifier.weight(1f)
-          )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-          StatCard(
-            title = "Average Quiz",
-            value = "${userProfile.quizAverage}%",
-            icon = Icons.Default.Quiz,
-            accentColor = TechIndigo,
-            subtitle = "Score",
-            modifier = Modifier.weight(1f)
-          )
-          StatCard(
-            title = "Learning Streak",
-            value = "${userProfile.streakDays} Days",
-            icon = Icons.Default.LocalFireDepartment,
-            accentColor = TechAmber,
-            subtitle = "Streak",
-            modifier = Modifier.weight(1f)
-          )
-        }
-      }
-    }
-
-    // 7-Day Learning Activity Bar Chart
-    item {
-      Spacer(modifier = Modifier.height(10.dp))
-      SevenDayActivitySection(activities = dailyActivities)
-    }
-
-    // Active Course Progress Section
-    item {
-      Spacer(modifier = Modifier.height(10.dp))
-      Text(
-        text = "Active Course Progress",
-        style = MaterialTheme.typography.titleMedium.copy(
-          fontWeight = FontWeight.Bold,
-          fontSize = 18.sp
-        ),
-        color = TextPrimary,
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
-      )
-    }
-
-    items(activeCourses, key = { "progress_${it.id}" }) { course ->
-      Box(
+      Row(
         modifier = Modifier
           .fillMaxWidth()
           .padding(horizontal = 20.dp, vertical = 6.dp)
-          .clip(RoundedCornerShape(16.dp))
+          .clip(RoundedCornerShape(14.dp))
           .background(NavyCard)
-          .border(1.dp, NavyCardBorder, RoundedCornerShape(16.dp))
-          .padding(14.dp)
+          .border(1.dp, NavyCardBorder, RoundedCornerShape(14.dp))
+          .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
       ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-          ) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-              CourseIcon(iconName = course.iconName, size = 36.dp, iconSize = 20.dp)
-              Column {
-                Text(
-                  text = course.title,
-                  style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                  color = TextPrimary
-                )
-                Text(
-                  text = "${course.lessonCount} Lessons • ${course.estimatedHours} hrs",
-                  style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                  color = TextSecondary
-                )
-              }
-            }
-
+        // Tab 0: Domain Dashboard (Recharts View)
+        Box(
+          modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selectedTab == 0) TechBluePrimary else Color.Transparent)
+            .clickable { selectedTab = 0 }
+            .padding(vertical = 8.dp)
+            .testTag("tab_domain_dashboard"),
+          contentAlignment = Alignment.Center
+        ) {
+          Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(
+              imageVector = Icons.Default.Timeline,
+              contentDescription = null,
+              tint = if (selectedTab == 0) Color.White else TextTertiary,
+              modifier = Modifier.size(15.dp)
+            )
             Text(
-              text = "${course.progressPercent}%",
-              style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-              color = TechCyanAccent
+              text = "Domain Dashboard",
+              style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 12.sp
+              ),
+              color = if (selectedTab == 0) Color.White else TextSecondary
             )
           }
+        }
 
-          Spacer(modifier = Modifier.height(10.dp))
-
-          LinearProgressIndicator(
-            progress = { course.progressPercent / 100f },
-            modifier = Modifier
-              .fillMaxWidth()
-              .height(6.dp)
-              .clip(RoundedCornerShape(3.dp)),
-            color = TechCyanAccent,
-            trackColor = NavyDark
-          )
+        // Tab 1: Overview & Activity
+        Box(
+          modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selectedTab == 1) TechBluePrimary else Color.Transparent)
+            .clickable { selectedTab = 1 }
+            .padding(vertical = 8.dp)
+            .testTag("tab_overview_activity"),
+          contentAlignment = Alignment.Center
+        ) {
+          Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(
+              imageVector = Icons.Default.School,
+              contentDescription = null,
+              tint = if (selectedTab == 1) Color.White else TextTertiary,
+              modifier = Modifier.size(15.dp)
+            )
+            Text(
+              text = "Overview & Badges",
+              style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 12.sp
+              ),
+              color = if (selectedTab == 1) Color.White else TextSecondary
+            )
+          }
         }
       }
     }
 
-    // Achievements Section
-    item {
-      Spacer(modifier = Modifier.height(12.dp))
-      Text(
-        text = "Earned Achievements",
-        style = MaterialTheme.typography.titleMedium.copy(
-          fontWeight = FontWeight.Bold,
-          fontSize = 18.sp
-        ),
-        color = TextPrimary,
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
-      )
-    }
+    if (selectedTab == 0) {
+      // Recharts-inspired Multi-Domain Interactive Progress Dashboard
+      item {
+        Box(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+        ) {
+          DomainProgressDashboard(
+            courses = allCourses,
+            dailyActivities = dailyActivities,
+            onNavigateToCourse = onNavigateToCourse
+          )
+        }
+      }
+    } else {
+      // Overall Progress Hero Component
+      item {
+        OverallProgressHero(
+          overallPercent = overallProgressPercent,
+          completed = userProfile.lessonsCompleted,
+          remaining = lessonsRemaining,
+          total = userProfile.totalLessons
+        )
+      }
 
-    item {
-      LazyRow(
-        contentPadding = PaddingValues(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth()
-      ) {
-        items(achievements, key = { it.id }) { achievement ->
-          AchievementItemCard(achievement = achievement)
+      // Statistics Metric Cards
+      item {
+        Column(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+        ) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+          ) {
+            StatCard(
+              title = "Courses Started",
+              value = "${userProfile.coursesStarted}",
+              icon = Icons.Default.School,
+              accentColor = TechCyanAccent,
+              subtitle = "Active",
+              modifier = Modifier.weight(1f)
+            )
+            StatCard(
+              title = "Completed",
+              value = "${userProfile.coursesCompleted}",
+              icon = Icons.Default.CheckCircle,
+              accentColor = TechGreen,
+              subtitle = "Finished",
+              modifier = Modifier.weight(1f)
+            )
+          }
+
+          Spacer(modifier = Modifier.height(12.dp))
+
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+          ) {
+            StatCard(
+              title = "Average Quiz",
+              value = "${userProfile.quizAverage}%",
+              icon = Icons.Default.Quiz,
+              accentColor = TechIndigo,
+              subtitle = "Score",
+              modifier = Modifier.weight(1f)
+            )
+            StatCard(
+              title = "Learning Streak",
+              value = "${userProfile.streakDays} Days",
+              icon = Icons.Default.LocalFireDepartment,
+              accentColor = TechAmber,
+              subtitle = "Streak",
+              modifier = Modifier.weight(1f)
+            )
+          }
+        }
+      }
+
+      // 7-Day Learning Activity Bar Chart
+      item {
+        Spacer(modifier = Modifier.height(10.dp))
+        SevenDayActivitySection(activities = dailyActivities)
+      }
+
+      // Active Course Progress Section
+      item {
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+          text = "Active Course Progress",
+          style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+          ),
+          color = TextPrimary,
+          modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+        )
+      }
+
+      items(activeCourses, key = { "progress_${it.id}" }) { course ->
+        Box(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(NavyCard)
+            .border(1.dp, NavyCardBorder, RoundedCornerShape(16.dp))
+            .padding(14.dp)
+        ) {
+          Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+              ) {
+                CourseIcon(iconName = course.iconName, size = 36.dp, iconSize = 20.dp)
+                Column {
+                  Text(
+                    text = course.title,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = TextPrimary
+                  )
+                  Text(
+                    text = "${course.lessonCount} Lessons • ${course.estimatedHours} hrs",
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                    color = TextSecondary
+                  )
+                }
+              }
+
+              Text(
+                text = "${course.progressPercent}%",
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                color = TechCyanAccent
+              )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            LinearProgressIndicator(
+              progress = { course.progressPercent / 100f },
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp)),
+              color = TechCyanAccent,
+              trackColor = NavyDark
+            )
+          }
+        }
+      }
+
+      // Achievements Section
+      item {
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+          text = "Earned Achievements",
+          style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+          ),
+          color = TextPrimary,
+          modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+        )
+      }
+
+      item {
+        LazyRow(
+          contentPadding = PaddingValues(horizontal = 20.dp),
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          items(achievements, key = { it.id }) { achievement ->
+            AchievementItemCard(achievement = achievement)
+          }
         }
       }
     }
