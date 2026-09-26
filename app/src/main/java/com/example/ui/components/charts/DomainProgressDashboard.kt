@@ -147,7 +147,13 @@ fun DomainProgressDashboard(
       onDomainSelected = { selectedDomainFilter = it }
     )
 
-    // 4. Comparative Domain Mastery Bar Breakdown
+    // 4. Compose-based Mastery Categories Chart (Donut Rings, Benchmark Bars, Radar Web)
+    MasteryCategoriesChart(
+      courses = courses,
+      onNavigateToCourse = onNavigateToCourse
+    )
+
+    // 5. Comparative Domain Mastery Bar Breakdown
     DomainComparativeBarCard(
       domainStats = domainStats,
       selectedDomain = selectedDomainFilter,

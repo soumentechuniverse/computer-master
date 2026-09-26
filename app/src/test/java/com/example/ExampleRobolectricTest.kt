@@ -437,4 +437,67 @@ class ExampleRobolectricTest {
     assert(categories.contains("Hardware"))
     assert(categories.contains("Security"))
   }
+
+  @Test
+  fun `verify mastery categories chart calculation and completion percentages`() = kotlinx.coroutines.runBlocking {
+    val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
+
+    val courses = viewModel.allCourses.value
+    assert(courses.isNotEmpty())
+
+    // 1. Calculate mastery categories
+    val masteryCategories = com.example.data.model.MasteryCategoryHelper.calculateMasteryCategories(courses)
+    assertEquals(8, masteryCategories.size)
+
+    // 2. Verify expected category keys and completion percentages in 0..100
+    val categoryIds = masteryCategories.map { it.id }
+    assert(categoryIds.contains("cat_programming"))
+    assert(categoryIds.contains("cat_cyber"))
+    assert(categoryIds.contains("cat_networking"))
+    assert(categoryIds.contains("cat_hardware"))
+    assert(categoryIds.contains("cat_sql"))
+    assert(categoryIds.contains("cat_cloud_ai"))
+    assert(categoryIds.contains("cat_os"))
+    assert(categoryIds.contains("cat_office"))
+
+    masteryCategories.forEach { cat ->
+      assert(cat.completionPercent in 0..100)
+      assert(cat.totalLessons > 0)
+      assert(cat.completedLessons >= 0)
+      assert(cat.completedLessons <= cat.totalLessons)
+      assert(cat.name.isNotBlank())
+      assert(cat.shortName.isNotBlank())
+    }
+
+    // 3. Verify Overview calculation
+    val overview = com.example.data.model.MasteryCategoryHelper.calculateOverview(masteryCategories)
+    assert(overview.overallCompletionPercent in 0..100)
+    assert(overview.totalLessons > 0)
+    assertEquals(masteryCategories.size, overview.categories.size)
+
+    val sumTiers = overview.masteredCategoriesCount +
+        overview.proficientCategoriesCount +
+        overview.intermediateCategoriesCount +
+        overview.noviceCategoriesCount +
+        overview.unstartedCategoriesCount
+    assertEquals(masteryCategories.size, sumTiers)
+
+    // 4. Test completion update triggers percentage change
+    val initialProgCat = masteryCategories.first { it.id == "cat_programming" }
+    val initialProgPercent = initialProgCat.completionPercent
+
+    val progCourse = courses.find { it.id == "course_programming" }!!
+    progCourse.allLessons.forEach { lesson ->
+      viewModel.setLessonCompleted("course_programming", lesson.id, true)
+    }
+    org.robolectric.shadows.ShadowLooper.idleMainLooper()
+
+    val updatedCourses = viewModel.allCourses.value
+    val updatedMasteryCats = com.example.data.model.MasteryCategoryHelper.calculateMasteryCategories(updatedCourses)
+    val updatedProgCat = updatedMasteryCats.first { it.id == "cat_programming" }
+    assertEquals(100, updatedProgCat.completionPercent)
+    assertEquals(com.example.data.model.MasteryTier.MASTERED, updatedProgCat.masteryTier)
+    assert(updatedProgCat.isMastered)
+  }
 }

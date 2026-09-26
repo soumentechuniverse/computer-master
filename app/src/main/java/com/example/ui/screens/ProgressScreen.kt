@@ -62,6 +62,8 @@ import com.example.data.model.DailyActivity
 import com.example.ui.components.CourseIcon
 import com.example.ui.components.StatCard
 import com.example.ui.components.charts.DomainProgressDashboard
+import com.example.ui.components.charts.MasteryCategoriesChart
+import androidx.compose.material.icons.filled.DonutLarge
 import com.example.ui.theme.NavyCard
 import com.example.ui.theme.NavyCardBorder
 import com.example.ui.theme.NavyCardElevated
@@ -96,7 +98,7 @@ fun ProgressScreen(
     ((userProfile.lessonsCompleted.toFloat() / userProfile.totalLessons) * 100).toInt()
   } else 0
 
-  var selectedTab by remember { mutableIntStateOf(0) } // 0 = Domain Dashboard, 1 = Overview & Activity
+  var selectedTab by remember { mutableIntStateOf(0) } // 0 = Mastery Categories Chart, 1 = Domain Dashboard, 2 = Overview & Activity
 
   LazyColumn(
     modifier = modifier
@@ -121,14 +123,14 @@ fun ProgressScreen(
           color = TextPrimary
         )
         Text(
-          text = "Comprehensive breakdown of your computing journey",
+          text = "Compose-powered mastery visualization & progress breakdown",
           style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
           color = TextSecondary
         )
       }
     }
 
-    // Top Segmented Tab Switcher (Domain Dashboard vs Overview)
+    // Top Segmented Tab Switcher (Mastery Charts vs Domain Dashboard vs Overview)
     item {
       Row(
         modifier = Modifier
@@ -140,7 +142,7 @@ fun ProgressScreen(
           .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
       ) {
-        // Tab 0: Domain Dashboard (Recharts View)
+        // Tab 0: Mastery Categories Chart
         Box(
           modifier = Modifier
             .weight(1f)
@@ -148,28 +150,28 @@ fun ProgressScreen(
             .background(if (selectedTab == 0) TechBluePrimary else Color.Transparent)
             .clickable { selectedTab = 0 }
             .padding(vertical = 8.dp)
-            .testTag("tab_domain_dashboard"),
+            .testTag("tab_mastery_charts"),
           contentAlignment = Alignment.Center
         ) {
-          Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+          Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(
-              imageVector = Icons.Default.Timeline,
+              imageVector = Icons.Default.DonutLarge,
               contentDescription = null,
               tint = if (selectedTab == 0) Color.White else TextTertiary,
-              modifier = Modifier.size(15.dp)
+              modifier = Modifier.size(14.dp)
             )
             Text(
-              text = "Domain Dashboard",
+              text = "Mastery",
               style = MaterialTheme.typography.labelSmall.copy(
                 fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium,
-                fontSize = 12.sp
+                fontSize = 11.5.sp
               ),
               color = if (selectedTab == 0) Color.White else TextSecondary
             )
           }
         }
 
-        // Tab 1: Overview & Activity
+        // Tab 1: Domain Dashboard
         Box(
           modifier = Modifier
             .weight(1f)
@@ -177,23 +179,52 @@ fun ProgressScreen(
             .background(if (selectedTab == 1) TechBluePrimary else Color.Transparent)
             .clickable { selectedTab = 1 }
             .padding(vertical = 8.dp)
+            .testTag("tab_domain_dashboard"),
+          contentAlignment = Alignment.Center
+        ) {
+          Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Icon(
+              imageVector = Icons.Default.Timeline,
+              contentDescription = null,
+              tint = if (selectedTab == 1) Color.White else TextTertiary,
+              modifier = Modifier.size(14.dp)
+            )
+            Text(
+              text = "Domains",
+              style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 11.5.sp
+              ),
+              color = if (selectedTab == 1) Color.White else TextSecondary
+            )
+          }
+        }
+
+        // Tab 2: Overview & Activity
+        Box(
+          modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selectedTab == 2) TechBluePrimary else Color.Transparent)
+            .clickable { selectedTab = 2 }
+            .padding(vertical = 8.dp)
             .testTag("tab_overview_activity"),
           contentAlignment = Alignment.Center
         ) {
-          Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+          Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(
               imageVector = Icons.Default.School,
               contentDescription = null,
-              tint = if (selectedTab == 1) Color.White else TextTertiary,
-              modifier = Modifier.size(15.dp)
+              tint = if (selectedTab == 2) Color.White else TextTertiary,
+              modifier = Modifier.size(14.dp)
             )
             Text(
-              text = "Overview & Badges",
+              text = "Overview",
               style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium,
-                fontSize = 12.sp
+                fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 11.5.sp
               ),
-              color = if (selectedTab == 1) Color.White else TextSecondary
+              color = if (selectedTab == 2) Color.White else TextSecondary
             )
           }
         }
@@ -201,6 +232,20 @@ fun ProgressScreen(
     }
 
     if (selectedTab == 0) {
+      // Compose-based Mastery Categories Chart
+      item {
+        Box(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+        ) {
+          MasteryCategoriesChart(
+            courses = allCourses,
+            onNavigateToCourse = onNavigateToCourse
+          )
+        }
+      }
+    } else if (selectedTab == 1) {
       // Recharts-inspired Multi-Domain Interactive Progress Dashboard
       item {
         Box(
