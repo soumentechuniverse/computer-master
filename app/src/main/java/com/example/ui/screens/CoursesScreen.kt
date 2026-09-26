@@ -25,15 +25,18 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -149,6 +152,12 @@ fun CoursesScreen(
           horizontalArrangement = Arrangement.spacedBy(12.dp),
           verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+          if (searchQuery.isBlank() && selectedLevel == CourseLevel.ALL) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+              CourseProgressOverviewBanner(courses = courses)
+            }
+          }
+
           itemsIndexed(courses, key = { _, course -> course.id }) { index, course ->
             CourseGridCard(
               course = course,
@@ -641,40 +650,115 @@ fun CourseGridCard(
         }
       }
 
-      // Progress Indicator (where progress exists!)
-      if (course.progressPercent > 0) {
-        Spacer(modifier = Modifier.height(6.dp))
-        Column(modifier = Modifier.fillMaxWidth()) {
+      // Course Progress Tracker Bar (Always displayed for every course in the list)
+      Spacer(modifier = Modifier.height(8.dp))
+      val progressRatio = (course.progressPercent / 100f).coerceIn(0f, 1f)
+      val animatedProgress by animateFloatAsState(
+        targetValue = progressRatio,
+        animationSpec = tween(durationMillis = 500),
+        label = "course_progress_${course.id}"
+      )
+      val isFinished = course.progressPercent >= 100
+
+      Column(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(8.dp))
+          .background(NavyDark.copy(alpha = 0.5f))
+          .border(
+            width = 0.5.dp,
+            color = when {
+              isFinished -> TechGreen.copy(alpha = 0.45f)
+              course.progressPercent > 0 -> TechCyanAccent.copy(alpha = 0.35f)
+              else -> NavyCardBorder.copy(alpha = 0.5f)
+            },
+            shape = RoundedCornerShape(8.dp)
+          )
+          .padding(horizontal = 8.dp, vertical = 6.dp)
+          .testTag("course_progress_tracker_${course.id}")
+      ) {
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
           Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
           ) {
-            Text(
-              text = "Progress",
-              style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-              color = TextTertiary
-            )
-            Text(
-              text = "${course.progressPercent}%",
-              style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold
-              ),
-              color = TechCyanAccent
-            )
+            if (isFinished) {
+              Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = "Completed",
+                tint = TechGreen,
+                modifier = Modifier.size(11.dp)
+              )
+              Text(
+                text = "Completed",
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontSize = 10.sp,
+                  fontWeight = FontWeight.Bold
+                ),
+                color = TechGreen
+              )
+            } else if (course.progressPercent > 0) {
+              Box(
+                modifier = Modifier
+                  .size(5.dp)
+                  .clip(CircleShape)
+                  .background(TechCyanAccent)
+              )
+              Text(
+                text = "${course.completedLessonsCount}/${course.lessonCount} Done",
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontSize = 10.sp,
+                  fontWeight = FontWeight.Medium
+                ),
+                color = TextSecondary
+              )
+            } else {
+              Text(
+                text = "0/${course.lessonCount} Lessons",
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontSize = 10.sp,
+                  fontWeight = FontWeight.Normal
+                ),
+                color = TextTertiary
+              )
+            }
           }
-          Spacer(modifier = Modifier.height(3.dp))
-          LinearProgressIndicator(
-            progress = { course.progressPercent / 100f },
-            modifier = Modifier
-              .fillMaxWidth()
-              .height(4.dp)
-              .clip(RoundedCornerShape(2.dp)),
-            color = TechBluePrimary,
-            trackColor = NavyDark
+
+          Text(
+            text = "${course.progressPercent}%",
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontSize = 10.5.sp,
+              fontWeight = FontWeight.Bold
+            ),
+            color = when {
+              isFinished -> TechGreen
+              course.progressPercent > 0 -> TechCyanAccent
+              else -> TextTertiary
+            },
+            modifier = Modifier.testTag("course_progress_percent_${course.id}")
           )
         }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        LinearProgressIndicator(
+          progress = { animatedProgress },
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(5.dp)
+            .clip(RoundedCornerShape(3.dp))
+            .testTag("course_progress_bar_${course.id}"),
+          color = when {
+            isFinished -> TechGreen
+            course.progressPercent > 0 -> TechBluePrimary
+            else -> NavyCardBorder
+          },
+          trackColor = NavyDarkest
+        )
       }
     }
   }
@@ -780,6 +864,147 @@ private fun CoursesEmptyState(
         modifier = Modifier.testTag("courses_reset_filters_button")
       ) {
         Text("Clear Search & Filters")
+      }
+    }
+  }
+}
+
+/**
+ * Top Overview Banner displayed on the Course List screen.
+ * Summarizes the learner's overall course progression, completed lessons,
+ * and completion ratio stored and synchronized via Room.
+ */
+@Composable
+private fun CourseProgressOverviewBanner(
+  courses: List<Course>,
+  modifier: Modifier = Modifier
+) {
+  val totalLessons = remember(courses) { courses.sumOf { it.allLessons.size.coerceAtLeast(it.lessonCount) } }
+  val completedLessons = remember(courses) { courses.sumOf { it.completedLessonsCount } }
+  val overallPercent = if (totalLessons > 0) ((completedLessons.toFloat() / totalLessons) * 100).toInt() else 0
+  val startedCoursesCount = remember(courses) { courses.count { it.progressPercent > 0 } }
+  val completedCoursesCount = remember(courses) { courses.count { it.progressPercent >= 100 } }
+
+  val animatedOverallProgress by animateFloatAsState(
+    targetValue = (overallPercent / 100f).coerceIn(0f, 1f),
+    animationSpec = tween(durationMillis = 600),
+    label = "overall_library_progress"
+  )
+
+  Card(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(bottom = 6.dp)
+      .testTag("course_library_progress_banner"),
+    shape = RoundedCornerShape(18.dp),
+    colors = CardDefaults.cardColors(containerColor = NavyCard),
+    border = BorderStroke(1.dp, NavyCardBorder)
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .background(
+          Brush.horizontalGradient(
+            listOf(
+              TechBluePrimary.copy(alpha = 0.14f),
+              NavyCardElevated.copy(alpha = 0.7f)
+            )
+          )
+        )
+        .padding(14.dp)
+    ) {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          modifier = Modifier.weight(1f)
+        ) {
+          Box(
+            modifier = Modifier
+              .size(30.dp)
+              .clip(CircleShape)
+              .background(TechCyanAccent.copy(alpha = 0.15f))
+              .border(1.dp, TechCyanAccent.copy(alpha = 0.4f), CircleShape),
+            contentAlignment = Alignment.Center
+          ) {
+            Icon(
+              imageVector = Icons.Default.TrendingUp,
+              contentDescription = null,
+              tint = TechCyanAccent,
+              modifier = Modifier.size(16.dp)
+            )
+          }
+
+          Column {
+            Text(
+              text = "Overall Learning Progress",
+              style = MaterialTheme.typography.titleSmall.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+              ),
+              color = TextPrimary
+            )
+            Text(
+              text = "$startedCoursesCount of ${courses.size} Courses Started • $completedCoursesCount Completed",
+              style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+              color = TextSecondary
+            )
+          }
+        }
+
+        Box(
+          modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(TechCyanAccent.copy(alpha = 0.15f))
+            .border(1.dp, TechCyanAccent.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .testTag("overall_library_progress_badge")
+        ) {
+          Text(
+            text = "$overallPercent%",
+            style = MaterialTheme.typography.labelMedium.copy(
+              fontWeight = FontWeight.Bold,
+              fontSize = 12.sp
+            ),
+            color = TechCyanAccent
+          )
+        }
+      }
+
+      Spacer(modifier = Modifier.height(10.dp))
+
+      LinearProgressIndicator(
+        progress = { animatedOverallProgress },
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(6.dp)
+          .clip(RoundedCornerShape(3.dp))
+          .testTag("overall_library_progress_bar"),
+        color = TechCyanAccent,
+        trackColor = NavyDarkest
+      )
+
+      Spacer(modifier = Modifier.height(6.dp))
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Text(
+          text = "$completedLessons of $totalLessons Lessons Completed (Room Persisted)",
+          style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
+          color = TextTertiary
+        )
+        Text(
+          text = if (overallPercent >= 100) "All Mastered!" else "${100 - overallPercent}% Remaining",
+          style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold),
+          color = if (overallPercent >= 100) TechGreen else TechAmber
+        )
       }
     }
   }

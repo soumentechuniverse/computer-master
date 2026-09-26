@@ -273,6 +273,7 @@ class InAppUpdateManager(private val context: Context) {
           val updatesDir = File(context.cacheDir, "updates").apply { mkdirs() }
           val safeVersion = info.versionName.replace(Regex("[^a-zA-Z0-9._-]"), "_")
           val destinationFile = File(updatesDir, "ComputerMaster_$safeVersion.apk")
+          val partFile = File(updatesDir, "ComputerMaster_$safeVersion.apk.part")
 
           val downloadUrl = getEffectiveApkUrl(info.apkUrl)
           val request = Request.Builder()
@@ -287,8 +288,13 @@ class InAppUpdateManager(private val context: Context) {
             val body = response.body ?: throw Exception("Response body is empty")
             val contentLength = body.contentLength()
 
+            if (destinationFile.exists() && contentLength > 0 && destinationFile.length() == contentLength) {
+              // Existing completed download is valid
+              return@runCatching destinationFile
+            }
+
             body.byteStream().use { input ->
-              FileOutputStream(destinationFile).use { output ->
+              FileOutputStream(partFile).use { output ->
                 val buffer = ByteArray(8 * 1024)
                 var bytesRead: Int
                 var totalBytesRead = 0L
@@ -316,6 +322,11 @@ class InAppUpdateManager(private val context: Context) {
                 }
                 output.flush()
               }
+            }
+
+            if (partFile.exists()) {
+              if (destinationFile.exists()) destinationFile.delete()
+              partFile.renameTo(destinationFile)
             }
           }
           destinationFile
@@ -370,14 +381,26 @@ class InAppUpdateManager(private val context: Context) {
       // Check for unknown source permission if Android 8.0+
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         if (!context.packageManager.canRequestPackageInstalls()) {
-          // Launch unknown sources settings specifically for our app
-          val manageSourcesIntent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-            data = Uri.parse("package:${context.packageName}")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+          try {
+            val manageSourcesIntent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+              data = Uri.parse("package:${context.packageName}")
+              addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(manageSourcesIntent)
+          } catch (_: Exception) {
+            try {
+              context.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+              })
+            } catch (_: Exception) {
+              // Ignore fallback failure
+            }
           }
-          context.startActivity(manageSourcesIntent)
-          // Also invoke installer; user can proceed once allowed
-          context.startActivity(installIntent)
+          try {
+            context.startActivity(installIntent)
+          } catch (e: Exception) {
+            _updateState.value = UpdateUiState.Error("Installer launch failed: ${e.message}", true)
+          }
           return
         }
       }

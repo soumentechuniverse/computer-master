@@ -53,6 +53,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -487,126 +488,294 @@ fun SettingsScreen(
           Box(
             modifier = Modifier
               .fillMaxWidth()
-              .clip(RoundedCornerShape(12.dp))
+              .clip(RoundedCornerShape(14.dp))
               .background(NavyDark)
-              .border(1.dp, NavyCardBorder, RoundedCornerShape(12.dp))
-              .padding(12.dp)
+              .border(1.dp, NavyCardBorder, RoundedCornerShape(14.dp))
+              .padding(14.dp)
           ) {
-            Row(
-              modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.SpaceBetween,
-              verticalAlignment = Alignment.CenterVertically
-            ) {
-              Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+              Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+              ) {
                 Text(
-                  text = "Installed: v${viewModel.updateManager.currentVersionName}",
+                  text = "Installed Version",
                   style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                   color = TextSecondary
                 )
-                val state = updateState
-                when (state) {
-                  is UpdateUiState.Checking -> {
+                Text(
+                  text = "v${viewModel.updateManager.currentVersionName}",
+                  style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                  ),
+                  color = TechCyanAccent
+                )
+              }
+
+              Spacer(modifier = Modifier.height(10.dp))
+
+              // Current Status Display
+              when (val state = updateState) {
+                is UpdateUiState.Checking -> {
+                  Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                  ) {
+                    CircularProgressIndicator(
+                      modifier = Modifier.size(18.dp),
+                      color = TechCyanAccent,
+                      strokeWidth = 2.dp
+                    )
                     Text(
                       text = AppStrings.checkingUpdates(currentLanguage),
-                      style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                      style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
                       color = TechCyanAccent
                     )
                   }
-                  is UpdateUiState.UpdateAvailable -> {
-                    Text(
-                      text = "v${state.info.versionName} Available!",
-                      style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                      ),
-                      color = TechAmber
+                }
+                is UpdateUiState.UpdateAvailable -> {
+                  Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                      verticalAlignment = Alignment.CenterVertically,
+                      horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                      Icon(
+                        imageVector = Icons.Default.CloudDownload,
+                        contentDescription = null,
+                        tint = TechAmber,
+                        modifier = Modifier.size(18.dp)
+                      )
+                      Text(
+                        text = "Update Available: v${state.info.versionName}",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                          fontWeight = FontWeight.Bold,
+                          fontSize = 13.sp
+                        ),
+                        color = TechAmber
+                      )
+                    }
+                    if (!state.info.fileSize.isNullOrBlank()) {
+                      Spacer(modifier = Modifier.height(2.dp))
+                      Text(
+                        text = "Download size: ${state.info.fileSize}",
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                        color = TextTertiary
+                      )
+                    }
+                    val msg = state.info.getLocalizedMessage(currentLanguage).lines().firstOrNull()
+                    if (!msg.isNullOrBlank()) {
+                      Spacer(modifier = Modifier.height(2.dp))
+                      Text(
+                        text = msg,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                        color = TextSecondary,
+                        maxLines = 2
+                      )
+                    }
+                  }
+                }
+                is UpdateUiState.UpToDate -> {
+                  Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                  ) {
+                    Icon(
+                      imageVector = Icons.Default.CheckCircle,
+                      contentDescription = null,
+                      tint = TechGreen,
+                      modifier = Modifier.size(18.dp)
+                    )
+                    Column {
+                      Text(
+                        text = AppStrings.latestVersionInstalled(currentLanguage),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                          fontWeight = FontWeight.Bold,
+                          fontSize = 13.sp
+                        ),
+                        color = TechGreen
+                      )
+                      Text(
+                        text = "Computer Master v${state.versionName} is up to date.",
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                        color = TextSecondary
+                      )
+                    }
+                  }
+                }
+                is UpdateUiState.Downloading -> {
+                  Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                      modifier = Modifier.fillMaxWidth(),
+                      horizontalArrangement = Arrangement.SpaceBetween,
+                      verticalAlignment = Alignment.CenterVertically
+                    ) {
+                      Text(
+                        text = "${AppStrings.updateDownloading(currentLanguage)} v${state.info.versionName}",
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
+                        color = TechCyanAccent
+                      )
+                      Text(
+                        text = "${(state.progress * 100).toInt()}%",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = TechCyanAccent
+                      )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    LinearProgressIndicator(
+                      progress = { state.progress },
+                      modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp)),
+                      color = TechCyanAccent,
+                      trackColor = NavyCardBorder
                     )
                   }
-                  is UpdateUiState.UpToDate -> {
-                    Text(
-                      text = AppStrings.appUpToDate(currentLanguage, state.versionName),
-                      style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                      color = TechGreen
+                }
+                is UpdateUiState.ReadyToInstall -> {
+                  Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                  ) {
+                    Icon(
+                      imageVector = Icons.Default.CheckCircle,
+                      contentDescription = null,
+                      tint = TechGreen,
+                      modifier = Modifier.size(18.dp)
                     )
+                    Column {
+                      Text(
+                        text = "Update downloaded: v${state.info.versionName}",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                          fontWeight = FontWeight.Bold,
+                          fontSize = 13.sp
+                        ),
+                        color = TechGreen
+                      )
+                      Text(
+                        text = AppStrings.updateReadyToInstall(currentLanguage),
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                        color = TextSecondary
+                      )
+                    }
                   }
-                  is UpdateUiState.Downloading -> {
-                    Text(
-                      text = "${AppStrings.updateDownloading(currentLanguage)} (${(state.progress * 100).toInt()}%)",
-                      style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                      color = TechCyanAccent
+                }
+                is UpdateUiState.Error -> {
+                  Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                  ) {
+                    Icon(
+                      imageVector = Icons.Default.Info,
+                      contentDescription = null,
+                      tint = TechRed,
+                      modifier = Modifier.size(18.dp)
                     )
-                  }
-                  is UpdateUiState.ReadyToInstall -> {
-                    Text(
-                      text = AppStrings.updateReadyToInstall(currentLanguage),
-                      style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                      color = TechGreen
-                    )
-                  }
-                  is UpdateUiState.Error -> {
                     Text(
                       text = state.message,
-                      style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                      style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                       color = TechRed
                     )
                   }
-                  else -> {
-                    Text(
-                      text = "GitHub Release Channel",
-                      style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                      color = TextTertiary
-                    )
-                  }
+                }
+                else -> {
+                  Text(
+                    text = "Tap 'Check for Updates' to verify whether a newer version is available.",
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                    color = TextSecondary
+                  )
                 }
               }
 
-              Spacer(modifier = Modifier.width(8.dp))
+              Spacer(modifier = Modifier.height(14.dp))
 
-              if (updateState is UpdateUiState.Checking) {
-                CircularProgressIndicator(
-                  modifier = Modifier.size(24.dp),
-                  color = TechCyanAccent,
-                  strokeWidth = 2.dp
-                )
-              } else if (updateState is UpdateUiState.UpdateAvailable || updateState is UpdateUiState.Downloading || updateState is UpdateUiState.ReadyToInstall) {
-                Button(
-                  onClick = { viewModel.openUpdateDialog() },
-                  colors = ButtonDefaults.buttonColors(containerColor = TechAmber),
-                  shape = RoundedCornerShape(8.dp),
-                  contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                  modifier = Modifier.testTag("settings_screen_view_update_btn")
-                ) {
-                  Icon(
-                    imageVector = Icons.Default.CloudDownload,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = NavyDarkest
-                  )
-                  Spacer(modifier = Modifier.width(4.dp))
-                  Text(
-                    text = AppStrings.updateNow(currentLanguage),
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = NavyDarkest
-                  )
-                }
-              } else {
+              // Action Buttons Row: Permanent "Check for Updates" + Conditional "Update" button
+              Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+                // Permanent Check for Updates button - ALWAYS VISIBLE, NEVER HIDDEN
                 Button(
                   onClick = { viewModel.checkForUpdates(isManual = true) },
-                  colors = ButtonDefaults.buttonColors(containerColor = TechBluePrimary),
-                  shape = RoundedCornerShape(8.dp),
-                  contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                  modifier = Modifier.testTag("settings_screen_check_update_btn")
+                  enabled = updateState !is UpdateUiState.Checking,
+                  colors = ButtonDefaults.buttonColors(
+                    containerColor = TechBluePrimary,
+                    disabledContainerColor = TechBluePrimary.copy(alpha = 0.5f)
+                  ),
+                  shape = RoundedCornerShape(10.dp),
+                  contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                  modifier = Modifier
+                    .weight(1f)
+                    .testTag("settings_screen_check_update_btn")
                 ) {
-                  Icon(
-                    imageVector = Icons.Default.Sync,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
-                  )
-                  Spacer(modifier = Modifier.width(4.dp))
-                  Text(
-                    text = AppStrings.checkForUpdates(currentLanguage),
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                  )
+                  Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                  ) {
+                    if (updateState is UpdateUiState.Checking) {
+                      CircularProgressIndicator(
+                        modifier = Modifier.size(14.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                      )
+                    } else {
+                      Icon(
+                        imageVector = Icons.Default.Sync,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                      )
+                    }
+                    Text(
+                      text = AppStrings.checkForUpdates(currentLanguage),
+                      style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                  }
+                }
+
+                // If update is available or ready to install, provide dedicated Update button
+                if (updateState is UpdateUiState.UpdateAvailable || updateState is UpdateUiState.Downloading || updateState is UpdateUiState.ReadyToInstall) {
+                  Button(
+                    onClick = {
+                      if (updateState is UpdateUiState.ReadyToInstall) {
+                        viewModel.launchPackageInstaller((updateState as UpdateUiState.ReadyToInstall).apkFile)
+                      } else {
+                        viewModel.openUpdateDialog()
+                      }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                      containerColor = if (updateState is UpdateUiState.ReadyToInstall) TechGreen else TechAmber
+                    ),
+                    shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                    modifier = Modifier
+                      .weight(1f)
+                      .testTag("settings_screen_view_update_btn")
+                  ) {
+                    Row(
+                      verticalAlignment = Alignment.CenterVertically,
+                      horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                      Icon(
+                        imageVector = if (updateState is UpdateUiState.ReadyToInstall) Icons.Default.SystemUpdate else Icons.Default.CloudDownload,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = NavyDarkest
+                      )
+                      Text(
+                        text = when (updateState) {
+                          is UpdateUiState.ReadyToInstall -> "Install Now"
+                          is UpdateUiState.Downloading -> "Downloading..."
+                          is UpdateUiState.UpdateAvailable -> "Update Now"
+                          else -> AppStrings.updateNow(currentLanguage)
+                        },
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = NavyDarkest
+                      )
+                    }
+                  }
                 }
               }
             }

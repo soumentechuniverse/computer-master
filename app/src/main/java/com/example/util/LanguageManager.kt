@@ -385,6 +385,18 @@ object AppStrings {
     AppLanguage.HINDI -> "कंप्यूटर मास्टर पूरी तरह से अप-टू-डेट है ($version)"
   }
 
+  fun latestVersionInstalled(lang: AppLanguage): String = when (lang) {
+    AppLanguage.BENGALI -> "আপনি সর্বশেষ সংস্করণটি ব্যবহার করছেন।"
+    AppLanguage.ENGLISH -> "You are using the latest version."
+    AppLanguage.HINDI -> "आप नवीनतम संस्करण का उपयोग कर रहे हैं।"
+  }
+
+  fun updateAvailableTitle(lang: AppLanguage, version: String): String = when (lang) {
+    AppLanguage.BENGALI -> "নতুন সংস্করণ $version উপলব্ধ!"
+    AppLanguage.ENGLISH -> "Version $version Available"
+    AppLanguage.HINDI -> "नया संस्करण $version उपलब्ध है!"
+  }
+
   fun updateSourceUrl(lang: AppLanguage): String = when (lang) {
     AppLanguage.BENGALI -> "গিটহাব আপডেট ইউআরএল"
     AppLanguage.ENGLISH -> "GitHub Update URL"

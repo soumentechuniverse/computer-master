@@ -285,4 +285,68 @@ class ExampleRobolectricTest {
     assertEquals(0, activeState.currentQuestionIndex)
     assert(!activeState.isQuizCompleted)
   }
+
+  @Test
+  fun `verify Room database stores user lesson completion and tracks course progress`() = kotlinx.coroutines.runBlocking {
+    val context = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val db = com.example.data.database.AppDatabase.getDatabase(context)
+    val dao = db.courseProgressDao()
+
+    // 1. Insert lesson completions into Room
+    val completion1 = com.example.data.database.LessonCompletionEntity(
+      courseId = "course_basics",
+      lessonId = "cb_l1",
+      isCompleted = true,
+      completedAt = System.currentTimeMillis()
+    )
+    val completion2 = com.example.data.database.LessonCompletionEntity(
+      courseId = "course_basics",
+      lessonId = "cb_l2",
+      isCompleted = true,
+      completedAt = System.currentTimeMillis()
+    )
+    dao.insertLessonCompletion(completion1)
+    dao.insertLessonCompletion(completion2)
+
+    val storedCompletions = dao.getAllCompletedLessonsOnce()
+    assert(storedCompletions.any { it.courseId == "course_basics" && it.lessonId == "cb_l1" })
+    assert(storedCompletions.any { it.courseId == "course_basics" && it.lessonId == "cb_l2" })
+
+    // 2. Insert and verify CourseProgressEntity in Room
+    val progress = com.example.data.database.CourseProgressEntity(
+      courseId = "course_basics",
+      completedLessonsCount = 2,
+      totalLessonsCount = 10,
+      progressPercent = 20,
+      isCompleted = false,
+      lastUpdated = System.currentTimeMillis()
+    )
+    dao.insertOrUpdateCourseProgress(progress)
+
+    val retrievedProgress = dao.getCourseProgressOnce("course_basics")
+    assert(retrievedProgress != null)
+    assertEquals(2, retrievedProgress?.completedLessonsCount)
+    assertEquals(10, retrievedProgress?.totalLessonsCount)
+    assertEquals(20, retrievedProgress?.progressPercent)
+    assertEquals(false, retrievedProgress?.isCompleted)
+
+    // 3. Verify ViewModel toggleLessonCompletion updates course progress
+    val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
+    val initialBasicsCourse = viewModel.allCourses.value.first { it.id == "course_basics" }
+    val initialCompletedCount = initialBasicsCourse.completedLessonsCount
+
+    // Toggle completion on a lesson in course_basics
+    val targetLesson = initialBasicsCourse.allLessons.first()
+    val wasCompleted = targetLesson.isCompleted
+    viewModel.toggleLessonCompletion("course_basics", targetLesson.id)
+    ShadowLooper.idleMainLooper()
+
+    val updatedBasicsCourse = viewModel.allCourses.value.first { it.id == "course_basics" }
+    val updatedLesson = updatedBasicsCourse.allLessons.first { it.id == targetLesson.id }
+    assertEquals(!wasCompleted, updatedLesson.isCompleted)
+    assertEquals(
+      if (!wasCompleted) initialCompletedCount + 1 else initialCompletedCount - 1,
+      updatedBasicsCourse.completedLessonsCount
+    )
+  }
 }

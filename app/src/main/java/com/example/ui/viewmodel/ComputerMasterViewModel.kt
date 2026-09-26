@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.auth.AuthManager
 import com.example.data.auth.AuthState
+import com.example.data.database.CourseProgressEntity
 import com.example.data.model.Achievement
 import com.example.data.model.Course
 import com.example.data.model.CourseLevel
@@ -81,6 +82,25 @@ class ComputerMasterViewModel(application: Application) : AndroidViewModel(appli
 
     val allCourses: StateFlow<List<Course>> =
         repository.courses
+
+    val allCourseProgress: StateFlow<List<CourseProgressEntity>> =
+        repository.allCourseProgress
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
+    val totalCompletedLessonsCount: StateFlow<Int> =
+        repository.totalCompletedLessonsCount
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = 0
+            )
+
+    fun getCourseProgressFlow(courseId: String): kotlinx.coroutines.flow.Flow<CourseProgressEntity?> =
+        repository.getCourseProgressFlow(courseId)
 
     val quizzes: StateFlow<List<Quiz>> =
         repository.quizzes

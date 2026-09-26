@@ -48,6 +48,7 @@ import com.example.ui.theme.NavyDark
 import com.example.ui.theme.TechAmber
 import com.example.ui.theme.TechBluePrimary
 import com.example.ui.theme.TechCyanAccent
+import com.example.ui.theme.TechGreen
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TextTertiary
@@ -209,18 +210,28 @@ fun CourseCard(
           modifier = Modifier
             .weight(1f)
             .height(7.dp)
-            .clip(RoundedCornerShape(4.dp)),
-          color = TechBluePrimary,
+            .clip(RoundedCornerShape(4.dp))
+            .testTag("course_card_progress_bar_${course.id}"),
+          color = when {
+            course.isCompleted -> TechGreen
+            course.progressPercent > 0 -> TechBluePrimary
+            else -> NavyCardBorder
+          },
           trackColor = NavyDark,
         )
 
         Text(
-          text = "${course.progressPercent}%",
+          text = if (course.isCompleted) "100% Done" else "${course.progressPercent}%",
           style = MaterialTheme.typography.labelMedium.copy(
             fontWeight = FontWeight.SemiBold,
             fontSize = 12.sp
           ),
-          color = if (course.progressPercent > 0) TechCyanAccent else TextTertiary
+          color = when {
+            course.isCompleted -> TechGreen
+            course.progressPercent > 0 -> TechCyanAccent
+            else -> TextTertiary
+          },
+          modifier = Modifier.testTag("course_card_progress_text_${course.id}")
         )
       }
     }

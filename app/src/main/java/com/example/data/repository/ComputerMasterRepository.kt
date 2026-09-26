@@ -3,6 +3,8 @@ package com.example.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.data.database.AppDatabase
+import com.example.data.database.CourseProgressEntity
+import com.example.data.database.LessonCompletionEntity
 import com.example.data.database.QuizResultEntity
 import com.example.data.model.Achievement
 import com.example.data.model.Course
@@ -19,6 +21,7 @@ import com.example.util.AppLanguage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,6 +34,14 @@ class ComputerMasterRepository(context: Context) {
   private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
   private val database = AppDatabase.getDatabase(context)
   private val quizDao = database.quizResultDao()
+  private val courseProgressDao = database.courseProgressDao()
+
+  val allCourseProgress: Flow<List<CourseProgressEntity>> = courseProgressDao.getAllCourseProgress()
+  val allCompletedLessons: Flow<List<LessonCompletionEntity>> = courseProgressDao.getAllCompletedLessons()
+  val totalCompletedLessonsCount: Flow<Int> = courseProgressDao.getTotalCompletedLessonsCount()
+
+  fun getCourseProgressFlow(courseId: String): Flow<CourseProgressEntity?> =
+    courseProgressDao.getCourseProgress(courseId)
 
   private val prefs: SharedPreferences =
     context.getSharedPreferences("computer_master_prefs", Context.MODE_PRIVATE)
@@ -280,7 +291,87 @@ class ComputerMasterRepository(context: Context) {
     loadNotesFromPrefs()
     loadAchievementsFromPrefs()
     loadRoomQuizResults()
+    loadRoomCourseProgress()
     recalculateProfile()
+  }
+
+  private fun loadRoomCourseProgress() {
+    scope.launch {
+      val existingCompletions = courseProgressDao.getAllCompletedLessonsOnce()
+      if (existingCompletions.isNotEmpty()) {
+        val completedSet = existingCompletions.map { it.lessonId }.toSet()
+        val bookmarkedString = prefs.getString("bookmarked_courses", "course_basics,course_python,course_ai") ?: ""
+        val bookmarkedSet = bookmarkedString.split(",").filter { it.isNotEmpty() }.toSet()
+        applyCompletedLessons(completedSet, bookmarkedSet)
+      } else {
+        // First run: save existing course completion state into Room
+        val initialEntities = _courses.value.flatMap { course ->
+          course.allLessons.filter { it.isCompleted }.map { lesson ->
+            LessonCompletionEntity(
+              courseId = course.id,
+              lessonId = lesson.id,
+              isCompleted = true,
+              completedAt = System.currentTimeMillis()
+            )
+          }
+        }
+        if (initialEntities.isNotEmpty()) {
+          courseProgressDao.insertLessonCompletions(initialEntities)
+        }
+        updateAllCourseProgressInRoom()
+      }
+
+      // Continuously observe Room completions for reactive UI updates
+      courseProgressDao.getAllCompletedLessons().collect { completions ->
+        val completedSet = completions.map { it.lessonId }.toSet()
+        val bookmarkedString = prefs.getString("bookmarked_courses", "course_basics,course_python,course_ai") ?: ""
+        val bookmarkedSet = bookmarkedString.split(",").filter { it.isNotEmpty() }.toSet()
+        applyCompletedLessons(completedSet, bookmarkedSet)
+      }
+    }
+  }
+
+  private fun applyCompletedLessons(completedSet: Set<String>, bookmarkedSet: Set<String>) {
+    val updatedList = _courses.value.map { course ->
+      val isBookmarked = bookmarkedSet.contains(course.id)
+      val updatedModules = course.modules.map { mod ->
+        val updatedChapters = mod.chapters.map { chap ->
+          val updatedLessons = chap.lessons.map { les ->
+            les.copy(isCompleted = completedSet.contains(les.id))
+          }
+          chap.copy(lessons = updatedLessons)
+        }
+        mod.copy(chapters = updatedChapters)
+      }
+      val totalLessons = updatedModules.sumOf { it.lessons.size }
+      val completedCount = updatedModules.sumOf { m -> m.lessons.count { it.isCompleted } }
+      val calculatedProgress = if (totalLessons > 0) ((completedCount.toFloat() / totalLessons) * 100).toInt() else 0
+
+      course.copy(
+        isBookmarked = isBookmarked,
+        modules = updatedModules,
+        progressPercent = calculatedProgress
+      )
+    }
+    _courses.value = updatedList
+    recalculateProfile()
+  }
+
+  private suspend fun updateAllCourseProgressInRoom() {
+    val progressList = _courses.value.map { course ->
+      val total = course.allLessons.size
+      val completed = course.completedLessonsCount
+      val percent = if (total > 0) ((completed.toFloat() / total) * 100).toInt() else 0
+      CourseProgressEntity(
+        courseId = course.id,
+        completedLessonsCount = completed,
+        totalLessonsCount = total,
+        progressPercent = percent,
+        isCompleted = percent >= 100,
+        lastUpdated = System.currentTimeMillis()
+      )
+    }
+    courseProgressDao.insertOrUpdateCourseProgressList(progressList)
   }
 
   private fun loadAchievementsFromPrefs() {
@@ -471,12 +562,20 @@ class ComputerMasterRepository(context: Context) {
 
   fun toggleLessonCompletion(courseId: String, lessonId: String) {
     val current = _courses.value
+    var newIsCompleted = false
+    var currentCourseTotal = 0
+    var currentCourseCompleted = 0
+    var calculatedPercent = 0
+
     val updated = current.map { course ->
       if (course.id == courseId) {
         val newModules = course.modules.map { mod ->
           val newChapters = mod.chapters.map { chap ->
             val newLessons = chap.lessons.map { les ->
-              if (les.id == lessonId) les.copy(isCompleted = !les.isCompleted) else les
+              if (les.id == lessonId) {
+                newIsCompleted = !les.isCompleted
+                les.copy(isCompleted = newIsCompleted)
+              } else les
             }
             chap.copy(lessons = newLessons)
           }
@@ -485,6 +584,9 @@ class ComputerMasterRepository(context: Context) {
         val total = newModules.sumOf { it.lessons.size }
         val completed = newModules.sumOf { m -> m.lessons.count { it.isCompleted } }
         val percent = if (total > 0) ((completed.toFloat() / total) * 100).toInt() else 0
+        currentCourseTotal = total
+        currentCourseCompleted = completed
+        calculatedPercent = percent
         course.copy(modules = newModules, progressPercent = percent)
       } else {
         course
@@ -492,7 +594,35 @@ class ComputerMasterRepository(context: Context) {
     }
     _courses.value = updated
 
-    // Persist all completed lesson ids
+    // Persist to Room Database asynchronously
+    scope.launch {
+      if (newIsCompleted) {
+        courseProgressDao.insertLessonCompletion(
+          LessonCompletionEntity(
+            courseId = courseId,
+            lessonId = lessonId,
+            isCompleted = true,
+            completedAt = System.currentTimeMillis()
+          )
+        )
+      } else {
+        courseProgressDao.deleteLessonCompletion(courseId, lessonId)
+      }
+
+      // Persist aggregated CourseProgressEntity in Room
+      courseProgressDao.insertOrUpdateCourseProgress(
+        CourseProgressEntity(
+          courseId = courseId,
+          completedLessonsCount = currentCourseCompleted,
+          totalLessonsCount = currentCourseTotal,
+          progressPercent = calculatedPercent,
+          isCompleted = calculatedPercent >= 100,
+          lastUpdated = System.currentTimeMillis()
+        )
+      )
+    }
+
+    // Persist all completed lesson ids to prefs as fallback
     val allCompletedIds = updated.flatMap { c ->
       c.modules.flatMap { m -> m.lessons.filter { it.isCompleted }.map { it.id } }
     }.joinToString(",")
