@@ -87,7 +87,7 @@ import com.example.ui.theme.TextTertiary
 import com.example.ui.viewmodel.ComputerMasterViewModel
 
 /**
- * Professional 18-Course Library Screen.
+ * Professional 20-Course Library Screen.
  * Features a dedicated search bar at the top for quickly finding courses by title or category,
  * quick category pills, level filters, and a responsive LazyVerticalGrid.
  */
@@ -209,7 +209,7 @@ private fun CoursesTopSearchBar(
       .padding(horizontal = 16.dp, vertical = 10.dp)
       .testTag("courses_search_bar")
   ) {
-    // Top Bar: Screen Title & 18 Courses Badge
+    // Top Bar: Screen Title & 20 Courses Badge
     Row(
       modifier = Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.SpaceBetween,
@@ -227,7 +227,7 @@ private fun CoursesTopSearchBar(
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
-          text = "18 Courses • Beginner to Advanced Knowledge",
+          text = "20 Courses • Beginner to Advanced Knowledge",
           style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
           color = TextSecondary
         )
@@ -241,7 +241,7 @@ private fun CoursesTopSearchBar(
           .padding(horizontal = 10.dp, vertical = 5.dp)
       ) {
         Text(
-          text = "18 Courses",
+          text = "20 Courses",
           style = MaterialTheme.typography.labelSmall.copy(
             fontWeight = FontWeight.Bold,
             fontSize = 11.sp
@@ -388,7 +388,7 @@ private fun CoursesTopSearchBar(
         } else if (selectedLevel != CourseLevel.ALL) {
           "${selectedLevel.label} Courses ($totalCoursesCount found)"
         } else {
-          "All 18 Courses"
+          "All 20 Courses"
         },
         style = MaterialTheme.typography.bodySmall.copy(
           fontWeight = FontWeight.SemiBold,
