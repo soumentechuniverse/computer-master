@@ -121,8 +121,10 @@ fun LessonScreen(
       ?: Regex("^cb_lesson_(\\d+)$").matchEntire(lessonId)
         ?.groupValues?.getOrNull(1)?.toIntOrNull()
         ?.let { lessonNumber -> lessons.getOrNull(lessonNumber - 1) }
-      ?: course?.allLessons?.firstOrNull { it.id == lessonId }
-        ?.let { courseLesson -> CourseLessonDetailFactory.create(course, courseLesson) }
+      ?: course?.let { selectedCourse ->
+        selectedCourse.allLessons.firstOrNull { it.id == lessonId }
+          ?.let { courseLesson -> CourseLessonDetailFactory.create(selectedCourse, courseLesson) }
+      }
   }
   // CourseSeedData uses cb_lesson_N while the detailed lesson content uses cb_lN.
   // Keep progress/bookmarks linked to the course's persisted lesson IDs while allowing
