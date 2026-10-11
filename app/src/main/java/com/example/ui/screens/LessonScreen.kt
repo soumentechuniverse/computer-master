@@ -125,7 +125,7 @@ fun LessonScreen(
   // Keep progress/bookmarks linked to the course's persisted lesson IDs while allowing
   // previous/next navigation and quizzes to use the detailed lesson IDs.
   val courseLessonId = course?.allLessons?.firstOrNull { it.id == lessonId }?.id
-    ?: lesson?.let { "cb_lesson_\${it.lessonNumber}" }
+    ?: lesson?.let { "cb_lesson_${it.lessonNumber}" }
     ?: lessonId
   val isLessonCompleted = course?.allLessons?.find { it.id == courseLessonId }?.isCompleted ?: false
 
