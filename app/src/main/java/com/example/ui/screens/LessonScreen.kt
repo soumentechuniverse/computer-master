@@ -112,16 +112,25 @@ fun LessonScreen(
   modifier: Modifier = Modifier
 ) {
   val lesson: LessonDetailData? = remember(lessonId) {
+    val lessons = ComputerBasicsLessonRepository.getAllLessons()
     ComputerBasicsLessonRepository.getLessonById(lessonId)
-      ?: ComputerBasicsLessonRepository.getAllLessons().firstOrNull()
+      ?: Regex("^cb_lesson_(\\d+)$").matchEntire(lessonId)
+        ?.groupValues?.getOrNull(1)?.toIntOrNull()
+        ?.let { lessonNumber -> lessons.getOrNull(lessonNumber - 1) }
   }
 
   val allCourses by viewModel.allCourses.collectAsState()
   val course = allCourses.find { it.id == courseId }
-  val isLessonCompleted = course?.allLessons?.find { it.id == lessonId }?.isCompleted ?: false
+  // CourseSeedData uses cb_lesson_N while the detailed lesson content uses cb_lN.
+  // Keep progress/bookmarks linked to the course's persisted lesson IDs while allowing
+  // previous/next navigation and quizzes to use the detailed lesson IDs.
+  val courseLessonId = course?.allLessons?.firstOrNull { it.id == lessonId }?.id
+    ?: lesson?.let { "cb_lesson_\${it.lessonNumber}" }
+    ?: lessonId
+  val isLessonCompleted = course?.allLessons?.find { it.id == courseLessonId }?.isCompleted ?: false
 
   val bookmarkedLessons by viewModel.bookmarkedLessons.collectAsState()
-  val isBookmarked = bookmarkedLessons.contains(lessonId)
+  val isBookmarked = bookmarkedLessons.contains(courseLessonId)
 
   var showNotesDialog by remember { mutableStateOf(false) }
   var isQuizModeActive by remember { mutableStateOf(false) }
@@ -240,7 +249,7 @@ fun LessonScreen(
 
           // Bookmark Action
           IconButton(
-            onClick = { viewModel.toggleLessonBookmark(lesson.lessonId) },
+            onClick = { viewModel.toggleLessonBookmark(courseLessonId) },
             modifier = Modifier.testTag("lesson_bookmark_button")
           ) {
             Icon(
@@ -263,7 +272,7 @@ fun LessonScreen(
         lesson = lesson,
         isCompleted = isLessonCompleted,
         onToggleCompletion = {
-          viewModel.toggleLessonCompletion(courseId, lesson.lessonId)
+          viewModel.toggleLessonCompletion(courseId, courseLessonId)
         },
         onPrevClick = {
           lesson.prevLessonId?.let { onNavigateToLesson(it) }
