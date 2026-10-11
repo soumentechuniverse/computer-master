@@ -78,6 +78,7 @@ import com.example.data.model.LessonQuizQuestion
 import com.example.data.model.PracticalActivity
 import com.example.data.model.RealWorldExample
 import com.example.data.repository.ComputerBasicsLessonRepository
+import com.example.data.repository.CourseLessonDetailFactory
 import com.example.ui.components.CourseIcon
 import com.example.ui.components.EducationalVisualDiagram
 import com.example.ui.components.LessonNotesDialog
@@ -111,16 +112,18 @@ fun LessonScreen(
   onNavigateToQuiz: () -> Unit = {},
   modifier: Modifier = Modifier
 ) {
-  val lesson: LessonDetailData? = remember(lessonId) {
+  val allCourses by viewModel.allCourses.collectAsState()
+  val course = allCourses.find { it.id == courseId }
+
+  val lesson: LessonDetailData? = remember(lessonId, courseId, allCourses) {
     val lessons = ComputerBasicsLessonRepository.getAllLessons()
     ComputerBasicsLessonRepository.getLessonById(lessonId)
       ?: Regex("^cb_lesson_(\\d+)$").matchEntire(lessonId)
         ?.groupValues?.getOrNull(1)?.toIntOrNull()
         ?.let { lessonNumber -> lessons.getOrNull(lessonNumber - 1) }
+      ?: course?.allLessons?.firstOrNull { it.id == lessonId }
+        ?.let { courseLesson -> CourseLessonDetailFactory.create(course, courseLesson) }
   }
-
-  val allCourses by viewModel.allCourses.collectAsState()
-  val course = allCourses.find { it.id == courseId }
   // CourseSeedData uses cb_lesson_N while the detailed lesson content uses cb_lN.
   // Keep progress/bookmarks linked to the course's persisted lesson IDs while allowing
   // previous/next navigation and quizzes to use the detailed lesson IDs.
