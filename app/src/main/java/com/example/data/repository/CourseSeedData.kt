@@ -9,7 +9,7 @@ import com.example.data.model.Lesson
 object CourseSeedData {
 
   fun getInitialCourses(): List<Course> {
-    return listOf(
+    val definedCourses = listOf(
       // =================================================================
       // 1. Computer Fundamentals
       // =================================================================
@@ -903,6 +903,200 @@ object CourseSeedData {
           )
         )
       )
+
+    )
+
+    val populatedCourses = definedCourses.map { course ->
+      val modules = if (course.modules.isNotEmpty()) course.modules else createCourseModules(course.id, course.title)
+      val count = modules.sumOf { module -> module.lessons.size }
+      course.copy(
+        modules = modules,
+        lessonCount = count,
+        estimatedHours = if (course.estimatedHours > 0.0) course.estimatedHours
+          else modules.flatMap { it.lessons }.sumOf { it.durationMinutes } / 60.0
+      )
+    }
+
+    val additionalCourses = listOf(
+      createSupplementalCourse(
+        id = "course_python",
+        title = "Python Programming",
+        description = "Learn Python from first program through variables, conditions, loops, functions, collections, files, exceptions, and a practical mini-project.",
+        level = CourseLevel.INTERMEDIATE,
+        difficulty = 2,
+        iconName = "code",
+        tags = listOf("Python", "Programming", "Automation"),
+        topics = listOf(
+          "Install Python and run your first program" to "Understand the interpreter, print(), comments, scripts, and readable indentation.",
+          "Variables, data types, and input" to "Use strings, integers, floats, booleans, input(), and type conversion.",
+          "Operators and expressions" to "Use arithmetic, comparison, logical, assignment, and membership operators.",
+          "Conditions and decisions" to "Control program flow with if, elif, else, and clear boolean logic.",
+          "Loops and repetition" to "Use for, while, range(), break, and continue while avoiding infinite loops.",
+          "Functions and reusable code" to "Define functions, pass parameters, return values, and organise tasks.",
+          "Lists, tuples, dictionaries, and sets" to "Store, access, update, and iterate over collections of information.",
+          "Files, exceptions, and mini-project" to "Read and write text files, handle errors, debug tracebacks, and build a small command-line project."
+        )
+      ),
+      createSupplementalCourse(
+        id = "course_webdev",
+        title = "Web Development",
+        description = "Build websites step by step with HTML, CSS, responsive layouts, JavaScript interactions, accessibility, browser tools, and publishing basics.",
+        level = CourseLevel.INTERMEDIATE,
+        difficulty = 2,
+        iconName = "web",
+        tags = listOf("HTML", "CSS", "JavaScript", "Responsive Design"),
+        topics = listOf(
+          "How websites and the web work" to "Learn browsers, servers, URLs, requests, domains, hosting, and the roles of HTML, CSS, and JavaScript.",
+          "HTML structure and semantic elements" to "Create headings, paragraphs, links, lists, images, forms, and accessible page sections.",
+          "CSS selectors, colours, and typography" to "Style pages using selectors, spacing, fonts, colours, borders, and reusable rules.",
+          "Layout with Flexbox and Grid" to "Arrange sections, manage alignment, and create balanced page layouts.",
+          "Responsive design for mobile screens" to "Use relative units, media queries, and mobile-first layouts for different screens.",
+          "JavaScript basics for web pages" to "Work with variables, functions, conditions, arrays, events, and the DOM.",
+          "Forms, validation, and accessibility" to "Build usable forms, validate input, label controls, and support keyboard navigation.",
+          "Testing and publishing a website" to "Use developer tools, check responsive layouts, optimise assets, and understand static hosting."
+        )
+      )
+    )
+    return populatedCourses + additionalCourses
+  }
+
+  private fun createCourseModules(courseId: String, courseTitle: String): List<CourseModule> {
+    val topics = when (courseId) {
+      "course_hardware" -> listOf(
+        "Motherboard and internal components" to "Identify the motherboard, CPU socket, chipset, memory slots, expansion slots, and component communication.",
+        "CPU cores and performance" to "Understand cores, clock speed, cache, thermal limits, and everyday performance.",
+        "RAM and memory installation" to "Learn memory capacity, DIMMs, channels, compatibility, and safe installation.",
+        "HDD, SSD, and NVMe storage" to "Compare storage technologies, speed, capacity, durability, and backup needs.",
+        "Power supply and electrical safety" to "Understand PSU ratings, connectors, surge protection, and safe servicing.",
+        "Cooling, fans, and airflow" to "Learn heatsinks, thermal paste, fan direction, dust removal, and overheating signs.",
+        "Ports, cables, and expansion cards" to "Identify USB, HDMI, DisplayPort, Ethernet, audio, and PCIe connections.",
+        "Hardware diagnosis checklist" to "Check component compatibility and diagnose common no-power or no-display symptoms."
+      )
+      "course_software" -> listOf(
+        "Software types and applications" to "Distinguish operating systems, apps, utilities, and the instructions a computer executes.",
+        "Operating systems and drivers" to "Understand how an OS manages hardware and why trusted compatible drivers matter.",
+        "Productivity applications" to "Choose tools for documents, spreadsheets, presentations, communication, and media.",
+        "Safe installation and removal" to "Use official sources, review permissions, and uninstall apps cleanly.",
+        "File formats and compatibility" to "Recognise common extensions, supported formats, versions, and safe conversion.",
+        "Licences and open-source software" to "Compare freeware, commercial licences, subscriptions, and open-source distribution.",
+        "Security and maintenance utilities" to "Use reputable security, backup, and maintenance tools safely.",
+        "Fixing software problems" to "Capture errors, check updates and permissions, and repair apps step by step."
+      )
+      "course_os" -> listOf(
+        "Purpose of an operating system" to "Learn how an OS provides an interface and manages computer resources.",
+        "Kernel, processes, and multitasking" to "Understand processes, threads, scheduling, and running multiple apps.",
+        "Memory management and virtual memory" to "Learn RAM allocation, paging, swap space, and memory pressure.",
+        "Filesystems and permissions" to "Understand paths, filesystem organisation, users, and access permissions.",
+        "Accounts and system security" to "Compare standard and administrator accounts, authentication, updates, and least privilege.",
+        "Devices, drivers, and services" to "Learn how an OS communicates with hardware and manages background services.",
+        "Updates and recovery" to "Plan updates, backups, recovery media, and restore points.",
+        "Comparing Windows, Linux, Android, and macOS" to "Compare common operating systems, their interfaces, and use cases."
+      )
+      "course_files" -> listOf(
+        "Files, folders, and paths" to "Understand files, directories, root locations, and folder hierarchies.",
+        "Create, rename, copy, move, and delete" to "Practise safe file operations and distinguish copying from moving.",
+        "File extensions and formats" to "Recognise document, image, audio, video, archive, and executable extensions.",
+        "Search and file organisation" to "Find files by name, type, date, and location, and use consistent naming.",
+        "ZIP archives and compression" to "Create and extract archives while avoiding suspicious executables.",
+        "Cloud storage and external drives" to "Compare local storage, USB drives, cloud sync, and backups.",
+        "Sharing and permissions" to "Share intended files only, review link access, and protect private information.",
+        "File recovery and data safety" to "Use recycle bins, version history, backups, and careful deletion."
+      )
+      "course_troubleshooting" -> listOf(
+        "A safe troubleshooting method" to "Record symptoms, reproduce problems safely, change one thing at a time, and document results.",
+        "Computer will not power on or boot" to "Check power, cables, indicators, peripherals, and boot messages safely.",
+        "Slow computer and high resource usage" to "Inspect CPU, memory, storage, and startup applications with system monitors.",
+        "Overheating, noise, and shutdowns" to "Recognise blocked airflow, dust, fan problems, and signs needing service.",
+        "Internet and Wi-Fi problems" to "Check Wi-Fi, router status, IP settings, and basic connectivity step by step.",
+        "Application crashes and update errors" to "Capture error messages, check compatibility and storage, and use official repair options.",
+        "Malware warnings and suspicious activity" to "Avoid unknown downloads, scan with trusted tools, and protect accounts.",
+        "Backups, recovery, and technical support" to "Protect files, use recovery options carefully, and prepare details for support."
+      )
+      else -> listOf(
+        "$courseTitle: key concepts" to "Learn the purpose, terminology, and everyday uses of $courseTitle.",
+        "$courseTitle: tools and workspace" to "Identify common tools, interface elements, and safe setup practices.",
+        "$courseTitle: essential workflow" to "Follow a beginner-friendly workflow and understand the main steps.",
+        "$courseTitle: practical examples" to "Connect core ideas to realistic tasks and everyday computer use.",
+        "$courseTitle: common errors" to "Recognise frequent mistakes and learn how to avoid them.",
+        "$courseTitle: useful shortcuts and tips" to "Practise efficient habits, shortcuts, and organised working methods.",
+        "$courseTitle: guided practice" to "Apply the lesson in a small task and check the result against clear criteria.",
+        "$courseTitle: review and next steps" to "Summarise key points and prepare for the next lesson."
+      )
+    }
+    val prefix = courseId.removePrefix("course_")
+    return listOf(
+      CourseModule(
+        id = "mod_${prefix}_1",
+        title = "Fundamentals",
+        chapters = listOf(Chapter(
+          id = "chap_${prefix}_1",
+          title = "Core Concepts",
+          lessons = topics.take(4).mapIndexed { index, topic ->
+            Lesson("${prefix}_lesson_${index + 1}", topic.first, 12 + index * 2, topic.second)
+          }
+        ))
+      ),
+      CourseModule(
+        id = "mod_${prefix}_2",
+        title = "Practice and Skills",
+        chapters = listOf(Chapter(
+          id = "chap_${prefix}_2",
+          title = "Practical Skills",
+          lessons = topics.drop(4).mapIndexed { index, topic ->
+            Lesson("${prefix}_lesson_${index + 5}", topic.first, 12 + index * 2, topic.second)
+          }
+        ))
+      )
+    )
+  }
+
+  private fun createSupplementalCourse(
+    id: String,
+    title: String,
+    description: String,
+    level: CourseLevel,
+    difficulty: Int,
+    iconName: String,
+    tags: List<String>,
+    topics: List<Pair<String, String>>
+  ): Course {
+    val prefix = id.removePrefix("course_")
+    val modules = listOf(
+      CourseModule(
+        id = "mod_${prefix}_1",
+        title = "Fundamentals",
+        chapters = listOf(Chapter(
+          id = "chap_${prefix}_1",
+          title = "Core Concepts",
+          lessons = topics.take(4).mapIndexed { index, topic ->
+            Lesson("${prefix}_lesson_${index + 1}", topic.first, 14 + index * 2, topic.second)
+          }
+        ))
+      ),
+      CourseModule(
+        id = "mod_${prefix}_2",
+        title = "Practice and Projects",
+        chapters = listOf(Chapter(
+          id = "chap_${prefix}_2",
+          title = "Build Your Skills",
+          lessons = topics.drop(4).mapIndexed { index, topic ->
+            Lesson("${prefix}_lesson_${index + 5}", topic.first, 14 + index * 2, topic.second)
+          }
+        ))
+      )
+    )
+    return Course(
+      id = id,
+      title = title,
+      description = description,
+      level = level,
+      difficulty = difficulty,
+      lessonCount = topics.size,
+      estimatedHours = modules.flatMap { it.lessons }.sumOf { it.durationMinutes } / 60.0,
+      iconName = iconName,
+      tags = tags,
+      category = "Programming & Development",
+      modules = modules
     )
   }
 }
