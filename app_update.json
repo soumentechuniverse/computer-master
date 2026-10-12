@@ -1,11 +1,11 @@
 {
-  "versionCode": 5,
-  "versionName": "1.3.1",
+  "versionCode": 6,
+  "versionName": "1.3.2",
   "minSupportedVersion": 1,
-  "apkUrl": "https://github.com/SoumenTechUniverse/Computer-Master/releases/download/v1.3.1/app-debug.apk",
-  "updateMessage": "What's new in Computer Master v1.3.1:\n• Reliable Get Started interaction in preview and devices.\n• Proactive Firebase Authentication initialization support.\n• Performance optimizations and smooth transition between splash and auth.\n• All existing educational lessons, 3D simulations, and quizzes preserved.",
-  "updateMessageBn": "কম্পিউটার মাস্টার v1.3.1-এর নতুন বৈশিষ্ট্যসমূহ:\n• প্রিভিউ ও ডিভাইসে নির্ভরযোগ্য গেট স্টার্টেড ইন্টারেকশন।\n• প্রো-অ্যাক্টিভ ফায়ারবেস অথেনটিকেশন ইনিশিয়ালাইজেশন সুবিধা।\n• পারফরম্যান্স অপ্টিমাইজেশন ও মসৃণ ট্রানজিশন।\n• পূর্বের সকল শিক্ষামূলক পাঠ, ৩ডি সিমুলেশন ও কুইজ অক্ষুণ্ণ রাখা হয়েছে।",
-  "updateMessageHi": "कंप्यूटर मास्टर v1.3.1 में नई विशेषताएं:\n• प्रीव्यू और डिवाइस में बेहतर गेट स्टार्टेड इंटरैक्शन।\n• प्रो-एक्टिव फायरबेस प्रमाणीकरण आरंभीकरण।\n• बेहतर प्रदर्शन और स्मूद ट्रांज़िशन।\n• सभी मौजूदा शैक्षणिक पाठ, 3D सिमुलेशन और क्विज़ सुरक्षित रूप से उपलब्ध हैं।",
+  "apkUrl": "https://github.com/SoumenTechUniverse/Computer-Master/releases/download/v1.3.2/app-debug.apk",
+  "updateMessage": "Computer Master v1.3.2 update:\n• Fixed permanent APK signing so future updates can install over the existing app.\n• Update the app without uninstalling it; keep local app data where Android permits.",
+  "updateMessageBn": "কম্পিউটার মাস্টার v1.3.2 আপডেট:\n• স্থায়ী APK সাইনিং ঠিক করা হয়েছে, যাতে পরবর্তী আপডেট পুরনো অ্যাপের উপর ইনস্টল করা যায়।\n• অ্যাপ আনইনস্টল না করেই আপডেট করুন; Android অনুমতি দিলে অ্যাপের তথ্য অক্ষত থাকবে।",
+  "updateMessageHi": "Computer Master v1.3.2 अपडेट:\n• स्थायी APK साइनिंग ठीक की गई है ताकि नया अपडेट मौजूदा ऐप के ऊपर इंस्टॉल हो सके।\n• ऐप को अनइंस्टॉल किए बिना अपडेट करें; Android अनुमति देने पर ऐप का डेटा सुरक्षित रहेगा।",
   "releaseDate": "2026-10-12",
   "fileSize": "See download size"
 }
