@@ -66,10 +66,10 @@ object CourseLessonDetailFactory {
       ),
       visualDiagramType = when (course.id) {
         "course_hardware" -> "COURSE_HARDWARE"
-        "course_software" -> "COURSE_SOFTWARE"
-        "course_os" -> "COURSE_OS"
+        "course_software" -> "COURSE_CPP"
+        "course_os" -> "COURSE_LINUX"
         "course_windows" -> "COURSE_WINDOWS"
-        "course_files" -> "COURSE_FILES"
+        "course_files" -> "COURSE_APPDEV"
         "course_internet" -> "COURSE_INTERNET"
         "course_networking" -> "COURSE_NETWORKING"
         "course_word" -> "COURSE_WORD"
@@ -81,7 +81,7 @@ object CourseLessonDetailFactory {
         "course_cyber" -> "COURSE_CYBER"
         "course_cloud" -> "COURSE_CLOUD"
         "course_ai" -> "COURSE_AI"
-        "course_troubleshooting" -> "COURSE_TROUBLESHOOT"
+        "course_troubleshooting" -> "COURSE_JS"
         "course_it" -> "COURSE_ADVANCED"
         "course_webdev" -> "COURSE_WEBDEV"
         else -> "IPO_CYCLE"
