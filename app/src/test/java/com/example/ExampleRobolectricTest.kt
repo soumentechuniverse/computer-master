@@ -69,6 +69,17 @@ class ExampleRobolectricTest {
       course.allLessons.forEach { lesson ->
         assert(lesson.title.isNotBlank())
         assert(lesson.description.isNotBlank())
+        val detail = com.example.data.repository.CourseLessonDetailFactory.create(course, lesson)
+        assert(detail.quickIntro.isNotBlank())
+        assert(detail.simpleExplanation.isNotBlank())
+        assert(detail.detailedSections.size >= 4)
+        assert(detail.realWorldExamples.isNotEmpty())
+        assert(detail.howItWorksSteps.size >= 4)
+        assert(detail.importantPoints.isNotEmpty())
+        assert(detail.commonMistakes.isNotEmpty())
+        assert(detail.practicalActivity.steps.size >= 4)
+        assert(detail.knowledgeCheck.options.size == 4)
+        assert(detail.visualDiagramType.startsWith("COURSE_") || detail.visualDiagramType == "IPO_CYCLE")
       }
     }
   }
