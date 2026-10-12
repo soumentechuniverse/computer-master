@@ -160,7 +160,7 @@ class ExampleRobolectricTest {
     val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
 
     // Initial total courses should be 20
-    assertEquals(18, viewModel.allCourses.value.size)
+    assertEquals(20, viewModel.allCourses.value.size)
 
     // Search by title: "Excel"
     viewModel.setSearchQuery("Excel")
@@ -189,7 +189,7 @@ class ExampleRobolectricTest {
     viewModel.setSearchQuery("")
     ShadowLooper.idleMainLooper()
     filtered = viewModel.filteredCourses.value
-    assertEquals(18, filtered.size)
+    assertEquals(20, filtered.size)
   }
 
   @Test
