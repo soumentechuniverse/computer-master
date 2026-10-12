@@ -64,7 +64,28 @@ object CourseLessonDetailFactory {
         HowItWorksStep(3, "Try one step at a time", "Follow the instructions carefully and observe the result after each action."),
         HowItWorksStep(4, "Verify and review", "Check whether the result matches your goal, then summarise what you learned.")
       ),
-      visualDiagramType = "GENERIC_FLOW",
+      visualDiagramType = when (course.id) {
+        "course_hardware" -> "COURSE_HARDWARE"
+        "course_software" -> "COURSE_SOFTWARE"
+        "course_os" -> "COURSE_OS"
+        "course_windows" -> "COURSE_WINDOWS"
+        "course_files" -> "COURSE_FILES"
+        "course_internet" -> "COURSE_INTERNET"
+        "course_networking" -> "COURSE_NETWORKING"
+        "course_word" -> "COURSE_WORD"
+        "course_excel" -> "COURSE_EXCEL"
+        "course_powerpoint" -> "COURSE_POWERPOINT"
+        "course_programming" -> "COURSE_PROGRAMMING"
+        "course_python" -> "COURSE_PYTHON"
+        "course_sql" -> "COURSE_DATABASES"
+        "course_cyber" -> "COURSE_CYBER"
+        "course_cloud" -> "COURSE_CLOUD"
+        "course_ai" -> "COURSE_AI"
+        "course_troubleshooting" -> "COURSE_TROUBLESHOOT"
+        "course_it" -> "COURSE_ADVANCED"
+        "course_webdev" -> "COURSE_WEBDEV"
+        else -> "IPO_CYCLE"
+      },
       importantPoints = listOf(
         "Understand the purpose of $subject before memorising terminology.",
         "Practise with a small, safe example and verify the result.",
