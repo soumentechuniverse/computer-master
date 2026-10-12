@@ -56,42 +56,25 @@ class ExampleRobolectricTest {
   }
 
   @Test
-  fun `verify exactly 18 courses exist in exact requested order`() {
+  fun `verify exactly 20 courses exist`() {
     val courses = com.example.data.repository.CourseSeedData.getInitialCourses()
-    assertEquals(18, courses.size)
+    assertEquals(20, courses.size)
 
-    val expectedTitles = listOf(
-      "Computer Fundamentals",
-      "Computer Hardware",
-      "Software",
-      "Operating Systems",
-      "Windows",
-      "Files and Folders",
-      "Internet",
-      "Networking",
-      "Microsoft Word",
-      "Microsoft Excel",
-      "Microsoft PowerPoint",
-      "Programming Basics",
-      "Databases",
-      "Cyber Security",
-      "Cloud Computing",
-      "Artificial Intelligence",
-      "Computer Troubleshooting",
-      "Advanced Computer Knowledge"
-    )
-
-    expectedTitles.forEachIndexed { index, expectedTitle ->
-      assertEquals(
-        "Course at index $index must be $expectedTitle",
-        expectedTitle,
-        courses[index].title
-      )
+    val expectedTitles = listOf("Computer Fundamentals", "Computer Hardware", "Software", "Operating Systems", "Windows", "Files and Folders", "Internet", "Networking", "Microsoft Word", "Microsoft Excel", "Microsoft PowerPoint", "Programming Basics", "Databases", "Cyber Security", "Cloud Computing", "Artificial Intelligence", "Computer Troubleshooting", "Advanced Computer Knowledge", "Python Programming", "Web Development")
+    assertEquals(expectedTitles, courses.map { it.title })
+    courses.forEach { course ->
+      assert(course.modules.isNotEmpty())
+      assert(course.allLessons.isNotEmpty())
+      assertEquals(course.allLessons.size, course.lessonCount)
+      course.allLessons.forEach { lesson ->
+        assert(lesson.title.isNotBlank())
+        assert(lesson.description.isNotBlank())
+      }
     }
   }
 
   @Test
-  fun `verify repository loads all 18 courses and preserves existing lessons`() {
+  fun `verify repository loads all 20 courses`() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val repository = com.example.data.repository.ComputerMasterRepository(context)
     val courses = repository.courses.value
@@ -103,22 +86,12 @@ class ExampleRobolectricTest {
     assertEquals(10, fundamentals.lessonCount)
     assert(fundamentals.modules.isNotEmpty())
 
-    // Verify newly added courses have 0 lessons (no fake counts)
-    val hardware = courses.first { it.title == "Computer Hardware" }
-    assertEquals(0, hardware.lessonCount)
-    assert(hardware.modules.isEmpty())
-
-    val software = courses.first { it.title == "Software" }
-    assertEquals(0, software.lessonCount)
-    assert(software.modules.isEmpty())
-
-    val os = courses.first { it.title == "Operating Systems" }
-    assertEquals(0, os.lessonCount)
-    assert(os.modules.isEmpty())
-
-    val troubleshooting = courses.first { it.title == "Computer Troubleshooting" }
-    assertEquals(0, troubleshooting.lessonCount)
-    assert(troubleshooting.modules.isEmpty())
+    listOf("Computer Hardware", "Software", "Operating Systems", "Files and Folders", "Computer Troubleshooting", "Python Programming", "Web Development").forEach { title ->
+      val course = courses.first { it.title == title }
+      assert(course.lessonCount > 0)
+      assert(course.modules.isNotEmpty())
+      assertEquals(course.allLessons.size, course.lessonCount)
+    }
   }
 
   @Test
@@ -175,7 +148,7 @@ class ExampleRobolectricTest {
     val context = ApplicationProvider.getApplicationContext<android.app.Application>()
     val viewModel = com.example.ui.viewmodel.ComputerMasterViewModel(context)
 
-    // Initial total courses should be 18
+    // Initial total courses should be 20
     assertEquals(18, viewModel.allCourses.value.size)
 
     // Search by title: "Excel"
@@ -201,7 +174,7 @@ class ExampleRobolectricTest {
     filtered = viewModel.filteredCourses.value
     assert(filtered.any { it.title == "Cyber Security" })
 
-    // Clear search -> returns all 18 courses
+    // Clear search -> returns all 20 courses
     viewModel.setSearchQuery("")
     ShadowLooper.idleMainLooper()
     filtered = viewModel.filteredCourses.value
