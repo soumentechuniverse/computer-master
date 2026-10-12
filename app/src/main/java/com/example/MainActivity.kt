@@ -1,7 +1,12 @@
 package com.example
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,6 +30,9 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 class MainActivity : ComponentActivity() {
+  private val notificationPermissionLauncher =
+    registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* user choice is respected */ }
+
   private val viewModel: ComputerMasterViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +94,14 @@ class MainActivity : ComponentActivity() {
           )
         }
       }
+    }
+
+    // Android 13+ disables notifications for newly installed apps until the user grants permission.
+    // Ask once at startup so users can receive important app-update alerts.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+      ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+    ) {
+      notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
   }
 
