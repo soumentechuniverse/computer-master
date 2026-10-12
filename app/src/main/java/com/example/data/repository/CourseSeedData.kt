@@ -81,15 +81,15 @@ object CourseSeedData {
       Course(
         id = "course_hardware",
         title = "Keyboard & Typing",
-        description = "Explore internal PC architecture, motherboards, microprocessors, power supplies, expansion slots, cooling systems, and physical connectivity.",
+        description = "Learn keyboard key groups, correct finger placement, touch typing, essential shortcuts, and ways to improve typing speed and accuracy.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
         lessonCount = 0,
         estimatedHours = 0.0,
-        iconName = "hardware",
+        iconName = "keyboard",
         progressPercent = 0,
         isBookmarked = false,
-        tags = listOf("Hardware", "Motherboard", "Components", "Power Supply"),
+        tags = listOf("Keyboard", "Typing", "Shortcuts", "Accuracy"),
         modules = emptyList()
       ),
 
@@ -99,15 +99,15 @@ object CourseSeedData {
       Course(
         id = "course_software",
         title = "C/C++ Programming",
-        description = "Learn system software, operating systems, application suites, utility programs, device drivers, and software licensing principles.",
+        description = "Learn C and C++ programming through variables, conditions, loops, functions, arrays, pointers, debugging, and small console projects.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
         lessonCount = 0,
         estimatedHours = 0.0,
-        iconName = "software",
+        iconName = "code",
         progressPercent = 0,
         isBookmarked = false,
-        tags = listOf("Software", "Applications", "Utilities", "Drivers"),
+        tags = listOf("C", "C++", "Programming", "Compiler", "Debugging"),
         modules = emptyList()
       ),
 
@@ -117,15 +117,15 @@ object CourseSeedData {
       Course(
         id = "course_os",
         title = "Linux Fundamentals",
-        description = "Understand kernel functions, memory management, process scheduling, file systems, device management, and multi-user environments.",
+        description = "Learn Linux distributions, terminal commands, file paths, permissions, packages, processes, networking, and safe shell scripting.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
         lessonCount = 0,
         estimatedHours = 0.0,
-        iconName = "os",
+        iconName = "terminal",
         progressPercent = 0,
         isBookmarked = false,
-        tags = listOf("OS", "Kernel", "Processes", "Memory Management"),
+        tags = listOf("Linux", "Terminal", "Commands", "Permissions", "Shell"),
         modules = emptyList()
       ),
 
@@ -196,15 +196,15 @@ object CourseSeedData {
       Course(
         id = "course_files",
         title = "App Development",
-        description = "Master File Explorer, hierarchical folder structures, path addressing, search operators, file extensions, and ZIP archiving.",
+        description = "Plan, design, build, test, and publish mobile apps; learn screens, UI, navigation, local data, APIs, accessibility, and versioning.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
         lessonCount = 0,
         estimatedHours = 0.0,
-        iconName = "folder",
+        iconName = "phone_android",
         progressPercent = 0,
         isBookmarked = false,
-        tags = listOf("Files", "Folders", "Organization", "Archives", "Paths"),
+        tags = listOf("App Development", "Android", "UI", "Testing", "Publishing"),
         modules = emptyList()
       ),
 
@@ -830,15 +830,15 @@ object CourseSeedData {
       Course(
         id = "course_troubleshooting",
         title = "JavaScript",
-        description = "Diagnose common PC boot failures, blue screens (BSOD), overheating, malware infections, peripheral issues, and driver conflicts.",
+        description = "Learn JavaScript variables, data types, conditions, loops, functions, arrays, objects, DOM events, forms, and browser debugging.",
         level = CourseLevel.INTERMEDIATE,
         difficulty = 2,
         lessonCount = 0,
         estimatedHours = 0.0,
-        iconName = "troubleshooting",
+        iconName = "javascript",
         progressPercent = 0,
         isBookmarked = false,
-        tags = listOf("Troubleshooting", "BSOD", "Diagnostics", "Hardware Repair", "Fixes"),
+        tags = listOf("JavaScript", "Web", "DOM", "Events", "Programming"),
         modules = emptyList()
       ),
 
@@ -913,7 +913,27 @@ object CourseSeedData {
         modules = modules,
         lessonCount = count,
         estimatedHours = if (course.estimatedHours > 0.0) course.estimatedHours
-          else modules.flatMap { it.lessons }.sumOf { it.durationMinutes } / 60.0
+          else modules.flatMap { it.lessons }.sumOf { it.durationMinutes } / 60.0,
+        category = when (course.id) {
+          "course_basics" -> "Computer Basics"
+          "course_hardware" -> "Keyboard & Typing"
+          "course_software" -> "Programming"
+          "course_os" -> "Linux"
+          "course_windows" -> "Windows & Files"
+          "course_files" -> "App Development"
+          "course_internet" -> "Internet & Email"
+          "course_networking" -> "Networking"
+          "course_word", "course_excel", "course_powerpoint" -> "Office & Productivity"
+          "course_programming", "course_python" -> "Programming"
+          "course_sql" -> "Database & SQL"
+          "course_cyber" -> "Cybersecurity"
+          "course_cloud" -> "Cloud Computing"
+          "course_ai" -> "Artificial Intelligence"
+          "course_troubleshooting" -> "JavaScript"
+          "course_it" -> "Advanced IT"
+          "course_webdev" -> "Web Development"
+          else -> course.category
+        }
       )
     }
 
