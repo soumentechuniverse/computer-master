@@ -60,7 +60,7 @@ class ExampleRobolectricTest {
     val courses = com.example.data.repository.CourseSeedData.getInitialCourses()
     assertEquals(20, courses.size)
 
-    val expectedTitles = listOf("Computer Fundamentals", "Computer Hardware", "Software", "Operating Systems", "Windows", "Files and Folders", "Internet", "Networking", "Microsoft Word", "Microsoft Excel", "Microsoft PowerPoint", "Programming Basics", "Databases", "Cyber Security", "Cloud Computing", "Artificial Intelligence", "Computer Troubleshooting", "Advanced Computer Knowledge", "Python Programming", "Web Development")
+    val expectedTitles = listOf("Computer Basics", "Keyboard & Typing", "C/C++ Programming", "Linux Fundamentals", "Windows & File Management", "App Development", "Internet & Email", "Networking", "Microsoft Word", "Microsoft Excel", "Microsoft PowerPoint", "Programming Fundamentals", "Database & SQL", "Cybersecurity Fundamentals", "Cloud Computing", "Artificial Intelligence", "JavaScript", "Advanced IT", "Python Programming", "Web Development")
     assertEquals(expectedTitles, courses.map { it.title })
     courses.forEach { course ->
       assert(course.modules.isNotEmpty())
@@ -93,11 +93,11 @@ class ExampleRobolectricTest {
     assertEquals(18, courses.size)
 
     // Verify Fundamentals has 10 lessons
-    val fundamentals = courses.first { it.title == "Computer Fundamentals" }
+    val fundamentals = courses.first { it.title == "Computer Basics" }
     assertEquals(10, fundamentals.lessonCount)
     assert(fundamentals.modules.isNotEmpty())
 
-    listOf("Computer Hardware", "Software", "Operating Systems", "Files and Folders", "Computer Troubleshooting", "Python Programming", "Web Development").forEach { title ->
+    listOf("Keyboard & Typing", "C/C++ Programming", "Linux Fundamentals", "App Development", "JavaScript", "Python Programming", "Web Development").forEach { title ->
       val course = courses.first { it.title == title }
       assert(course.lessonCount > 0)
       assert(course.modules.isNotEmpty())
@@ -183,7 +183,7 @@ class ExampleRobolectricTest {
     viewModel.setSearchQuery("Security")
     ShadowLooper.idleMainLooper()
     filtered = viewModel.filteredCourses.value
-    assert(filtered.any { it.title == "Cyber Security" })
+    assert(filtered.any { it.title == "Cybersecurity Fundamentals" })
 
     // Clear search -> returns all 20 courses
     viewModel.setSearchQuery("")
