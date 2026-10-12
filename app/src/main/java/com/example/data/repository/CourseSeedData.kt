@@ -977,15 +977,7 @@ object CourseSeedData {
         )
       )
     )
-    val allCourses = populatedCourses + additionalCourses
-    val learningPathOrder = listOf(
-      "course_basics", "course_windows", "course_hardware", "course_word",
-      "course_excel", "course_powerpoint", "course_internet", "course_networking",
-      "course_programming", "course_python", "course_software", "course_troubleshooting",
-      "course_webdev", "course_sql", "course_files", "course_os", "course_cyber",
-      "course_cloud", "course_it", "course_ai"
-    )
-    return allCourses.sortedBy { course -> learningPathOrder.indexOf(course.id).let { if (it < 0) Int.MAX_VALUE else it } }
+    return populatedCourses + additionalCourses
   }
 
   private fun createCourseModules(courseId: String, courseTitle: String): List<CourseModule> {
