@@ -35,10 +35,8 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
+          test -n "$KEYSTORE_BASE64"
           echo "$KEYSTORE_BASE64" | base64 --decode > debug.keystore
-
-      - name: Print SHA-1 fingerprint
-        run: |
           keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android
 
       - name: Run unit tests
@@ -47,11 +45,16 @@ jobs:
       - name: Build APK
         run: gradle assembleDebug
 
+      - name: Verify APK signature
+        run: |
+          apksigner verify --verbose app/build/outputs/apk/debug/app-debug.apk
+          apksigner verify --print-certs app/build/outputs/apk/debug/app-debug.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Computer-Master-APK
-          path: '**/build/outputs/apk/**/*.apk'
+          path: app/build/outputs/apk/debug/app-debug.apk
 
       - name: Publish update release
         env:
@@ -59,11 +62,15 @@ jobs:
         run: |
           APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK_PATH"
-          TAG="v1.3.1"
-          NOTES="Computer Master 1.3.1\n\n- Expanded and checked 20 computer learning courses.\n- Improved lesson details and visual learning diagrams.\n- Includes in-app update metadata and update notification support."
+          TAG="v1.3.2"
+          NOTES="Computer Master 1.3.2
+
+          - Uses the permanent signing key for compatible in-place updates.
+          - In-app update metadata points to this release.
+          - Existing installations should be updated without uninstalling when their signing certificate matches."
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK_PATH" --clobber
-            gh release edit "$TAG" --title "Computer Master 1.3.1" --notes "$NOTES"
+            gh release edit "$TAG" --title "Computer Master 1.3.2" --notes "$NOTES"
           else
-            gh release create "$TAG" "$APK_PATH" --title "Computer Master 1.3.1" --notes "$NOTES"
+            gh release create "$TAG" "$APK_PATH" --title "Computer Master 1.3.2" --notes "$NOTES"
           fi
