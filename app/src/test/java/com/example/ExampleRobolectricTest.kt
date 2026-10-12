@@ -90,9 +90,9 @@ class ExampleRobolectricTest {
     val repository = com.example.data.repository.ComputerMasterRepository(context)
     val courses = repository.courses.value
 
-    assertEquals(18, courses.size)
+    assertEquals(20, courses.size)
 
-    // Verify Fundamentals has 10 lessons
+    // Verify Computer Basics has 10 lessons
     val fundamentals = courses.first { it.title == "Computer Basics" }
     assertEquals(10, fundamentals.lessonCount)
     assert(fundamentals.modules.isNotEmpty())
