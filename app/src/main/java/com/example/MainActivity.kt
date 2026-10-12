@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import com.example.data.update.InAppUpdateManager
+import com.example.data.update.UpdateCheckScheduler
 import com.example.ui.MainScreen
 import com.example.ui.theme.MyApplicationTheme
 import com.example.ui.viewmodel.ComputerMasterViewModel
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
+    UpdateCheckScheduler.schedule(applicationContext)
 
     if (savedInstanceState == null) {
       viewModel.soundManager.playStartup()

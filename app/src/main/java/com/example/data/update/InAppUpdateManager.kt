@@ -59,6 +59,7 @@ class InAppUpdateManager(private val context: Context) {
     private const val KEY_CUSTOM_APK_URL = "custom_apk_download_url"
     private const val KEY_LAST_CHECK_TIME = "last_update_check_time_ms"
     private const val KEY_DISMISSED_VERSION = "dismissed_update_version_code"
+    private const val KEY_NOTIFIED_VERSION = "notified_update_version_code"
 
     const val CHANNEL_ID = "computer_master_updates_channel"
     const val NOTIFICATION_ID = 2026
@@ -178,7 +179,9 @@ class InAppUpdateManager(private val context: Context) {
             }
 
             // Also post notification if permitted and appropriate
-            showUpdateNotification(info, language)
+            if (showUpdateNotification(info, language)) {
+              prefs.edit().putInt(KEY_NOTIFIED_VERSION, info.versionCode).apply()
+            }
           } else {
             _updateState.value = UpdateUiState.UpToDate(currentVersionName, isManual)
           }
@@ -251,6 +254,22 @@ class InAppUpdateManager(private val context: Context) {
       if (e is CancellationException) throw e
       Result.failure(e)
     }
+  }
+
+  /**
+   * Performs a quiet update check for WorkManager while the app is not open.
+   * Returns false only when the remote check fails so WorkManager can retry.
+   */
+  suspend fun checkForUpdatesInBackground(language: AppLanguage): Boolean {
+    val result = withContext(Dispatchers.IO) { fetchRemoteUpdateInfo() }
+    val info = result.getOrElse { return false }
+    if (info != null && info.isNewerThan(currentVersionCode)) {
+      val notifiedVersion = prefs.getInt(KEY_NOTIFIED_VERSION, -1)
+      if (info.versionCode > notifiedVersion && showUpdateNotification(info, language)) {
+        prefs.edit().putInt(KEY_NOTIFIED_VERSION, info.versionCode).apply()
+      }
+    }
+    return true
   }
 
   /**
@@ -442,13 +461,9 @@ class InAppUpdateManager(private val context: Context) {
   /**
    * Posts an Android system notification alerting the user to the update.
    */
-  private fun showUpdateNotification(info: AppUpdateInfo, language: AppLanguage) {
+  private fun showUpdateNotification(info: AppUpdateInfo, language: AppLanguage): Boolean {
     try {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
-          return
-        }
-      }
+      if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return false
 
       val intent = Intent(context, MainActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -481,20 +496,17 @@ class InAppUpdateManager(private val context: Context) {
         .setAutoCancel(true)
         .build()
 
-      val hasNotificationPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+      val hasNotificationPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
         androidx.core.content.ContextCompat.checkSelfPermission(
           context,
           android.Manifest.permission.POST_NOTIFICATIONS
         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-      } else {
-        true
-      }
 
-      if (hasNotificationPermission) {
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
-      }
+      if (!hasNotificationPermission) return false
+      NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+      return true
     } catch (_: Exception) {
-      // Gracefully ignore notification errors
+      return false
     }
   }
 }
