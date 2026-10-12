@@ -15,7 +15,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_basics",
-        title = "Computer Fundamentals",
+        title = "Computer Basics",
         description = "Understand computer hardware, CPU, RAM, storage devices, motherboards, input/output peripherals, and how computing works.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
@@ -80,7 +80,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_hardware",
-        title = "Computer Hardware",
+        title = "Keyboard & Typing",
         description = "Explore internal PC architecture, motherboards, microprocessors, power supplies, expansion slots, cooling systems, and physical connectivity.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
@@ -98,7 +98,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_software",
-        title = "Software",
+        title = "C/C++ Programming",
         description = "Learn system software, operating systems, application suites, utility programs, device drivers, and software licensing principles.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
@@ -116,7 +116,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_os",
-        title = "Operating Systems",
+        title = "Linux Fundamentals",
         description = "Understand kernel functions, memory management, process scheduling, file systems, device management, and multi-user environments.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
@@ -134,7 +134,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_windows",
-        title = "Windows",
+        title = "Windows & File Management",
         description = "Master Windows navigation, desktop personalization, Task Manager, system settings, and keyboard shortcuts for maximum speed.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
@@ -195,7 +195,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_files",
-        title = "Files and Folders",
+        title = "App Development",
         description = "Master File Explorer, hierarchical folder structures, path addressing, search operators, file extensions, and ZIP archiving.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
@@ -213,7 +213,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_internet",
-        title = "Internet",
+        title = "Internet & Email",
         description = "Navigate the web safely, use advanced search operators, master email etiquette, avoid phishing scams, and organize cloud storage.",
         level = CourseLevel.BEGINNER,
         difficulty = 1,
@@ -515,7 +515,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_programming",
-        title = "Programming Basics",
+        title = "Programming Fundamentals",
         description = "Core logic of computer science: variables, data types, conditional branching, loops, functions, data structures, and debugging.",
         level = CourseLevel.INTERMEDIATE,
         difficulty = 2,
@@ -577,7 +577,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_sql",
-        title = "Databases",
+        title = "Database & SQL",
         description = "Relational database concepts, SQL queries (SELECT, JOIN, GROUP BY), table design, foreign keys, normalization, and ACID transactions.",
         level = CourseLevel.INTERMEDIATE,
         difficulty = 2,
@@ -639,7 +639,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_cyber",
-        title = "Cyber Security",
+        title = "Cybersecurity Fundamentals",
         description = "Understand the CIA triad, network threats, malware types, symmetric/asymmetric encryption, OWASP Top 10, penetration testing, and defense.",
         level = CourseLevel.ADVANCED,
         difficulty = 3,
@@ -829,7 +829,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_troubleshooting",
-        title = "Computer Troubleshooting",
+        title = "JavaScript",
         description = "Diagnose common PC boot failures, blue screens (BSOD), overheating, malware infections, peripheral issues, and driver conflicts.",
         level = CourseLevel.INTERMEDIATE,
         difficulty = 2,
@@ -847,7 +847,7 @@ object CourseSeedData {
       // =================================================================
       Course(
         id = "course_it",
-        title = "Advanced Computer Knowledge",
+        title = "Advanced IT",
         description = "Enterprise IT administration: Active Directory, Group Policy, LDAP, enterprise virtualization (ESXi/Proxmox), disaster recovery, and RAID.",
         level = CourseLevel.ADVANCED,
         difficulty = 3,
@@ -961,8 +961,8 @@ object CourseSeedData {
   }
 
   private fun createCourseModules(courseId: String, courseTitle: String): List<CourseModule> {
-    val topics = when (courseId) {
-      "course_hardware" -> listOf(
+    val topics = when (courseTitle) {
+      "Keyboard & Typing" -> listOf(
         "Motherboard and internal components" to "Identify the motherboard, CPU socket, chipset, memory slots, expansion slots, and component communication.",
         "CPU cores and performance" to "Understand cores, clock speed, cache, thermal limits, and everyday performance.",
         "RAM and memory installation" to "Learn memory capacity, DIMMs, channels, compatibility, and safe installation.",
@@ -972,7 +972,7 @@ object CourseSeedData {
         "Ports, cables, and expansion cards" to "Identify USB, HDMI, DisplayPort, Ethernet, audio, and PCIe connections.",
         "Hardware diagnosis checklist" to "Check component compatibility and diagnose common no-power or no-display symptoms."
       )
-      "course_software" -> listOf(
+      "C/C++ Programming" -> listOf(
         "Software types and applications" to "Distinguish operating systems, apps, utilities, and the instructions a computer executes.",
         "Operating systems and drivers" to "Understand how an OS manages hardware and why trusted compatible drivers matter.",
         "Productivity applications" to "Choose tools for documents, spreadsheets, presentations, communication, and media.",
@@ -982,7 +982,7 @@ object CourseSeedData {
         "Security and maintenance utilities" to "Use reputable security, backup, and maintenance tools safely.",
         "Fixing software problems" to "Capture errors, check updates and permissions, and repair apps step by step."
       )
-      "course_os" -> listOf(
+      "Linux Fundamentals" -> listOf(
         "Purpose of an operating system" to "Learn how an OS provides an interface and manages computer resources.",
         "Kernel, processes, and multitasking" to "Understand processes, threads, scheduling, and running multiple apps.",
         "Memory management and virtual memory" to "Learn RAM allocation, paging, swap space, and memory pressure.",
@@ -992,7 +992,7 @@ object CourseSeedData {
         "Updates and recovery" to "Plan updates, backups, recovery media, and restore points.",
         "Comparing Windows, Linux, Android, and macOS" to "Compare common operating systems, their interfaces, and use cases."
       )
-      "course_files" -> listOf(
+      "App Development" -> listOf(
         "Files, folders, and paths" to "Understand files, directories, root locations, and folder hierarchies.",
         "Create, rename, copy, move, and delete" to "Practise safe file operations and distinguish copying from moving.",
         "File extensions and formats" to "Recognise document, image, audio, video, archive, and executable extensions.",
@@ -1002,7 +1002,7 @@ object CourseSeedData {
         "Sharing and permissions" to "Share intended files only, review link access, and protect private information.",
         "File recovery and data safety" to "Use recycle bins, version history, backups, and careful deletion."
       )
-      "course_troubleshooting" -> listOf(
+      "JavaScript" -> listOf(
         "A safe troubleshooting method" to "Record symptoms, reproduce problems safely, change one thing at a time, and document results.",
         "Computer will not power on or boot" to "Check power, cables, indicators, peripherals, and boot messages safely.",
         "Slow computer and high resource usage" to "Inspect CPU, memory, storage, and startup applications with system monitors.",
@@ -1012,7 +1012,57 @@ object CourseSeedData {
         "Malware warnings and suspicious activity" to "Avoid unknown downloads, scan with trusted tools, and protect accounts.",
         "Backups, recovery, and technical support" to "Protect files, use recovery options carefully, and prepare details for support."
       )
-      else -> listOf(
+      "Keyboard & Typing" -> listOf(
+        "Keyboard layout and key groups" to "Identify letter keys, number row, function keys, navigation keys, modifiers, and the numeric keypad.",
+        "Correct posture and finger placement" to "Sit comfortably, keep wrists relaxed, place fingers on the home row, and avoid unnecessary strain.",
+        "Typing without looking at the keyboard" to "Practise home-row reach, use all fingers gradually, and prioritise accuracy before speed.",
+        "Shift, Caps Lock, and punctuation" to "Use Shift for capital letters and symbols, understand Caps Lock, and practise punctuation carefully.",
+        "Essential keyboard shortcuts" to "Use common shortcuts such as Ctrl+C, Ctrl+V, Ctrl+Z, Ctrl+S, Alt+Tab, and their platform equivalents.",
+        "Typing numbers and special characters" to "Practise number rows, symbols, punctuation, and switching between language layouts.",
+        "Measure speed and accuracy" to "Use short timed passages, track words per minute and error rate, and set realistic goals.",
+        "Daily typing practice plan" to "Follow short, regular practice sessions, review recurring mistakes, and increase speed only as accuracy improves."
+      )
+      "C/C++ Programming" -> listOf(
+        "C and C++ setup and first program" to "Understand compiler versus interpreter, source files, main(), headers, and printing output.",
+        "Variables, types, and operators" to "Use integers, floating-point values, characters, booleans, expressions, and safe type conversions.",
+        "Input and output" to "Read user input, display results, validate values, and format output clearly.",
+        "Conditions and decision-making" to "Use if, else if, else, switch, comparisons, and logical operators.",
+        "Loops and repetition" to "Use for, while, and do-while loops, control loop execution, and avoid off-by-one errors.",
+        "Functions and modular code" to "Declare functions, pass parameters, return values, and divide programs into reusable units.",
+        "Arrays, strings, and collections" to "Store sequences, access elements safely, and understand basic string operations.",
+        "Pointers, references, and a mini-project" to "Learn the basics of addresses and references, practise debugging, and build a small console program."
+      )
+      "Linux Fundamentals" -> listOf(
+        "Linux distributions and desktop" to "Understand the Linux kernel, distributions, desktop environments, and choosing a trusted distribution.",
+        "Files, folders, and paths" to "Navigate absolute and relative paths and understand the Linux directory hierarchy.",
+        "Essential terminal commands" to "Practise pwd, ls, cd, mkdir, cp, mv, cat, and man in a safe test folder.",
+        "Users, groups, and permissions" to "Understand ownership, read/write/execute permissions, and least-privilege access.",
+        "Packages and software updates" to "Use the distribution's trusted package manager and apply security updates.",
+        "Processes and system monitoring" to "Inspect running processes, resource usage, services, and logs with standard tools.",
+        "Networking and SSH basics" to "Check network status, understand IP addresses, and use secure remote access concepts.",
+        "Shell scripting and safe administration" to "Combine commands into simple scripts, inspect commands before running them, and avoid unsafe privileged commands."
+      )
+      "App Development" -> listOf(
+        "How mobile apps are built" to "Compare native, cross-platform, and web apps, and understand screens, state, and app lifecycle.",
+        "Plan screens and user journeys" to "Sketch the main screen, navigation, user tasks, empty states, and accessible controls.",
+        "UI components and responsive layouts" to "Use consistent typography, spacing, buttons, cards, and layouts that adapt to screen sizes.",
+        "State, events, and navigation" to "Handle taps, forms, screen transitions, loading states, and user feedback.",
+        "Local data and preferences" to "Choose suitable local storage for settings, notes, and structured records while protecting user data.",
+        "Connect to APIs safely" to "Understand requests and responses, handle loading/errors, and never embed private secrets in an app.",
+        "Testing, accessibility, and performance" to "Test common screen sizes, touch targets, error cases, accessibility, and startup performance.",
+        "Build, sign, and publish an app" to "Understand versioning, signing keys, release notes, APK/AAB builds, and safe update delivery."
+      )
+      "JavaScript" -> listOf(
+        "JavaScript and the browser" to "Understand where JavaScript runs and how it adds behaviour to HTML pages.",
+        "Variables, values, and types" to "Use const and let, strings, numbers, booleans, null, undefined, and type conversion.",
+        "Operators and conditions" to "Use comparisons, logical operators, if/else, and switch to make decisions.",
+        "Loops and functions" to "Repeat work safely and create reusable functions with parameters and return values.",
+        "Arrays and objects" to "Store lists and structured records, access properties, and use common array methods.",
+        "DOM selection and events" to "Select page elements, respond to clicks and input, and update content accessibly.",
+        "Forms, validation, and asynchronous work" to "Validate user input and understand promises, async/await, and fetch error handling.",
+        "Debugging and a mini-project" to "Use browser developer tools, read console errors, and build a small interactive page."
+      )
+            else -> listOf(
         "$courseTitle: key concepts" to "Learn the purpose, terminology, and everyday uses of $courseTitle.",
         "$courseTitle: tools and workspace" to "Identify common tools, interface elements, and safe setup practices.",
         "$courseTitle: essential workflow" to "Follow a beginner-friendly workflow and understand the main steps.",
