@@ -103,7 +103,68 @@ fun EducationalVisualDiagram(
       "ROM_FIRMWARE" -> RomFirmwareDiagram()
       "STORAGE_HDD_SSD" -> StorageHddSsdDiagram()
       "PORTS_CONNECTORS" -> PortsConnectorsDiagram()
+      "COURSE_HARDWARE" -> CourseTopicDiagram("Hardware", listOf("🧩" to "Identify parts", "⚙️" to "Check compatibility", "🔌" to "Connect safely", "🧪" to "Test components"))
+      "COURSE_SOFTWARE" -> CourseTopicDiagram("Software", listOf("📦" to "Choose trusted app", "⬇️" to "Install safely", "🛠️" to "Use and update", "🗑️" to "Remove if needed"))
+      "COURSE_OS" -> CourseTopicDiagram("Operating systems", listOf("👤" to "User request", "🧠" to "OS manages tasks", "💾" to "Resources assigned", "🖥️" to "App result shown"))
+      "COURSE_WINDOWS" -> CourseTopicDiagram("Windows workflow", listOf("🪟" to "Open Start/File Explorer", "📂" to "Choose a file", "✏️" to "Make a change", "✅" to "Save and verify"))
+      "COURSE_FILES" -> CourseTopicDiagram("File management", listOf("📁" to "Create folders", "📝" to "Name files clearly", "🔎" to "Find and organise", "☁️" to "Back up important data"))
+      "COURSE_INTERNET" -> CourseTopicDiagram("Internet request", listOf("📱" to "Enter a website", "🌐" to "DNS finds the server", "📡" to "Request travels online", "📄" to "Page returns to browser"))
+      "COURSE_NETWORKING" -> CourseTopicDiagram("Network communication", listOf("💻" to "Device sends data", "📶" to "Router forwards packets", "🌍" to "Network routes data", "🖥️" to "Destination responds"))
+      "COURSE_WORD" -> CourseTopicDiagram("Document workflow", listOf("📝" to "Write content", "🎨" to "Format with styles", "🔍" to "Review spelling", "📄" to "Save or export"))
+      "COURSE_EXCEL" -> CourseTopicDiagram("Spreadsheet workflow", listOf("📊" to "Enter data", "🧮" to "Add formulas", "📈" to "Analyse results", "📤" to "Share a report"))
+      "COURSE_POWERPOINT" -> CourseTopicDiagram("Presentation workflow", listOf("💡" to "Plan the message", "🖼️" to "Build slides", "🎬" to "Rehearse timing", "📽️" to "Present clearly"))
+      "COURSE_PROGRAMMING" -> CourseTopicDiagram("Programming loop", listOf("🎯" to "Define the problem", "⌨️" to "Write code", "🧪" to "Run and test", "🐞" to "Debug and improve"))
+      "COURSE_PYTHON" -> CourseTopicDiagram("Python workflow", listOf("📝" to "Write a script", "▶️" to "Run the interpreter", "🧠" to "Execute statements", "📤" to "Inspect the output"))
+      "COURSE_DATABASES" -> CourseTopicDiagram("Database workflow", listOf("🗂️" to "Structure tables", "🔑" to "Define keys", "🔎" to "Query with SQL", "📊" to "Check results"))
+      "COURSE_CYBER" -> CourseTopicDiagram("Security habits", listOf("🔐" to "Use strong passwords", "🛡️" to "Enable protection", "🔎" to "Check suspicious links", "💾" to "Keep safe backups"))
+      "COURSE_CLOUD" -> CourseTopicDiagram("Cloud workflow", listOf("📱" to "Choose a service", "☁️" to "Sync or upload", "🔒" to "Set access safely", "🔄" to "Restore or share"))
+      "COURSE_AI" -> CourseTopicDiagram("AI workflow", listOf("📚" to "Prepare data", "🧠" to "Train or prompt a model", "📊" to "Evaluate output", "🧑‍⚖️" to "Review for errors"))
+      "COURSE_TROUBLESHOOT" -> CourseTopicDiagram("Troubleshooting", listOf("👀" to "Observe symptoms", "🧩" to "Find likely cause", "🛠️" to "Try one safe fix", "✅" to "Verify and record"))
+      "COURSE_ADVANCED" -> CourseTopicDiagram("IT problem-solving", listOf("🎯" to "Define requirements", "🗺️" to "Plan a solution", "⚙️" to "Implement carefully", "📈" to "Monitor and improve"))
+      "COURSE_WEBDEV" -> CourseTopicDiagram("Website workflow", listOf("🏗️" to "HTML structure", "🎨" to "CSS design", "⚡" to "JavaScript actions", "🌍" to "Test and publish"))
       else -> IpoCycleDiagram()
+    }
+  }
+}
+
+@Composable
+private fun CourseTopicDiagram(title: String, stages: List<Pair<String, String>>) {
+  Column(modifier = Modifier.fillMaxWidth()) {
+    Text(
+      text = title.uppercase(),
+      style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp),
+      color = TechCyanAccent
+    )
+    Text(
+      text = "Visual guide • follow each step in order",
+      style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+      color = TextTertiary
+    )
+    Spacer(modifier = Modifier.height(12.dp))
+    stages.forEachIndexed { index, stage ->
+      Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+      ) {
+        Box(
+          modifier = Modifier.size(42.dp).clip(RoundedCornerShape(12.dp))
+            .background(TechBluePrimary.copy(alpha = 0.18f))
+            .border(1.dp, TechBluePrimary.copy(alpha = 0.55f), RoundedCornerShape(12.dp)),
+          contentAlignment = Alignment.Center
+        ) {
+          Text(text = stage.first, fontSize = 21.sp)
+        }
+        Column(modifier = Modifier.weight(1f)) {
+          Text(text = "STEP ${index + 1}", style = MaterialTheme.typography.labelSmall, color = TechCyanAccent)
+          Text(text = stage.second, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+        }
+        if (index < stages.lastIndex) {
+          Text(text = "↓", color = TechBluePrimary, fontSize = 18.sp)
+        } else {
+          Icon(imageVector = Icons.Filled.CheckCircle, contentDescription = "Final step", tint = TechGreen, modifier = Modifier.size(20.dp))
+        }
+      }
     }
   }
 }
